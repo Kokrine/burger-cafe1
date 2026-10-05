@@ -4,7 +4,7 @@ import { ADAPTIVE, DIFFICULTY } from '../../config/difficulty';
 import { ITEMS, PRODUCTS } from '../../config/economy';
 import { itemPrice } from '../economy';
 import {
-  budgetProblem, changeProblem, groupProblem, linePay, makeChoices, newAdaptive, packsProblem,
+  budgetProblem, changeProblem, cookTimeProblem, fractionProblem, groupProblem, hoursProblem, linePay, makeChoices, newAdaptive, packsProblem, prepProblem,
   purchaseProblem, shareProblem, sideQtyMax, sumProblem, updateAdaptive, type Line,
 } from './generator';
 import { additionSteps, divisionSteps, multiplicationSteps, subtractionSteps } from './steps';
@@ -216,5 +216,47 @@ describe('ვარიანტები (1 კლასი)', () => {
       expect(c).toContain(ans);
       for (const v of c) expect(v).toBeGreaterThanOrEqual(0);
     }
+  });
+});
+
+describe('დრო და წილადები (დილის მომზადება)', () => {
+  const rnds = Array.from({ length: 60 }, (_, i) => { let s = i + 1; return () => { s = (s * 16807) % 2147483647; return s / 2147483647; }; });
+  it('საათები: პასუხი = დახურვა − გახსნა; 1 კლასში ≤ 20 და არჩევით', () => {
+    for (const r of rnds) for (const g of [1, 2, 3, 4] as const) {
+      const p = hoursProblem(g, r);
+      const open = parseInt(String(p.vars.open)), close = parseInt(String(p.vars.close));
+      expect(p.answer).toBe(close - open);
+      expect(p.answer).toBeGreaterThan(0);
+      if (g === 1) { expect(close).toBeLessThanOrEqual(20); expect(p.input).toBe('choice'); }
+      expect(p.steps.at(-1)!.value).toBe(p.answer);
+    }
+  });
+  it('კოტლეტის წუთები: საათის გადაკვეთით სწორად ითვლის; 1–2 კლასში არ არის', () => {
+    expect(cookTimeProblem(2, rnds[0])).toBeNull();
+    for (const r of rnds) for (const g of [3, 4] as const) {
+      const p = cookTimeProblem(g, r)!;
+      const [h0, m0] = String(p.vars.start).split(':').map(Number), [h1, m1] = String(p.vars.end).split(':').map(Number);
+      expect(p.answer).toBe(h1 * 60 + m1 - (h0 * 60 + m0));
+      expect(p.steps.at(-1)!.value).toBe(p.answer);
+    }
+  });
+  it('წილადები: მთელი რიცხვი, ნაბიჯები სწორი; 4 კლასში ¾ და ⅔-იც', () => {
+    expect(fractionProblem(2, 2, rnds[0])).toBeNull();
+    const seen = new Set<string>();
+    for (const r of rnds) for (const g of [3, 4] as const) {
+      const p = fractionProblem(g, 2, r)!;
+      expect(Number.isInteger(p.answer)).toBe(true);
+      expect(p.steps.at(-1)!.value).toBe(p.answer);
+      expect(p.answer).toBeLessThan(Number(p.vars.total));
+      if (g === 3) expect(['ნახევარი (½)', 'მესამედი (⅓)', 'მეოთხედი (¼)']).toContain(p.vars.frac);
+      seen.add(String(p.vars.frac));
+    }
+    expect(seen.has('სამი მეოთხედი (¾)')).toBe(true);
+  });
+  it('დილის ამოცანა: ყველა კლასს აქვს; სახეობები კლასის მიხედვით', () => {
+    const kinds = (g: 1 | 2 | 3 | 4) => new Set(rnds.map((r) => prepProblem(g, { sub: 2, div: 2 }, r)?.kind));
+    expect([...kinds(1)]).toEqual(['hours']);
+    expect(kinds(2).has('cookTime')).toBe(false);
+    expect(kinds(3)).toEqual(new Set(['hours', 'group', 'cookTime', 'fraction']));
   });
 });

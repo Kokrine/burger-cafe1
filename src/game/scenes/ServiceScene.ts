@@ -17,7 +17,7 @@ import { burgerDone, canAdd, canMake, layerFor, makeFeasibleOrder, matches, used
 import { askStockout } from '../../ui/stockoutModal';
 import { cashierPlan } from '../../logic/cashier';
 import { buyEmergency, closeService, consume, dayGoal, ensureToday, neededStock, noteStockout, receiveDelivery, recordSale } from '../../logic/day';
-import { groupProblem, sideQtyMax } from '../../logic/math/generator';
+import { prepProblem, sideQtyMax } from '../../logic/math/generator';
 import { S, t } from '../../i18n/strings.ka';
 import { play, startMusic, stopMusic } from '../../audio/sfx';
 import { banner, flyCoins, reducedMotion } from '../../ui/fx';
@@ -166,7 +166,8 @@ export class ServiceScene extends CafeScene {
   /** დილის მომზადება (2+ კლასი): 12 კოტლეტი 4 თეფშზე თანაბრად. */
   private async prep(p: Progress) {
     // გაგრძელებულ დღეზე (გვერდის გადატვირთვის შემდეგ) მომზადება უკვე გაკეთებულია
-    const pr = (p.today?.seen ?? 0) > 0 ? null : groupProblem(this.grade, p.adaptive?.div.level ?? 2);
+    // სახეობა კლასის მიხედვით: გაყოფა თეფშებზე, საათები, კოტლეტის წუთები, წილადები
+    const pr = (p.today?.seen ?? 0) > 0 ? null : prepProblem(this.grade, { sub: p.adaptive?.sub.level ?? 2, div: p.adaptive?.div.level ?? 2 });
     if (pr) {
       this.pauses.add('prep');
       await askProblem(S.service.prepTitle, pr, { cancellable: false });

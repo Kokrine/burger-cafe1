@@ -16,7 +16,8 @@ export type Kind =
   | 'remain' | 'payChange' | 'bills'          // მაღაზია
   | 'sum' | 'sumPromo' | 'change' | 'share'   // სალარო
   | 'group' | 'groupRem' | 'packs' | 'budget'  // საწყობი / სამზარეულო
-  | 'revenue' | 'expenses' | 'profit' | 'loss'; // საღამოს ანგარიში
+  | 'revenue' | 'expenses' | 'profit' | 'loss'  // საღამოს ანგარიში
+  | 'hours' | 'cookTime' | 'fraction';         // დილის მომზადება: დრო, წილადები
 
 export interface Problem {
   kind: Kind;

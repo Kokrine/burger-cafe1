@@ -225,3 +225,71 @@ export function profitProblem(revenue: number, expenses: number, grade: Grade, r
     steps: subtractionSteps(a, b), hint: subHint(a, b),
   }, grade, rnd);
 }
+
+// ---------------- დრო და წილადები (დილის მომზადება) ----------------
+
+const two = (n: number) => String(n).padStart(2, '0');
+
+/** „კაფე 9:00-დან 13:00-მდე მუშაობს — რამდენი საათი?" (1 კლასში — პატარა რიცხვებით). */
+export function hoursProblem(grade: Grade, rnd: Rnd = Math.random): Problem {
+  const open = grade === 1 ? rint(8, 10, rnd) : rint(7, 11, rnd);
+  const close = grade === 1 ? open + rint(2, 5, rnd) : rint(Math.max(open + 3, 14), 21, rnd);
+  return finalize({
+    kind: 'hours', vars: { open: `${open}:00`, close: `${close}:00` }, op: 'sub', answer: close - open,
+    steps: [{ expr: `${close} − ${open}`, value: close - open }], hint: { type: 'line', from: open, to: close },
+  }, grade, rnd);
+}
+
+/** „კოტლეტი 10:50-ზე დადე, 11:05-ზე მზად იყო — რამდენი წუთი იწვებოდა?" (3–4 კლასი, საათის გადაკვეთით). */
+export function cookTimeProblem(grade: Grade, rnd: Rnd = Math.random): Problem | null {
+  if (grade < 3) return null;
+  const h = rint(9, 16, rnd);
+  const m0 = pick([30, 35, 40, 45, 50, 55], rnd);
+  const dur = pick(grade === 4 ? [15, 20, 25, 30, 35, 40] : [10, 15, 20, 25], rnd);
+  const end = m0 + dur;
+  const h1 = h + Math.floor(end / 60), m1 = end % 60;
+  const toHour = 60 - m0;
+  const steps: Step[] = end >= 60
+    ? [{ expr: `60 − ${m0}`, value: toHour }, { expr: `${toHour} + ${m1}`, value: dur }]
+    : [{ expr: `${m1} − ${m0}`, value: dur }];
+  return finalize({
+    kind: 'cookTime', vars: { start: `${h}:${two(m0)}`, end: `${h1}:${two(m1)}` }, op: 'sub', answer: dur,
+    steps, hint: { type: 'line', from: m0, to: end },
+  }, grade, rnd);
+}
+
+/** წილადები, რომლებსაც კლასი სწავლობს: [მრიცხველი, მნიშვნელი]. */
+const FRACTIONS: Record<number, [number, number][]> = {
+  3: [[1, 2], [1, 3], [1, 4]],
+  4: [[1, 2], [1, 3], [1, 4], [3, 4], [2, 3], [1, 5]],
+};
+
+/** „12 ფუნთუშის მეოთხედი (¼) — რამდენია?" (3–4 კლასი). */
+export function fractionProblem(grade: Grade, level = ADAPTIVE.start, rnd: Rnd = Math.random): Problem | null {
+  const list = FRACTIONS[grade];
+  if (!list) return null;
+  const [num, den] = pick(list, rnd);
+  const unit = rint(2, grade === 4 ? 6 + level * 2 : 4 + level, rnd); // ერთი წილის ზომა
+  const total = unit * den;
+  const answer = unit * num;
+  const steps: Step[] = [{ expr: `${total} ÷ ${den}`, value: unit }];
+  if (num > 1) steps.push({ expr: `${unit} × ${num}`, value: answer });
+  return finalize({
+    kind: 'fraction', vars: { total, frac: FRACTION_WORDS[`${num}/${den}`] ?? `${num}/${den}` }, op: 'div', answer,
+    steps, hint: { type: 'share', total, parts: den, icon: 'layer_bun_top' },
+  }, grade, rnd);
+}
+
+/** წილადის სიტყვიერი სახელი (სიმბოლოთი) — ხმით კითხვისთვისაც გასაგებია. */
+export const FRACTION_WORDS: Record<string, string> = {
+  '1/2': 'ნახევარი (½)', '1/3': 'მესამედი (⅓)', '1/4': 'მეოთხედი (¼)', '1/5': 'მეხუთედი (⅕)',
+  '3/4': 'სამი მეოთხედი (¾)', '2/3': 'ორი მესამედი (⅔)',
+};
+
+/** დილის მომზადების ამოცანა: სახეობა კლასის მიხედვით (გაყოფა, საათები, წუთები, წილადები). */
+export function prepProblem(grade: Grade, levels: { sub: number; div: number }, rnd: Rnd = Math.random): Problem | null {
+  const options: (() => Problem | null)[] = [() => hoursProblem(grade, rnd)];
+  if (allows(grade, 'div')) options.push(() => groupProblem(grade, levels.div, rnd), () => groupProblem(grade, levels.div, rnd));
+  if (grade >= 3) options.push(() => cookTimeProblem(grade, rnd), () => fractionProblem(grade, levels.div, rnd));
+  return pick(options, rnd)();
+}

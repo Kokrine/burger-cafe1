@@ -791,3 +791,6 @@ button { -webkit-tap-highlight-color: transparent; }
 .menu-quests h3 { cursor: pointer; }
 .menu-quests:not(.open) .quest { display: none; }
 .menu-quests.open { width: 300px; }
+/* მინიშნება „დაარიგე": ხატულა თეფშზე ყოველთვის თეფშის ზომისაა (ფუნთუშა, კოტლეტი, მონეტა) */
+.group.plate .c { display: grid; place-items: center; width: 100%; height: 100%; }
+.group.plate .c img { width: 46px; height: 46px; object-fit: contain; }
