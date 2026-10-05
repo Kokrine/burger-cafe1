@@ -17,7 +17,7 @@ html, body { height: 100%; overflow: hidden; }
 @keyframes popNum { 40% { transform: scale(1.35); color: var(--c-success-dark); } }
 
 /* ---------- მთავარი მენიუ ---------- */
-.title-card { padding: 12px 22px; border-radius: var(--r-lg); }
+.title-card { padding: 12px 22px; border-radius: var(--r-lg); max-width: calc(100vw - 290px); } /* მარჯვნივ დღის დავალებებია — ფილიალის ჩიპი ახალ ხაზზე გადადის */
 .title-card h1 { margin: 0; font-size: clamp(22px, 2.6vw, 34px); font-weight: 900; line-height: 1.15; }
 .level-chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-weight: 800; font-size: 16px; background: var(--c-cheese); border: 2.5px solid var(--c-ink); border-radius: 99px; padding: 2px 12px 2px 4px; }
 .level-chip img { width: 26px; height: 26px; }
