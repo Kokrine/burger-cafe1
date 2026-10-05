@@ -21,12 +21,12 @@ export type ProductId = 'burger' | 'cheeseburger' | 'double' | 'juice' | 'fries'
 
 /** ფასი და თვითღირებულება თითოეული კლასისთვის ცალკე: [გასაყიდი, თვითღირებულება]. */
 export const PRODUCTS: Record<ProductId, { icon: string; prices: Record<Grade, [number, number]>; unlockedBy?: string }> = {
-  burger: { icon: 'menu_burger', prices: { 1: [3, 1], 2: [5, 2], 3: [8, 3], 4: [12, 5] } },
-  juice: { icon: 'menu_juice', prices: { 1: [2, 1], 2: [2, 1], 3: [3, 1], 4: [4, 2] } },
-  cheeseburger: { icon: 'menu_cheeseburger', prices: { 1: [4, 2], 2: [7, 3], 3: [10, 4], 4: [15, 6] }, unlockedBy: 'recipeCheese' },
-  double: { icon: 'menu_double', prices: { 1: [5, 3], 2: [10, 5], 3: [15, 7], 4: [24, 11] }, unlockedBy: 'recipeDouble' },
-  fries: { icon: 'fries', prices: { 1: [2, 1], 2: [3, 1], 3: [4, 2], 4: [6, 2] }, unlockedBy: 'fryer' },
-  icecream: { icon: 'menu_icecream', prices: { 1: [3, 1], 2: [4, 2], 3: [6, 3], 4: [9, 4] }, unlockedBy: 'iceCream' },
+  burger: { icon: 'menu_burger', prices: { 1: [3, 1], 2: [6, 2], 3: [10, 3], 4: [15, 5] } },
+  juice: { icon: 'menu_juice', prices: { 1: [2, 1], 2: [3, 1], 3: [4, 1], 4: [5, 2] } },
+  cheeseburger: { icon: 'menu_cheeseburger', prices: { 1: [4, 2], 2: [8, 3], 3: [12, 4], 4: [18, 6] }, unlockedBy: 'recipeCheese' },
+  double: { icon: 'menu_double', prices: { 1: [5, 3], 2: [10, 5], 3: [16, 7], 4: [25, 11] }, unlockedBy: 'recipeDouble' },
+  fries: { icon: 'fries', prices: { 1: [2, 1], 2: [4, 1], 3: [5, 2], 4: [8, 2] }, unlockedBy: 'fryer' },
+  icecream: { icon: 'menu_icecream', prices: { 1: [3, 1], 2: [5, 2], 3: [7, 3], 4: [10, 4] }, unlockedBy: 'iceCream' },
 };
 export const START_MENU: ProductId[] = ['burger', 'juice'];
 
@@ -113,17 +113,17 @@ export type StockId = 'bun' | 'patty' | 'cheese' | 'tomato' | 'lettuce' | 'onion
 
 /** შეკვრა: რამდენი ცალი/პორციაა და რა ღირს (კლასების მიხედვით 1..4). */
 export const STOCK: Record<StockId, { icon: string; pack: number; price: Record<Grade, number> }> = {
-  bun: { icon: 'layer_bun_top', pack: 4, price: { 1: 2, 2: 3, 3: 4, 4: 8 } },
-  patty: { icon: 'layer_patty', pack: 4, price: { 1: 3, 2: 5, 3: 8, 4: 15 } },
-  cheese: { icon: 'layer_cheese', pack: 5, price: { 1: 2, 2: 3, 3: 5, 4: 10 } },
-  tomato: { icon: 'layer_tomato', pack: 5, price: { 1: 1, 2: 2, 3: 3, 4: 6 } },
-  lettuce: { icon: 'layer_lettuce', pack: 5, price: { 1: 1, 2: 2, 3: 3, 4: 5 } },
-  onion: { icon: 'layer_onion', pack: 5, price: { 1: 1, 2: 2, 3: 2, 4: 4 } },
-  ketchup: { icon: 'layer_ketchup', pack: 8, price: { 1: 2, 2: 3, 3: 4, 4: 8 } },
-  mayo: { icon: 'layer_mayo', pack: 8, price: { 1: 2, 2: 3, 3: 4, 4: 8 } },
-  juice: { icon: 'menu_juice', pack: 6, price: { 1: 2, 2: 3, 3: 5, 4: 10 } },
-  potato: { icon: 'fries', pack: 5, price: { 1: 2, 2: 3, 3: 5, 4: 9 } },
-  icecream: { icon: 'menu_icecream', pack: 6, price: { 1: 3, 2: 5, 3: 8, 4: 15 } },
+  bun: { icon: 'layer_bun_top', pack: 6, price: { 1: 2, 2: 3, 3: 4, 4: 8 } },
+  patty: { icon: 'layer_patty', pack: 6, price: { 1: 3, 2: 5, 3: 8, 4: 15 } },
+  cheese: { icon: 'layer_cheese', pack: 6, price: { 1: 2, 2: 3, 3: 5, 4: 10 } },
+  tomato: { icon: 'layer_tomato', pack: 6, price: { 1: 1, 2: 2, 3: 3, 4: 6 } },
+  lettuce: { icon: 'layer_lettuce', pack: 6, price: { 1: 1, 2: 2, 3: 3, 4: 5 } },
+  onion: { icon: 'layer_onion', pack: 6, price: { 1: 1, 2: 2, 3: 2, 4: 4 } },
+  ketchup: { icon: 'layer_ketchup', pack: 10, price: { 1: 2, 2: 3, 3: 4, 4: 8 } },
+  mayo: { icon: 'layer_mayo', pack: 10, price: { 1: 2, 2: 3, 3: 4, 4: 8 } },
+  juice: { icon: 'menu_juice', pack: 8, price: { 1: 2, 2: 3, 3: 5, 4: 10 } },
+  potato: { icon: 'fries', pack: 6, price: { 1: 2, 2: 3, 3: 5, 4: 9 } },
+  icecream: { icon: 'menu_icecream', pack: 8, price: { 1: 3, 2: 5, 3: 8, 4: 15 } },
 };
 
 /** რომელი პროდუქტისთვისაა საჭირო (საწყობში მხოლოდ საჭირო ინგრედიენტები ჩანს). */
@@ -133,7 +133,7 @@ export const SIDE_STOCK: Record<'juice' | 'fries' | 'icecream', StockId> = { jui
 export const START_STOCK: Partial<Record<StockId, number>> = { bun: 8, patty: 8, ketchup: 8, mayo: 8, lettuce: 5, juice: 6 };
 
 /** ქირა და კომუნალური დღეში: კლასის ბაზა × კაფეს დონის კოეფიციენტი. */
-export const RENT_BASE: Record<Grade, number> = { 1: 2, 2: 5, 3: 10, 4: 20 };
+export const RENT_BASE: Record<Grade, number> = { 1: 1, 2: 3, 3: 6, 4: 12 };
 export const RENT_LEVEL = [1, 1, 1.5, 2, 3];
 
 /** მეორე ფილიალის დღიური შემოსავალი (საბაზისო, მრავლდება GRADE_SCALE-ზე). */

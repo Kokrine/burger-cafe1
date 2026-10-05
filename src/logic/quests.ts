@@ -17,7 +17,7 @@ export interface Quest {
 }
 
 /** ბიზნესის დავალების ფულადი ჯილდო (კლასის მასშტაბით, როგორც ფასები). */
-export const QUEST_MONEY_BASE = 6;
+export const QUEST_MONEY_BASE = 12;
 export const QUEST_STARS = 2;
 export const QUEST_POINTS = 15;
 

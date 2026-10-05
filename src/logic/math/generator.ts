@@ -293,10 +293,147 @@ export const FRACTION_WORDS: Record<string, string> = {
   '3/4': 'სამი მეოთხედი (¾)', '2/3': 'ორი მესამედი (⅔)',
 };
 
-/** დილის მომზადების ამოცანა: სახეობა კლასის მიხედვით (გაყოფა, საათები, წუთები, წილადები). */
-export function prepProblem(grade: Grade, levels: { sub: number; div: number }, rnd: Rnd = Math.random, hours?: [number, number]): Problem | null {
-  const options: (() => Problem | null)[] = [() => hoursProblem(grade, rnd, hours)];
-  if (allows(grade, 'div')) options.push(() => groupProblem(grade, levels.div, rnd), () => groupProblem(grade, levels.div, rnd));
-  if (grade >= 3) options.push(() => cookTimeProblem(grade, rnd), () => fractionProblem(grade, levels.div, rnd));
-  return pick(options, rnd)();
+// ---------------- დილის მომზადება: შეკრება, გამოკლება, მიმდევრობა, გამრავლება ----------------
+
+/** რიცხვების ზედა ზღვარი კლასისა და ადაპტური დონის მიხედვით. */
+const cap = (grade: Grade, level: number) => Math.max(10, Math.floor(gradeMax(grade) * ADAPTIVE.range[level]));
+
+/** კაფესთვის დამაჯერებელი ზღვარი: 4 კლასშიც „5400 კლიენტი დღეში" არ უნდა ეწეროს. */
+const real = (grade: Grade, level: number, limit: number) => Math.min(cap(grade, level), limit);
+
+/** „გუშინ 12 კლიენტი მოვიდა, დღეს 5-ით მეტს ელოდები — რამდენი?" */
+export function customersProblem(grade: Grade, level = ADAPTIVE.start, rnd: Rnd = Math.random): Problem {
+  const c = real(grade, level, 500);
+  const a = rint(Math.max(2, Math.floor(c * 0.25)), Math.floor(c * 0.6), rnd);
+  const b = rint(1, Math.max(1, Math.min(c - a, Math.floor(c * 0.4))), rnd);
+  return finalize({ kind: 'customers', vars: { a, b }, op: 'add', answer: a + b, steps: additionSteps([a, b]), hint: addHint([a, b]) }, grade, rnd);
+}
+
+const STOCK_WORDS = ['ფუნთუშა', 'კოტლეტი', 'პომიდორი', 'ყველის ნაჭერი', 'წვენის ბოთლი'];
+
+/** „საწყობში 18 ფუნთუშა იყო, 7 გამოიყენე — რამდენი დარჩა?" */
+export function stockLeftProblem(grade: Grade, level = ADAPTIVE.start, rnd: Rnd = Math.random): Problem {
+  const c = real(grade, level, 600);
+  const a = rint(Math.max(3, Math.floor(c * 0.4)), c, rnd);
+  const b = rint(1, a - 1, rnd);
+  return finalize({ kind: 'stockLeft', vars: { a, b, item: pick(STOCK_WORDS, rnd) }, op: 'sub', answer: a - b, steps: subtractionSteps(a, b), hint: subHint(a, b) }, grade, rnd);
+}
+
+/** უცნობი შესაკრები: „15 ბურგერი უნდა გააკეთო, 9 მზადაა — კიდევ რამდენი?" */
+export function missingProblem(grade: Grade, level = ADAPTIVE.start, rnd: Rnd = Math.random): Problem {
+  const c = real(grade, level, 300);
+  const total = rint(Math.max(3, Math.floor(c * 0.4)), c, rnd);
+  const done = rint(1, total - 1, rnd);
+  return finalize({ kind: 'missing', vars: { total, done }, op: 'sub', answer: total - done, steps: subtractionSteps(total, done), hint: subHint(total, done) }, grade, rnd);
+}
+
+/** შედარება: „ორშაბათს 14 ბურგერი გაიყიდა, სამშაბათს 9 — რამდენით მეტი?" */
+export function compareProblem(grade: Grade, level = ADAPTIVE.start, rnd: Rnd = Math.random): Problem {
+  const c = real(grade, level, 500);
+  const a = rint(Math.max(3, Math.floor(c * 0.5)), c, rnd);
+  const b = rint(1, a - 1, rnd);
+  return finalize({ kind: 'compare', vars: { a, b }, op: 'sub', answer: a - b, steps: subtractionSteps(a, b), hint: subHint(a, b) }, grade, rnd);
+}
+
+/** მიმდევრობის ბიჯები კლასის მიხედვით. */
+const PATTERN_STEPS: Record<Grade, number[]> = { 1: [1, 2, 3], 2: [2, 5, 10], 3: [3, 4, 5, 6, 25, 50], 4: [7, 8, 9, 25, 125, 250] };
+
+/** „ყოველ საათში მეტი შემოდის: 2, 4, 6, 8 … რამდენი შემდეგ?" (2+ კლასში — კლებადიც). */
+export function patternProblem(grade: Grade, level = ADAPTIVE.start, rnd: Rnd = Math.random): Problem {
+  const c = cap(grade, level);
+  const d = pick(PATTERN_STEPS[grade].filter((x) => x * 5 <= c), rnd) ?? 1;
+  const down = grade >= 2 && rnd() < 0.4;
+  const span = 4 * d; // ოთხი ნაბიჯი პირველი წევრიდან პასუხამდე
+  // საწყისი — ბიჯის ათმაგამდე (5405, 5413, … კი არა, 40, 48, 56, …)
+  const top = Math.min(c, span + 10 * d);
+  const start = down ? rint(span + 1, Math.max(span + 1, top), rnd) : rint(d <= 3 ? 1 : 0, Math.max(1, Math.min(c - span, 10 * d)), rnd);
+  const seq = [0, 1, 2, 3].map((i) => start + (down ? -i : i) * d);
+  const last = seq[3];
+  const answer = down ? last - d : last + d;
+  return finalize({
+    kind: down ? 'patternDown' : 'pattern', vars: { seq: seq.join(', ') }, op: down ? 'sub' : 'add', answer,
+    // ჯერ ბიჯი (რამდენით იცვლება), მერე — შემდეგი წევრი
+    steps: [{ expr: down ? `${seq[0]} − ${seq[1]}` : `${seq[1]} − ${seq[0]}`, value: d }, { expr: `${last} ${down ? '−' : '+'} ${d}`, value: answer }],
+    hint: { type: 'line', from: Math.min(last, answer), to: Math.max(last, answer) },
+  }, grade, rnd);
+}
+
+/** „ორმაგ ბურგერში 2 კოტლეტია — 7 ორმაგს რამდენი სჭირდება?" (1 კლასში — შეკრებით). */
+export function doublePattyProblem(grade: Grade, level = ADAPTIVE.start, rnd: Rnd = Math.random): Problem {
+  const n = rint(2, Math.max(3, Math.min(Math.floor(cap(grade, level) / 2), grade === 1 ? 9 : grade === 2 ? 40 : 150)), rnd);
+  const asAdd = !allows(grade, 'mul');
+  return finalize({
+    kind: 'doublePatty', vars: { n }, op: asAdd ? 'add' : 'mul', answer: 2 * n,
+    steps: asAdd ? additionSteps([n, n]) : multiplicationSteps(2, n), hint: asAdd ? addHint([n, n]) : { type: 'groups', groups: 2, size: n, icon: 'grill_patty_ready' },
+  }, grade, rnd);
+}
+
+/** „კაფეში 5 მაგიდაა, თითოეულთან 4 სკამი — სულ რამდენი?" (2+ კლასი). */
+export function chairsProblem(grade: Grade, level = ADAPTIVE.start, rnd: Rnd = Math.random): Problem | null {
+  const conf = DIFFICULTY[grade];
+  if (!allows(grade, 'mul') || !conf.factors.length) return null;
+  const n = pick(conf.factors, rnd);
+  const kMax = grade === 4 ? 12 + level * 3 : grade === 3 ? 9 + level : 10;
+  const k = rint(2, Math.max(2, Math.min(kMax, Math.floor(conf.max / n))), rnd);
+  return finalize({
+    kind: 'chairs', vars: { n, k }, op: 'mul', answer: n * k,
+    steps: multiplicationSteps(n, k), hint: { type: 'groups', groups: n, size: k, icon: 'icon_people' },
+  }, grade, rnd);
+}
+
+/** ორნაბიჯიანი: „კაფე 10:00–16:00 მუშაობს, ყოველ საათში 8 კლიენტი — სულ?" (3–4 კლასი, დღის საათებით). */
+export function hoursMulProblem(grade: Grade, rnd: Rnd = Math.random, hours: [number, number] = dayHours(grade, rnd)): Problem | null {
+  if (grade < 3) return null;
+  const [open, close] = hours;
+  const h = close - open;
+  const factors = DIFFICULTY[grade].factors;
+  if (!factors.includes(h)) return null; // საათების რაოდენობა კლასის ტაბულის ფარგლებში უნდა იყოს
+  const k = pick(factors.filter((x) => x >= 3), rnd);
+  return finalize({
+    kind: 'hoursMul', vars: { open: `${open}:00`, close: `${close}:00`, k }, op: 'mul', answer: h * k,
+    steps: [{ expr: `${close} − ${open}`, value: h }, ...multiplicationSteps(h, k)], hint: { type: 'groups', groups: h, size: k, icon: 'icon_people' },
+  }, grade, rnd);
+}
+
+/** პერიმეტრი: „მაგიდის გვერდები 6 დმ და 4 დმ — ირგვლივ რამდენი ლენტი?" (3–4 კლასი). */
+export function perimeterProblem(grade: Grade, level = ADAPTIVE.start, rnd: Rnd = Math.random): Problem | null {
+  if (grade < 3) return null;
+  const hi = grade === 4 ? 20 + level * 10 : 8 + level * 3;
+  const a = rint(3, hi, rnd);
+  const b = rint(2, a, rnd);
+  return finalize({
+    kind: 'perimeter', vars: { a, b }, op: 'add', answer: 2 * (a + b),
+    steps: [{ expr: `${a} + ${b}`, value: a + b }, { expr: `${a + b} + ${a + b}`, value: 2 * (a + b) }],
+    hint: { type: 'line', from: a + b, to: 2 * (a + b) },
+  }, grade, rnd);
+}
+
+export interface PrepLevels { add?: number; sub: number; mul?: number; div: number }
+
+/**
+ * დილის მომზადების ამოცანა: ბევრი სახეობიდან (კლასის მიხედვით).
+ * avoid — წინა დღის სახეობა, ზედიზედ ორჯერ რომ არ განმეორდეს.
+ */
+export function prepProblem(grade: Grade, levels: PrepLevels, rnd: Rnd = Math.random, hours?: [number, number], avoid?: string): Problem | null {
+  const add = levels.add ?? ADAPTIVE.start, mul = levels.mul ?? ADAPTIVE.start;
+  const options: (() => Problem | null)[] = [
+    () => hoursProblem(grade, rnd, hours),
+    () => customersProblem(grade, add, rnd),
+    () => stockLeftProblem(grade, levels.sub, rnd),
+    () => missingProblem(grade, levels.sub, rnd),
+    () => compareProblem(grade, levels.sub, rnd),
+    () => patternProblem(grade, add, rnd),
+    () => doublePattyProblem(grade, mul, rnd),
+  ];
+  if (allows(grade, 'div')) options.push(() => groupProblem(grade, levels.div, rnd));
+  if (allows(grade, 'mul')) options.push(() => chairsProblem(grade, mul, rnd));
+  if (grade >= 3) {
+    options.push(() => cookTimeProblem(grade, rnd), () => fractionProblem(grade, levels.div, rnd), () => perimeterProblem(grade, add, rnd));
+    if (hours) options.push(() => hoursMulProblem(grade, rnd, hours));
+  }
+  for (let tries = 0; tries < 8; tries++) {
+    const pr = pick(options, rnd)();
+    if (pr && pr.kind !== avoid) return pr;
+  }
+  return hoursProblem(grade, rnd, hours);
 }

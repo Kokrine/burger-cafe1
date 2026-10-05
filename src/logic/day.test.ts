@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { newProgress } from '../core/store';
-import { STOCK } from '../config/economy';
+import { PRODUCTS, STOCK } from '../config/economy';
 import { DIFFICULTY } from '../config/difficulty';
 import type { Grade } from '../core/types';
 import { buyPacks, cartCost, consume, ensureToday, finishDay, forecast, makeReport, neededStock, recordSale, rentFor, supplierAid } from './day';
@@ -51,12 +51,13 @@ describe('საწყობი', () => {
 describe('დღის ანგარიში', () => {
   it('შემოსავალი = გაყიდვები + ჩაი; ხარჯი = ინგრედიენტები + ქირა; მოგება = სხვაობა', () => {
     const p = newProgress(3);
+    const B = PRODUCTS.burger.prices[3][0], J = PRODUCTS.juice.prices[3][0];
     buyPacks(p, { bun: 2 });
-    recordSale(p, ['burger', 'juice'], 11, 2);
-    recordSale(p, ['burger'], 8, 1);
+    recordSale(p, ['burger', 'juice'], B + J, 2);
+    recordSale(p, ['burger'], B, 1);
     const r = makeReport(p.today!, 3);
-    expect(r.revenue).toBe(22);
-    expect(r.revenueRows.find((x) => x.id === 'burger')).toMatchObject({ qty: 2, price: 8, sum: 16 });
+    expect(r.revenue).toBe(2 * B + J + 3);
+    expect(r.revenueRows.find((x) => x.id === 'burger')).toMatchObject({ qty: 2, price: B, sum: 2 * B });
     expect(r.tips).toBe(3);
     expect(r.discount).toBe(0);
     expect(r.expenses).toBe(2 * STOCK.bun.price[3] + rentFor(p));
@@ -64,9 +65,10 @@ describe('დღის ანგარიში', () => {
   });
   it('აქციის ფასდაკლება ჩანს ცალკე ხაზად', () => {
     const p = newProgress(4);
-    recordSale(p, ['burger', 'juice', 'juice', 'juice'], 12 + 2 * 4, 0);
+    const B = PRODUCTS.burger.prices[4][0], J = PRODUCTS.juice.prices[4][0];
+    recordSale(p, ['burger', 'juice', 'juice', 'juice'], B + 2 * J, 0); // 3 წვენი 2-ის ფასად
     const r = makeReport(p.today!, 4);
-    expect(r.discount).toBe(4);
+    expect(r.discount).toBe(J);
   });
   it('მიზნის შესრულება ხსნის შემდეგ დღეს; ქირა იხდება; ისტორია იწერება', () => {
     const p = newProgress(2);
@@ -121,11 +123,12 @@ describe('დღის მდგრადობა', () => {
     const p = newProgress(3);
     const t = ensureToday(p);
     expect(t.grade).toBe(3);
-    recordSale(p, ['burger'], 8, 0);
+    const B = PRODUCTS.burger.prices[3][0];
+    recordSale(p, ['burger'], B, 0);
     p.grade = 1; // მაგ. მასწავლებელმა კლასის დონე შეცვალა
     const { report } = finishDay(p);
     expect(report.discount).toBe(0); // სტრიქონების ჯამი = შემოსავალი, ყალბი „ფასდაკლება" არ ჩნდება
-    expect(report.revenueRows[0].price).toBe(8);
+    expect(report.revenueRows[0].price).toBe(B);
   });
   it('სოუსის გარეშე ბურგერი არ კეთდება — საწყობი ამას ამოწმებს', () => {
     const have = (s: Record<string, number>) => (id: string) => s[id] ?? 0;

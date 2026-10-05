@@ -187,8 +187,11 @@ export class ServiceScene extends CafeScene {
   private async prep(p: Progress) {
     // გაგრძელებულ დღეზე (გვერდის გადატვირთვის შემდეგ) მომზადება უკვე გაკეთებულია
     // სახეობა კლასის მიხედვით: გაყოფა თეფშებზე, საათები, კოტლეტის წუთები, წილადები
-    const pr = (p.today?.seen ?? 0) > 0 ? null : prepProblem(this.grade, { sub: p.adaptive?.sub.level ?? 2, div: p.adaptive?.div.level ?? 2 }, Math.random, this.hours);
+    const lv = (op: 'add' | 'sub' | 'mul' | 'div') => p.adaptive?.[op].level ?? 2;
+    const pr = (p.today?.seen ?? 0) > 0 ? null
+      : prepProblem(this.grade, { add: lv('add'), sub: lv('sub'), mul: lv('mul'), div: lv('div') }, Math.random, this.hours, p.lastPrep);
     if (pr) {
+      store.update((q) => { q.lastPrep = pr.kind; });
       this.pauses.add('prep');
       await askProblem(S.service.prepTitle, pr, { cancellable: false });
       this.pauses.delete('prep');
@@ -859,7 +862,7 @@ export class ServiceScene extends CafeScene {
     const totalPrice = plan.total;
 
     const tipBase = SERVICE.tip[c.mood];
-    const tip = Math.floor(tipBase * (GRADE_SCALE[this.grade] >= 1 ? GRADE_SCALE[this.grade] : 0.5));
+    const tip = Math.round(tipBase * (GRADE_SCALE[this.grade] >= 1 ? GRADE_SCALE[this.grade] : 0.5));
     const earned = totalPrice + tip;
     store.update((q) => {
       q.money += earned;

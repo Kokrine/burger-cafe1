@@ -17,7 +17,10 @@ export type Kind =
   | 'sum' | 'sumPromo' | 'change' | 'share'   // სალარო
   | 'group' | 'groupRem' | 'packs' | 'budget'  // საწყობი / სამზარეულო
   | 'revenue' | 'expenses' | 'profit' | 'loss'  // საღამოს ანგარიში
-  | 'hours' | 'cookTime' | 'fraction';         // დილის მომზადება: დრო, წილადები
+  | 'hours' | 'cookTime' | 'fraction'          // დილის მომზადება: დრო, წილადები
+  | 'customers' | 'stockLeft' | 'missing' | 'compare' // დილის მომზადება: შეკრება/გამოკლება
+  | 'pattern' | 'patternDown' | 'doublePatty'   // მიმდევრობა, გაორმაგება
+  | 'chairs' | 'hoursMul' | 'perimeter';        // გამრავლება, მრავალნაბიჯიანი, პერიმეტრი
 
 export interface Problem {
   kind: Kind;

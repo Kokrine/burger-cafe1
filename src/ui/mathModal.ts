@@ -17,7 +17,15 @@ import { autoRead, withSpeak } from './speak';
 import { speak } from '../audio/speech';
 
 const pick = <T,>(a: readonly T[]) => a[Math.floor(Math.random() * a.length)];
-export const problemText = (p: Problem) => t(S.problems[p.kind], p.vars);
+/** ამოცანის ტექსტი. რამდენიმე ფორმულირებიდან ერთი — რიცხვებით არჩეული, რომ ხელახლა ხატვისას/ხმით კითხვისას არ შეიცვალოს. */
+export const problemText = (p: Problem) => {
+  const tpl = S.problems[p.kind];
+  if (!Array.isArray(tpl)) return t(tpl, p.vars);
+  const key = JSON.stringify(p.vars);
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+  return t(tpl[hash % tpl.length], p.vars);
+};
 
 export interface AskOptions {
   /** ✕ ღილაკი (სალაროში არ არის — კლიენტი ელოდება). */

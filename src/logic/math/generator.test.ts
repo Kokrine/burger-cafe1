@@ -4,7 +4,8 @@ import { ADAPTIVE, DIFFICULTY } from '../../config/difficulty';
 import { ITEMS, PRODUCTS } from '../../config/economy';
 import { itemPrice } from '../economy';
 import {
-  budgetProblem, changeProblem, cookTimeProblem, fractionProblem, groupProblem, hoursProblem, linePay, makeChoices, newAdaptive, packsProblem, prepProblem,
+  budgetProblem, changeProblem, cookTimeProblem, fractionProblem, groupProblem, hoursMulProblem, hoursProblem, linePay, makeChoices, newAdaptive, packsProblem,
+  patternProblem, perimeterProblem, prepProblem,
   purchaseProblem, shareProblem, sideQtyMax, sumProblem, updateAdaptive, type Line,
 } from './generator';
 import { additionSteps, divisionSteps, multiplicationSteps, subtractionSteps } from './steps';
@@ -254,9 +255,61 @@ describe('დრო და წილადები (დილის მომ�
     expect(seen.has('სამი მეოთხედი (¾)')).toBe(true);
   });
   it('დილის ამოცანა: ყველა კლასს აქვს; სახეობები კლასის მიხედვით', () => {
-    const kinds = (g: 1 | 2 | 3 | 4) => new Set(rnds.map((r) => prepProblem(g, { sub: 2, div: 2 }, r)?.kind));
-    expect([...kinds(1)]).toEqual(['hours']);
+    const kinds = (g: 1 | 2 | 3 | 4) => new Set(rnds.map((r) => prepProblem(g, { sub: 2, div: 2 }, r, [10, 16])?.kind));
+    // 1 კლასი: მხოლოდ შეკრება/გამოკლება (გამრავლება/გაყოფა/წილადები არა), მაგრამ მრავალფეროვნად
+    expect(kinds(1).size).toBeGreaterThanOrEqual(5);
+    for (const k of ['group', 'chairs', 'cookTime', 'fraction', 'perimeter', 'hoursMul']) expect(kinds(1).has(k as never)).toBe(false);
     expect(kinds(2).has('cookTime')).toBe(false);
-    expect(kinds(3)).toEqual(new Set(['hours', 'group', 'cookTime', 'fraction']));
+    expect(kinds(2).has('group')).toBe(true);
+    for (const k of ['hours', 'group', 'cookTime', 'fraction', 'perimeter', 'chairs']) expect(kinds(3).has(k as never)).toBe(true);
+  });
+});
+
+describe('დილის ამოცანების მრავალფეროვნება', () => {
+  const rnds = Array.from({ length: 80 }, (_, i) => seeded(i + 11));
+  it('ყველა სახეობა: მთელი პასუხი, კლასის ფარგლებში, ნაბიჯები პასუხამდე მიდის', () => {
+    for (const r of rnds) for (const g of GRADES) for (const lv of LEVELS) {
+      const p = prepProblem(g, { add: lv, sub: lv, mul: lv, div: lv }, r, [9, 15])!;
+      checkCommon(p, g);
+      expect(p.steps.at(-1)!.value, `${p.kind} last step`).toBe(p.answer);
+    }
+  });
+  it('იგივე სახეობა ზედიზედ არ მეორდება (avoid)', () => {
+    for (const r of rnds) for (const g of GRADES) {
+      const a = prepProblem(g, { sub: 2, div: 2 }, r)!;
+      const b = prepProblem(g, { sub: 2, div: 2 }, r, undefined, a.kind)!;
+      expect(b.kind).not.toBe(a.kind);
+    }
+  });
+  it('მიმდევრობა: წესი სწორია, კლებადში პასუხი არაუარყოფითი', () => {
+    for (const r of rnds) for (const g of GRADES) {
+      const p = patternProblem(g, 2, r);
+      const seq = String(p.vars.seq).split(', ').map(Number);
+      const d = seq[1] - seq[0];
+      for (let i = 1; i < 4; i++) expect(seq[i] - seq[i - 1]).toBe(d);
+      expect(p.answer).toBe(seq[3] + d);
+      expect(p.answer).toBeGreaterThanOrEqual(0);
+    }
+  });
+  it('საათები × კლიენტები და პერიმეტრი — მხოლოდ 3–4 კლასში', () => {
+    expect(hoursMulProblem(2, rnds[0], [10, 15])).toBeNull();
+    expect(perimeterProblem(2, 2, rnds[0])).toBeNull();
+    const p = hoursMulProblem(3, rnds[0], [10, 15])!;
+    expect(p.answer).toBe(5 * Number(p.vars.k));
+    const q = perimeterProblem(4, 2, rnds[0])!;
+    expect(q.answer).toBe(2 * (Number(q.vars.a) + Number(q.vars.b)));
+  });
+});
+
+describe('ამოცანების ტექსტები', () => {
+  it('ყოველ სახეობას აქვს ტექსტი და ყველა ფორმულირებაში ყველა ცვლადი ჩაისმება', async () => {
+    const { S, t } = await import('../../i18n/strings.ka');
+    const rnds = Array.from({ length: 60 }, (_, i) => seeded(i + 101));
+    for (const r of rnds) for (const g of GRADES) {
+      const p = prepProblem(g, { sub: 2, div: 2 }, r, [9, 15])!;
+      const tpl = S.problems[p.kind];
+      expect(tpl, p.kind).toBeDefined();
+      for (const one of Array.isArray(tpl) ? tpl : [tpl]) expect(t(one, p.vars), p.kind).not.toMatch(/\{\w+\}/);
+    }
   });
 });

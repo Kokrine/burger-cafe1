@@ -102,4 +102,5 @@ export interface Progress {
   /** პირველი სამუშაო დღის სწავლება ნანახია (ან გამოტოვებულია). */
   tutorialDone?: boolean;
   lastBought?: string;
+  lastPrep?: string;            // გუშინდელი დილის ამოცანის სახეობა (ზედიზედ რომ არ განმეორდეს)
 }

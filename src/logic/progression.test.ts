@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { newProgress } from '../core/store';
-import { ITEMS } from '../config/economy';
+import { ITEMS, PRODUCTS } from '../config/economy';
 import type { Grade } from '../core/types';
 import { applyPurchase, canBuy, cafeStats, itemById } from './economy';
 import { branchIncome, closeService, ensureToday, makeReport, recordSale } from './day';
@@ -41,12 +41,13 @@ describe('მეორე ფილიალი', () => {
     expect(branchIncome(p)).toBe(40);
     const money = p.money;
     ensureToday(p);
-    recordSale(p, ['burger'], 8, 0);
+    const B = PRODUCTS.burger.prices[3][0];
+    recordSale(p, ['burger'], B, 0);
     closeService(p, 1);
     closeService(p, 1); // მეორედ არ ემატება
     const r = makeReport(p.today!, 3);
     expect(r.branch).toBe(40);
-    expect(r.revenue).toBe(48);
+    expect(r.revenue).toBe(B + 40);
     expect(r.discount).toBe(0);
     expect(p.money).toBe(money + 40);
     expect(p.today!.played).toBe(true);
