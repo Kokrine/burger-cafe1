@@ -24,6 +24,15 @@ import { BADGES } from './logic/badges';
 import { questValue, settleQuests, type Quest } from './logic/quests';
 import { questText, rewardText } from './ui/quests';
 
+/** ოფლაინ რეჟიმი: მხოლოდ გამოქვეყნებულ ვერსიაში (dev-ში ქეში ცვლილებებს დამალავდა). */
+function registerOffline() {
+  if (!import.meta.env.PROD || !('serviceWorker' in navigator)) return;
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => undefined);
+  });
+}
+registerOffline();
+
 async function boot() {
   await Promise.all([
     loadManifest(),
