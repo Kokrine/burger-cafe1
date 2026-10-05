@@ -1,4 +1,4 @@
--- „ჩემი ბურგერების კაფე" — Supabase-ის სქემა (ჯერ მიუერთებელი).
+-- „ჩემი ბურგერების კაფე" — Supabase-ის სქემა.
 -- გაშვება: Supabase → SQL Editor → ეს ფაილი. შემდეგ Authentication → Providers-ში
 -- ჩართე Email (მასწავლებლებისთვის) და Anonymous sign-ins (მოსწავლეებისთვის).
 --
@@ -10,7 +10,7 @@
 --  * პირადი მონაცემები: მხოლოდ სახელი/მეტსახელი და კლასი. PIN ინახება bcrypt-ით.
 --  * RLS: მოსწავლე ხედავს მხოლოდ საკუთარ პროგრესს, მასწავლებელი — მხოლოდ თავისი კლასისას.
 
-create extension if not exists pgcrypto;
+create extension if not exists pgcrypto with schema extensions;
 
 -- ---------------------------------------------------------------- ცხრილები
 
@@ -77,7 +77,7 @@ language sql volatile as $$ select lpad((floor(random() * 10000))::int::text, 4,
 
 -- ---------------------------------------------------------------- მასწავლებლის ფუნქციები
 
-create or replace function public.create_class(p_name text, p_grade smallint) returns public.classes
+create or replace function public.create_class(p_name text, p_grade int) returns public.classes
 language plpgsql security definer set search_path = public as $$
 declare
   chars constant text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -96,7 +96,7 @@ end $$;
 
 -- აბრუნებს ახალ PIN-ს (მასწავლებელს ერთხელ ეჩვენება)
 create or replace function public.add_student(p_class uuid, p_nickname text) returns table (student_id uuid, pin text)
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare v_pin text := random_pin(); v_id uuid;
 begin
   if not owns_class(p_class) then raise exception 'not your class'; end if;
@@ -107,7 +107,7 @@ begin
 end $$;
 
 create or replace function public.reset_pin(p_student uuid) returns text
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare v_pin text := random_pin(); v_class uuid;
 begin
   select class_id into v_class from students where id = p_student;
@@ -130,7 +130,7 @@ $$;
 
 -- PIN-ის შემოწმება; 5 შეცდომის შემდეგ 1 წუთით ბლოკი. მოითხოვს ანონიმურ სესიას.
 create or replace function public.student_login(p_code text, p_student uuid, p_pin text) returns json
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare s students; c classes;
 begin
   if auth.uid() is null then raise exception 'sign in anonymously first'; end if;
@@ -191,7 +191,7 @@ create policy progress_teacher_select on public.progress for select
 revoke execute on all functions in schema public from anon, public;
 grant execute on function public.class_roster(text) to anon, authenticated;
 grant execute on function public.student_login(text, uuid, text) to authenticated;
-grant execute on function public.create_class(text, smallint) to authenticated;
+grant execute on function public.create_class(text, int) to authenticated;
 grant execute on function public.add_student(uuid, text) to authenticated;
 grant execute on function public.reset_pin(uuid) to authenticated;
 grant execute on function public.is_teacher() to authenticated;

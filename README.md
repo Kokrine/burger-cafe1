@@ -30,16 +30,25 @@ npm run build      # საბოლოო ვერსია dist/-ში
 ოფლაინ რეჟიმი ერთი მოწყობილობისთვისაა (PIN/პაროლი ინახება SHA-256 ჰეშით).
 რეალური დაცვისთვის — Supabase.
 
-## Supabase (მომდევნო ნაბიჯი)
+## Supabase (ღრუბელი)
 
-1. შექმენი პროექტი supabase.com-ზე.
-2. SQL Editor-ში გაუშვი [`supabase/schema.sql`](supabase/schema.sql) — ცხრილები,
-   ფუნქციები და Row Level Security (მოსწავლე ხედავს მხოლოდ საკუთარ მონაცემებს,
-   მასწავლებელი — მხოლოდ თავისი კლასისას).
-3. Authentication → Providers: ჩართე **Email** და **Anonymous sign-ins**.
-4. `.env`-ში: `VITE_SUPABASE_URL` და `VITE_SUPABASE_ANON_KEY`.
-5. დაემატება `src/data/supabase.ts` — `Backend` ინტერფეისის რეალიზაცია
-   ([`src/data/backend.ts`](src/data/backend.ts)); თამაშის დანარჩენი კოდი არ იცვლება.
+საიტი (GitHub Pages) Supabase-ის პროექტს **burger-cafe** იყენებს: მასწავლებლის
+ანგარიშები, კლასები, მოსწავლეები და პროგრესი ღრუბელში ინახება და ნებისმიერი
+მოწყობილობიდან ჩანს. სტუმრის თამაში ისევ მხოლოდ ამ მოწყობილობაზეა.
+
+* რეჟიმს ირჩევს `src/data/index.ts`: თუ build-ს აქვს `VITE_SUPABASE_URL` და
+  `VITE_SUPABASE_ANON_KEY` (`.env.production`) → [`src/data/supabase.ts`](src/data/supabase.ts),
+  თორემ ოფლაინ (`npm run dev` ლოკალურად ოფლაინ რეჟიმშია, დემო კლასით DEMO42).
+* ლოკალურად ღრუბლით გაშვება: `npx vite --mode production`.
+* სქემა: [`supabase/schema.sql`](supabase/schema.sql) — ცხრილები, ფუნქციები და Row Level
+  Security (მოსწავლე ხედავს მხოლოდ საკუთარ მონაცემებს, მასწავლებელი — მხოლოდ თავისი
+  კლასისას). PIN ინახება bcrypt-ით, 5 შეცდომის შემდეგ — 1 წუთით ბლოკი.
+* Authentication: Email (დადასტურებით) მასწავლებლებისთვის, Anonymous sign-ins —
+  მოსწავლეებისთვის. Site URL: `https://kokrine.github.io/burger-cafe1/`.
+* მოსწავლის პროგრესის ასლი ლოკალურადაც ინახება: ინტერნეტი თუ გაწყდა, თამაში
+  გრძელდება და ხაზზე დაბრუნებისას აიტვირთება.
+* `.env.production`-ში მხოლოდ **publishable** გასაღებია (ბრაუზერისთვის). secret /
+  service_role გასაღები რეპოში არასდროს ჩაწერო.
 
 ## სად რა არის
 

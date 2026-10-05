@@ -1,5 +1,4 @@
-// მონაცემების ფენის ინტერფეისი. ახლა — ოფლაინ (localStorage), მოგვიანებით
-// Supabase-ის ადაპტერი იმავე ინტერფეისით ჩაჯდება (supabase/schema.sql).
+// მონაცემების ფენის ინტერფეისი: ოფლაინ (localStorage, offline.ts) ან Supabase (supabase.ts, supabase/schema.sql).
 import type { Grade, Op, Progress } from '../core/types';
 
 export interface Teacher { id: string; email: string }
@@ -29,7 +28,7 @@ export interface StudentSummary {
   lastActive: string | null;
 }
 
-export type BackendError = 'email-taken' | 'bad-login' | 'bad-code' | 'bad-pin' | 'locked' | 'bad-input' | 'not-found';
+export type BackendError = 'email-taken' | 'bad-login' | 'bad-code' | 'bad-pin' | 'locked' | 'bad-input' | 'not-found' | 'confirm-email' | 'network';
 export class BackendFailure extends Error {
   constructor(public code: BackendError, public until?: number) {
     super(code);

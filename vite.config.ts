@@ -11,7 +11,7 @@ export default defineConfig({
     // Phaser (~1.3 MB) ცალკე ფაილად — თამაშის განახლებისას ბრაუზერის ქეშში რჩება
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
-      output: { manualChunks: { phaser: ['phaser'] } },
+      output: { manualChunks: { phaser: ['phaser'], supabase: ['@supabase/supabase-js'] } },
       input: {
         main: resolve(__dirname, 'index.html'),
         stylePreview: resolve(__dirname, 'style-preview.html'),
