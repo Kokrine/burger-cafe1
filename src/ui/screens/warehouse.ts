@@ -1,0 +1,124 @@
+// დილის საწყობი: მარაგის შემოწმება და ინგრედიენტების ყიდვა.
+// მათემატიკა: „4 შეკვრა × 3 ₾ = ?" და „ბიუჯეტი 50 ₾, დახარჯე 32 ₾ — რამდენი დაგრჩა?"
+import { S, t } from '../../i18n/strings.ka';
+import { store } from '../../core/store';
+import { STOCK, type StockId } from '../../config/economy';
+import { cafeStats } from '../../logic/economy';
+import { buyPacks, cartCost, forecast, neededStock, type Cart } from '../../logic/day';
+import { budgetProblem, gradeMax, packsProblem } from '../../logic/math/generator';
+import { play } from '../../audio/sfx';
+import { askProblem } from '../mathModal';
+import { button, h, img } from '../dom';
+import { go, toast } from '../layers';
+import { showScene } from '../../game/game';
+
+export function warehouseScreen(): HTMLElement {
+  const root = h('div', { class: 'overlay interactive' });
+  let cart: Cart = {};
+  let body: HTMLElement | null = null;
+
+  const render = () => {
+    const p = store.get();
+    const today = p.today!;
+    const st = cafeStats(p);
+    const fc = forecast(p.menu, st.customersPerDay);
+    const ids = neededStock(p.menu);
+    const packs = Object.values(cart).reduce((a, b) => a + (b ?? 0), 0);
+    const cost = cartCost(cart, p.grade);
+    const scroll = body?.scrollTop ?? 0;
+
+    const card = (id: StockId) => {
+      const def = STOCK[id];
+      const have = p.stock[id] ?? 0;
+      const need = fc[id];
+      const n = cart[id] ?? 0;
+      const set = (v: number) => {
+        cart = { ...cart, [id]: Math.max(0, Math.min(9, v)) };
+        play('click');
+        render();
+      };
+      const wasOut = (p.lastStockouts ?? []).includes(id);
+      return h('div', { class: `item stock-card ${have < need ? 'short' : ''}` },
+        n ? h('span', { class: 'count-badge' }, `+${n}`) : '',
+        wasOut ? h('span', { class: 'new-badge' }, S.service.stockout.soldOut) : '',
+        h('div', { class: 'pic' }, img(def.icon)),
+        h('h4', null, S.stock[id]),
+        h('div', { class: 'row' },
+          h('span', { class: `chip ${have < need ? 'lock' : 'ok'}` }, t(S.warehouse.inStock, { n: have })),
+          h('span', { class: 'chip' }, t(S.warehouse.need, { n: need })),
+        ),
+        h('p', null, t(S.warehouse.pack, { size: def.pack, price: def.price[p.grade] })),
+        h('div', { class: 'stepper' },
+          h('button', { class: 'btn white', 'aria-label': '−', onClick: () => set(n - 1), disabled: n === 0 }, '−'),
+          h('b', null, `${n} ${S.warehouse.packs}`),
+          h('button', { class: 'btn teal', 'aria-label': '+', onClick: () => set(n + 1), disabled: n >= 9 }, '+'),
+        ),
+      );
+    };
+
+    const tooMuch = cost > p.money;
+    body = h('div', { class: 'panel-body' },
+      h('div', { class: 'info-strip' },
+        h('span', { class: 'chip' }, img('icon_people'), t(S.warehouse.intro, { n: st.customersPerDay })),
+        h('span', { class: 'chip ok' }, img('icon_target'), t(S.warehouse.goal, { n: today.goal })),
+        h('span', { class: 'chip' }, img('icon_store'), t(S.warehouse.rent, { n: today.rent })),
+        p.lastStockouts?.length ? h('span', { class: 'chip lock' }, img('icon_box'), t(S.warehouse.yesterday, { names: p.lastStockouts.map((x) => S.stock[x]).join(', ') })) : '',
+      ),
+      h('div', { class: 'grid-items' }, ...ids.map(card)),
+    );
+    const footer = h('div', { class: 'panel-foot' },
+      h('span', { class: 'chip' }, img('icon_box'), packs ? t(S.warehouse.cartCount, { n: packs }) : S.warehouse.cartEmpty),
+      tooMuch ? h('span', { class: 'chip lock' }, S.warehouse.noMoney) : '',
+      h('span', { style: 'flex:1' }),
+      button(S.warehouse.buy, () => void buy(), 'green', 'coin'),
+      button(S.warehouse.open, open, 'big', 'menu_burger'),
+    );
+    const buyBtn = footer.querySelectorAll('button')[0] as HTMLButtonElement;
+    buyBtn.disabled = !packs || tooMuch;
+
+    root.replaceChildren(h('div', { class: 'panel' },
+      h('div', { class: 'panel-head' }, img('icon_box'), h('h2', null, t(S.warehouse.title, { n: p.day })),
+        h('button', { class: 'btn white round', 'aria-label': S.common.close, onClick: () => go('menu') }, '✕')),
+      body,
+      footer,
+    ));
+    body.scrollTop = scroll;
+  };
+
+  const buy = async () => {
+    const p = store.get();
+    const lines = (Object.entries(cart) as [StockId, number][]).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+    if (!lines.length) return;
+    const cost = cartCost(cart, p.grade);
+    // 1) შეკვრების ფასი (ყველაზე დიდი ხაზი)
+    const [bigId, bigN] = lines[0];
+    if (bigN >= 2) {
+      await askProblem(S.warehouse.budget, packsProblem(bigN, STOCK[bigId].price[p.grade], S.stock[bigId], p.grade), { cancellable: false });
+    }
+    // 2) ბიუჯეტი: რამდენი დაგრჩა (თუ რიცხვები კლასის ფარგლებშია)
+    if (p.money <= gradeMax(p.grade)) {
+      await askProblem(S.warehouse.budget, budgetProblem(p.money, cost, p.grade), { cancellable: false });
+    }
+    store.update((q) => { buyPacks(q, cart); });
+    cart = {};
+    play('buy');
+    toast(S.warehouse.bought, 'icon_box');
+    render();
+  };
+
+  const open = () => {
+    const p = store.get();
+    if (!(p.stock.bun > 0) || !(p.stock.patty > 0)) {
+      toast(S.warehouse.empty, 'layer_patty');
+      play('wrong');
+      return;
+    }
+    const fc = forecast(p.menu, cafeStats(p).customersPerDay);
+    if (neededStock(p.menu).some((id) => (p.stock[id] ?? 0) < fc[id])) toast(S.warehouse.low, 'icon_box');
+    go('service');
+    showScene('service');
+  };
+
+  render();
+  return root;
+}

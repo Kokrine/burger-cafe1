@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="244" height="74" viewBox="0 0 244 74" stroke-linejoin="round" stroke-linecap="round">
+<ellipse cx="124" cy="44" rx="118" ry="24" fill="#2B1810" opacity="0.15"/><clipPath id="c1"><ellipse cx="120" cy="36" rx="114" ry="28" /></clipPath><ellipse cx="120" cy="36" rx="114" ry="28" fill="#DCE4EC"/><g clip-path="url(#c1)"><g transform="translate(-3 -4)"><ellipse cx="120" cy="36" rx="114" ry="28" fill="#FFFFFF"/></g></g><ellipse cx="120" cy="36" rx="114" ry="28" fill="none" stroke="#2B1810" stroke-width="4.5"/><ellipse cx="120" cy="34" rx="84" ry="17" fill="none" stroke="#DCE4EC" stroke-width="3"/><ellipse cx="70" cy="26" rx="26" ry="5" transform="rotate(-4 70 26)" fill="#fff" opacity="0.8"/>
+</svg>

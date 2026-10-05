@@ -1,0 +1,83 @@
+/* საერთო UI კომპონენტები (ღილაკები, პანელები, HUD). ფერები — tokens.css-დან. */
+@import '../design/tokens.css';
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--c-text);
+  background: linear-gradient(180deg, var(--c-bg-top), var(--c-bg-bottom)) fixed;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font-family: inherit; }
+img { user-select: none; -webkit-user-drag: none; }
+
+.card {
+  background: var(--c-panel);
+  border: var(--stroke) solid var(--c-ink);
+  border-radius: var(--r-lg);
+  box-shadow: 6px 7px 0 rgba(43, 24, 16, 0.18);
+  padding: 22px;
+}
+
+/* ---------- ღილაკები ---------- */
+.btn {
+  --face: var(--c-primary);
+  --edge: var(--c-primary-dark);
+  font-weight: 800; font-size: var(--fs-md);
+  min-height: var(--touch); min-width: var(--touch); padding: 10px 24px;
+  border: var(--stroke) solid var(--c-ink); border-radius: var(--r-md);
+  background: var(--face); color: #fff; cursor: pointer;
+  box-shadow: 0 var(--btn-depth) 0 var(--edge), 0 calc(var(--btn-depth) + 4px) 0 rgba(43, 24, 16, 0.25);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+  transition: transform 0.14s cubic-bezier(.3, 1.8, .5, 1), box-shadow 0.12s, filter 0.2s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  position: relative; touch-action: manipulation;
+}
+.btn img { width: 34px; height: 34px; }
+@media (hover: hover) { .btn:hover:not(:disabled) { transform: translateY(-3px) scale(1.04); } }
+.btn:active:not(:disabled) { transform: translateY(var(--btn-depth)) scale(0.98); box-shadow: 0 0 0 var(--edge); }
+.btn:disabled { filter: grayscale(0.85) opacity(0.75); cursor: not-allowed; }
+.btn.teal { --face: var(--c-secondary); --edge: var(--c-secondary-dark); }
+.btn.green { --face: var(--c-success); --edge: var(--c-success-dark); }
+.btn.red { --face: var(--c-danger); --edge: var(--c-danger-dark); }
+.btn.white { --face: #fff; --edge: #D9C7AE; color: var(--c-text); text-shadow: none; }
+.btn.round { border-radius: 50%; padding: 0; width: 60px; height: 60px; }
+.btn.round img { width: 40px; height: 40px; }
+.btn.big { font-size: var(--fs-lg); padding: 14px 30px; min-height: 72px; }
+.btn .tag {
+  position: absolute; top: -14px; right: -10px; background: var(--c-cheese); color: var(--c-ink);
+  border: 2.5px solid var(--c-ink); border-radius: 99px; font-size: 13px; padding: 1px 8px; text-shadow: none; transform: rotate(6deg);
+}
+
+/* ---------- HUD ---------- */
+.pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--c-panel); border: var(--stroke) solid var(--c-ink); border-radius: 99px;
+  padding: 4px 16px 4px 6px; font-weight: 900; font-size: var(--fs-md); min-height: 54px;
+  box-shadow: 3px 4px 0 rgba(43, 24, 16, 0.18); white-space: nowrap;
+}
+.pill img { width: 40px; height: 40px; }
+.pill small { font-size: 13px; font-weight: 700; color: var(--c-text-soft); display: block; line-height: 1.1; }
+.pill.stars { background: #FFF4C2; }
+.pill .bar { width: 90px; height: 12px; border: 2.5px solid var(--c-ink); border-radius: 99px; overflow: hidden; background: #fff; margin-top: 3px; }
+.pill .bar i { display: block; height: 100%; background: var(--c-success); }
+
+.bar-lg { height: 20px; border: 3px solid var(--c-ink); border-radius: 99px; background: #fff; overflow: hidden; }
+.bar-lg i { display: block; height: 100%; background: linear-gradient(180deg, #7EE08C, var(--c-success)); border-radius: 99px; transition: width .6s cubic-bezier(.3, 1.4, .5, 1); }
+
+/* ---------- რიცხვები ---------- */
+.keypad { display: grid; grid-template-columns: repeat(3, 76px); gap: 12px; }
+.keypad .btn { padding: 0; font-size: var(--fs-lg); }
+.choice { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.choice .btn { min-width: 110px; min-height: 90px; font-size: var(--fs-xl); }
+.answer {
+  font-size: var(--fs-xl); font-weight: 900; min-height: 76px; text-align: center;
+  border: var(--stroke) solid var(--c-ink); border-radius: var(--r-md); background: #fff; padding: 4px 16px;
+}
+
+.bounce-in { animation: bounceIn .45s cubic-bezier(.3, 1.6, .5, 1) both; }
+@keyframes bounceIn { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.shake { animation: shake .45s; }
+@keyframes shake { 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }

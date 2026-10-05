@@ -1,0 +1,1797 @@
+{
+  "floor_l1_a": {
+    "file": "floor_l1_a.svg",
+    "w": 96,
+    "h": 48,
+    "anchor": [
+      48,
+      0
+    ],
+    "kind": "tile"
+  },
+  "floor_l1_b": {
+    "file": "floor_l1_b.svg",
+    "w": 96,
+    "h": 48,
+    "anchor": [
+      48,
+      0
+    ],
+    "kind": "tile"
+  },
+  "wall_l1_right": {
+    "file": "wall_l1_right.svg",
+    "w": 52,
+    "h": 248,
+    "anchor": [
+      2,
+      222
+    ],
+    "kind": "wall",
+    "height": 220
+  },
+  "wall_l1_left": {
+    "file": "wall_l1_left.svg",
+    "w": 52,
+    "h": 248,
+    "anchor": [
+      50,
+      222
+    ],
+    "kind": "wall",
+    "height": 220
+  },
+  "floor_l2_a": {
+    "file": "floor_l2_a.svg",
+    "w": 96,
+    "h": 48,
+    "anchor": [
+      48,
+      0
+    ],
+    "kind": "tile"
+  },
+  "floor_l2_b": {
+    "file": "floor_l2_b.svg",
+    "w": 96,
+    "h": 48,
+    "anchor": [
+      48,
+      0
+    ],
+    "kind": "tile"
+  },
+  "wall_l2_right": {
+    "file": "wall_l2_right.svg",
+    "w": 52,
+    "h": 248,
+    "anchor": [
+      2,
+      222
+    ],
+    "kind": "wall",
+    "height": 220
+  },
+  "wall_l2_left": {
+    "file": "wall_l2_left.svg",
+    "w": 52,
+    "h": 248,
+    "anchor": [
+      50,
+      222
+    ],
+    "kind": "wall",
+    "height": 220
+  },
+  "floor_l3_a": {
+    "file": "floor_l3_a.svg",
+    "w": 96,
+    "h": 48,
+    "anchor": [
+      48,
+      0
+    ],
+    "kind": "tile"
+  },
+  "floor_l3_b": {
+    "file": "floor_l3_b.svg",
+    "w": 96,
+    "h": 48,
+    "anchor": [
+      48,
+      0
+    ],
+    "kind": "tile"
+  },
+  "wall_l3_right": {
+    "file": "wall_l3_right.svg",
+    "w": 52,
+    "h": 248,
+    "anchor": [
+      2,
+      222
+    ],
+    "kind": "wall",
+    "height": 220
+  },
+  "wall_l3_left": {
+    "file": "wall_l3_left.svg",
+    "w": 52,
+    "h": 248,
+    "anchor": [
+      50,
+      222
+    ],
+    "kind": "wall",
+    "height": 220
+  },
+  "floor_l4_a": {
+    "file": "floor_l4_a.svg",
+    "w": 96,
+    "h": 48,
+    "anchor": [
+      48,
+      0
+    ],
+    "kind": "tile"
+  },
+  "floor_l4_b": {
+    "file": "floor_l4_b.svg",
+    "w": 96,
+    "h": 48,
+    "anchor": [
+      48,
+      0
+    ],
+    "kind": "tile"
+  },
+  "wall_l4_right": {
+    "file": "wall_l4_right.svg",
+    "w": 52,
+    "h": 248,
+    "anchor": [
+      2,
+      222
+    ],
+    "kind": "wall",
+    "height": 220
+  },
+  "wall_l4_left": {
+    "file": "wall_l4_left.svg",
+    "w": 52,
+    "h": 248,
+    "anchor": [
+      50,
+      222
+    ],
+    "kind": "wall",
+    "height": 220
+  },
+  "window_right": {
+    "file": "window_right.svg",
+    "w": 134,
+    "h": 178,
+    "anchor": [
+      8,
+      8
+    ],
+    "kind": "wall-decor"
+  },
+  "door_right": {
+    "file": "door_right.svg",
+    "w": 90,
+    "h": 200,
+    "anchor": [
+      6,
+      6
+    ],
+    "kind": "wall-decor",
+    "width": 76
+  },
+  "picture_right": {
+    "file": "picture_right.svg",
+    "w": 82,
+    "h": 105,
+    "anchor": [
+      6,
+      6
+    ],
+    "kind": "wall-decor"
+  },
+  "neon_sign": {
+    "file": "neon_sign.svg",
+    "w": 136,
+    "h": 150,
+    "anchor": [
+      8,
+      8
+    ],
+    "kind": "wall-decor"
+  },
+  "counter_6": {
+    "file": "counter_6.svg",
+    "w": 366,
+    "h": 268,
+    "anchor": [
+      58,
+      84
+    ],
+    "footprint": [
+      288,
+      48
+    ],
+    "height": 70,
+    "kind": "furniture"
+  },
+  "counter_7": {
+    "file": "counter_7.svg",
+    "w": 414,
+    "h": 292,
+    "anchor": [
+      58,
+      84
+    ],
+    "footprint": [
+      336,
+      48
+    ],
+    "height": 70,
+    "kind": "furniture"
+  },
+  "counter_8": {
+    "file": "counter_8.svg",
+    "w": 462,
+    "h": 316,
+    "anchor": [
+      58,
+      84
+    ],
+    "footprint": [
+      384,
+      48
+    ],
+    "height": 70,
+    "kind": "furniture"
+  },
+  "grill": {
+    "file": "grill.svg",
+    "w": 194,
+    "h": 172,
+    "anchor": [
+      82,
+      74
+    ],
+    "footprint": [
+      96,
+      72
+    ],
+    "height": 58,
+    "slots": [
+      [
+        6,
+        -35
+      ],
+      [
+        50,
+        -13
+      ],
+      [
+        -26,
+        -19
+      ],
+      [
+        18,
+        3
+      ]
+    ],
+    "kind": "station"
+  },
+  "grill_fast": {
+    "file": "grill_fast.svg",
+    "w": 194,
+    "h": 172,
+    "anchor": [
+      82,
+      74
+    ],
+    "footprint": [
+      96,
+      72
+    ],
+    "height": 58,
+    "slots": [
+      [
+        6,
+        -35
+      ],
+      [
+        50,
+        -13
+      ],
+      [
+        -26,
+        -19
+      ],
+      [
+        18,
+        3
+      ]
+    ],
+    "kind": "station"
+  },
+  "plant": {
+    "file": "plant.svg",
+    "w": 84,
+    "h": 118,
+    "anchor": [
+      42,
+      112
+    ],
+    "kind": "decor",
+    "footprint": [
+      40,
+      40
+    ]
+  },
+  "plant_big": {
+    "file": "plant_big.svg",
+    "w": 100,
+    "h": 178,
+    "anchor": [
+      50,
+      172
+    ],
+    "kind": "decor",
+    "footprint": [
+      48,
+      48
+    ]
+  },
+  "bubble": {
+    "file": "bubble.svg",
+    "w": 172,
+    "h": 136,
+    "anchor": [
+      86,
+      130
+    ],
+    "kind": "ui"
+  },
+  "drink_machine": {
+    "file": "drink_machine.svg",
+    "w": 112,
+    "h": 172,
+    "anchor": [
+      52,
+      116
+    ],
+    "kind": "station",
+    "footprint": [
+      48,
+      40
+    ],
+    "height": 96
+  },
+  "drink_machine_auto": {
+    "file": "drink_machine_auto.svg",
+    "w": 112,
+    "h": 184,
+    "anchor": [
+      52,
+      128
+    ],
+    "kind": "station",
+    "footprint": [
+      48,
+      40
+    ],
+    "height": 96
+  },
+  "fryer": {
+    "file": "fryer.svg",
+    "w": 140,
+    "h": 162,
+    "anchor": [
+      64,
+      92
+    ],
+    "kind": "station",
+    "footprint": [
+      64,
+      52
+    ],
+    "height": 54
+  },
+  "ice_cream_machine": {
+    "file": "ice_cream_machine.svg",
+    "w": 118,
+    "h": 201,
+    "anchor": [
+      56,
+      142
+    ],
+    "kind": "station",
+    "footprint": [
+      50,
+      44
+    ],
+    "height": 86
+  },
+  "stove_pots": {
+    "file": "stove_pots.svg",
+    "w": 156,
+    "h": 180,
+    "anchor": [
+      64,
+      102
+    ],
+    "kind": "station",
+    "footprint": [
+      80,
+      52
+    ],
+    "height": 50,
+    "steam": [
+      [
+        4,
+        -60
+      ],
+      [
+        28,
+        -30
+      ]
+    ]
+  },
+  "cash_box": {
+    "file": "cash_box.svg",
+    "w": 88,
+    "h": 80,
+    "anchor": [
+      40,
+      36
+    ],
+    "kind": "station",
+    "footprint": [
+      36,
+      28
+    ],
+    "height": 20,
+    "onCounter": true
+  },
+  "cash_register": {
+    "file": "cash_register.svg",
+    "w": 108,
+    "h": 120,
+    "anchor": [
+      50,
+      66
+    ],
+    "kind": "station",
+    "footprint": [
+      46,
+      38
+    ],
+    "height": 24,
+    "onCounter": true
+  },
+  "table_set": {
+    "file": "table_set.svg",
+    "w": 216,
+    "h": 188,
+    "anchor": [
+      108,
+      80
+    ],
+    "kind": "furniture",
+    "footprint": [
+      96,
+      96
+    ],
+    "height": 44,
+    "seats": 2
+  },
+  "jukebox": {
+    "file": "jukebox.svg",
+    "w": 104,
+    "h": 190,
+    "anchor": [
+      48,
+      138
+    ],
+    "kind": "decor",
+    "footprint": [
+      44,
+      36
+    ],
+    "height": 100
+  },
+  "layer_bun_bottom": {
+    "file": "layer_bun_bottom.svg",
+    "w": 128,
+    "h": 36,
+    "anchor": [
+      64,
+      32
+    ],
+    "stack": 22,
+    "kind": "layer"
+  },
+  "layer_patty": {
+    "file": "layer_patty.svg",
+    "w": 128,
+    "h": 32,
+    "anchor": [
+      64,
+      28
+    ],
+    "stack": 18,
+    "kind": "layer"
+  },
+  "layer_cheese": {
+    "file": "layer_cheese.svg",
+    "w": 132,
+    "h": 33,
+    "anchor": [
+      66,
+      13
+    ],
+    "stack": 9,
+    "kind": "layer"
+  },
+  "layer_tomato": {
+    "file": "layer_tomato.svg",
+    "w": 128,
+    "h": 22,
+    "anchor": [
+      64,
+      18
+    ],
+    "stack": 10,
+    "kind": "layer"
+  },
+  "layer_lettuce": {
+    "file": "layer_lettuce.svg",
+    "w": 136,
+    "h": 26,
+    "anchor": [
+      68,
+      22
+    ],
+    "stack": 9,
+    "kind": "layer"
+  },
+  "layer_onion": {
+    "file": "layer_onion.svg",
+    "w": 128,
+    "h": 18,
+    "anchor": [
+      64,
+      14
+    ],
+    "stack": 6,
+    "kind": "layer"
+  },
+  "layer_ketchup": {
+    "file": "layer_ketchup.svg",
+    "w": 128,
+    "h": 37,
+    "anchor": [
+      64,
+      14
+    ],
+    "stack": 9,
+    "kind": "layer"
+  },
+  "layer_mayo": {
+    "file": "layer_mayo.svg",
+    "w": 128,
+    "h": 37,
+    "anchor": [
+      64,
+      14
+    ],
+    "stack": 9,
+    "kind": "layer"
+  },
+  "layer_bun_top": {
+    "file": "layer_bun_top.svg",
+    "w": 128,
+    "h": 58,
+    "anchor": [
+      64,
+      54
+    ],
+    "stack": 30,
+    "kind": "layer"
+  },
+  "grill_patty_raw": {
+    "file": "grill_patty_raw.svg",
+    "w": 60,
+    "h": 34,
+    "anchor": [
+      30,
+      20
+    ],
+    "kind": "grill"
+  },
+  "grill_patty_ready": {
+    "file": "grill_patty_ready.svg",
+    "w": 60,
+    "h": 34,
+    "anchor": [
+      30,
+      20
+    ],
+    "kind": "grill"
+  },
+  "grill_patty_burnt": {
+    "file": "grill_patty_burnt.svg",
+    "w": 60,
+    "h": 34,
+    "anchor": [
+      30,
+      20
+    ],
+    "kind": "grill"
+  },
+  "drink_cola": {
+    "file": "drink_cola.svg",
+    "w": 56,
+    "h": 84,
+    "anchor": [
+      28,
+      78
+    ]
+  },
+  "fries": {
+    "file": "fries.svg",
+    "w": 64,
+    "h": 84,
+    "anchor": [
+      32,
+      78
+    ]
+  },
+  "coin": {
+    "file": "coin.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ]
+  },
+  "star": {
+    "file": "star.svg",
+    "w": 60,
+    "h": 60,
+    "anchor": [
+      30,
+      31
+    ]
+  },
+  "bill": {
+    "file": "bill.svg",
+    "w": 84,
+    "h": 52,
+    "anchor": [
+      42,
+      26
+    ]
+  },
+  "icon_clock": {
+    "file": "icon_clock.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ]
+  },
+  "icon_target": {
+    "file": "icon_target.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ]
+  },
+  "icon_calendar": {
+    "file": "icon_calendar.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ]
+  },
+  "badge_gold": {
+    "file": "badge_gold.svg",
+    "w": 96,
+    "h": 116,
+    "anchor": [
+      48,
+      46
+    ],
+    "kind": "ui"
+  },
+  "badge_grey": {
+    "file": "badge_grey.svg",
+    "w": 96,
+    "h": 116,
+    "anchor": [
+      48,
+      46
+    ],
+    "kind": "ui"
+  },
+  "workbench": {
+    "file": "workbench.svg",
+    "w": 1600,
+    "h": 330,
+    "anchor": [
+      0,
+      0
+    ],
+    "kind": "ui"
+  },
+  "bin": {
+    "file": "bin.svg",
+    "w": 124,
+    "h": 104,
+    "anchor": [
+      62,
+      100
+    ],
+    "kind": "ui"
+  },
+  "plate": {
+    "file": "plate.svg",
+    "w": 244,
+    "h": 74,
+    "anchor": [
+      120,
+      36
+    ],
+    "kind": "ui"
+  },
+  "icon_trash": {
+    "file": "icon_trash.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "menu_burger": {
+    "file": "menu_burger.svg",
+    "w": 96,
+    "h": 96,
+    "anchor": [
+      48,
+      48
+    ],
+    "kind": "menu"
+  },
+  "menu_cheeseburger": {
+    "file": "menu_cheeseburger.svg",
+    "w": 96,
+    "h": 96,
+    "anchor": [
+      48,
+      48
+    ],
+    "kind": "menu"
+  },
+  "menu_double": {
+    "file": "menu_double.svg",
+    "w": 96,
+    "h": 96,
+    "anchor": [
+      48,
+      48
+    ],
+    "kind": "menu"
+  },
+  "menu_icecream": {
+    "file": "menu_icecream.svg",
+    "w": 96,
+    "h": 96,
+    "anchor": [
+      48,
+      48
+    ],
+    "kind": "menu"
+  },
+  "menu_juice": {
+    "file": "menu_juice.svg",
+    "w": 96,
+    "h": 96,
+    "anchor": [
+      48,
+      48
+    ],
+    "kind": "menu"
+  },
+  "icon_lock": {
+    "file": "icon_lock.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_store": {
+    "file": "icon_store.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_box": {
+    "file": "icon_box.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_check": {
+    "file": "icon_check.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_sound_on": {
+    "file": "icon_sound_on.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_sound_off": {
+    "file": "icon_sound_off.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_pause": {
+    "file": "icon_pause.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_heart": {
+    "file": "icon_heart.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_people": {
+    "file": "icon_people.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_bolt": {
+    "file": "icon_bolt.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_level_up": {
+    "file": "icon_level_up.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_chef_hat": {
+    "file": "icon_chef_hat.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_menu_book": {
+    "file": "icon_menu_book.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "icon_sparkle": {
+    "file": "icon_sparkle.svg",
+    "w": 48,
+    "h": 48,
+    "anchor": [
+      24,
+      24
+    ],
+    "kind": "icon"
+  },
+  "chef_girl_ponytail_s1_brown": {
+    "file": "chef_girl_ponytail_s1_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s1_black": {
+    "file": "chef_girl_ponytail_s1_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s1_blonde": {
+    "file": "chef_girl_ponytail_s1_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s1_red": {
+    "file": "chef_girl_ponytail_s1_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s2_brown": {
+    "file": "chef_girl_ponytail_s2_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s2_black": {
+    "file": "chef_girl_ponytail_s2_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s2_blonde": {
+    "file": "chef_girl_ponytail_s2_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s2_red": {
+    "file": "chef_girl_ponytail_s2_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s3_brown": {
+    "file": "chef_girl_ponytail_s3_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s3_black": {
+    "file": "chef_girl_ponytail_s3_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s3_blonde": {
+    "file": "chef_girl_ponytail_s3_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s3_red": {
+    "file": "chef_girl_ponytail_s3_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s4_brown": {
+    "file": "chef_girl_ponytail_s4_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s4_black": {
+    "file": "chef_girl_ponytail_s4_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s4_blonde": {
+    "file": "chef_girl_ponytail_s4_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_ponytail_s4_red": {
+    "file": "chef_girl_ponytail_s4_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s1_brown": {
+    "file": "chef_girl_braids_s1_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s1_black": {
+    "file": "chef_girl_braids_s1_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s1_blonde": {
+    "file": "chef_girl_braids_s1_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s1_red": {
+    "file": "chef_girl_braids_s1_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s2_brown": {
+    "file": "chef_girl_braids_s2_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s2_black": {
+    "file": "chef_girl_braids_s2_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s2_blonde": {
+    "file": "chef_girl_braids_s2_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s2_red": {
+    "file": "chef_girl_braids_s2_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s3_brown": {
+    "file": "chef_girl_braids_s3_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s3_black": {
+    "file": "chef_girl_braids_s3_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s3_blonde": {
+    "file": "chef_girl_braids_s3_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s3_red": {
+    "file": "chef_girl_braids_s3_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s4_brown": {
+    "file": "chef_girl_braids_s4_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s4_black": {
+    "file": "chef_girl_braids_s4_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s4_blonde": {
+    "file": "chef_girl_braids_s4_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_girl_braids_s4_red": {
+    "file": "chef_girl_braids_s4_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s1_brown": {
+    "file": "chef_boy_short_s1_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s1_black": {
+    "file": "chef_boy_short_s1_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s1_blonde": {
+    "file": "chef_boy_short_s1_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s1_red": {
+    "file": "chef_boy_short_s1_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s2_brown": {
+    "file": "chef_boy_short_s2_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s2_black": {
+    "file": "chef_boy_short_s2_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s2_blonde": {
+    "file": "chef_boy_short_s2_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s2_red": {
+    "file": "chef_boy_short_s2_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s3_brown": {
+    "file": "chef_boy_short_s3_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s3_black": {
+    "file": "chef_boy_short_s3_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s3_blonde": {
+    "file": "chef_boy_short_s3_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s3_red": {
+    "file": "chef_boy_short_s3_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s4_brown": {
+    "file": "chef_boy_short_s4_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s4_black": {
+    "file": "chef_boy_short_s4_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s4_blonde": {
+    "file": "chef_boy_short_s4_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_short_s4_red": {
+    "file": "chef_boy_short_s4_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s1_brown": {
+    "file": "chef_boy_curly_s1_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s1_black": {
+    "file": "chef_boy_curly_s1_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s1_blonde": {
+    "file": "chef_boy_curly_s1_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s1_red": {
+    "file": "chef_boy_curly_s1_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s2_brown": {
+    "file": "chef_boy_curly_s2_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s2_black": {
+    "file": "chef_boy_curly_s2_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s2_blonde": {
+    "file": "chef_boy_curly_s2_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s2_red": {
+    "file": "chef_boy_curly_s2_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s3_brown": {
+    "file": "chef_boy_curly_s3_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s3_black": {
+    "file": "chef_boy_curly_s3_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s3_blonde": {
+    "file": "chef_boy_curly_s3_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s3_red": {
+    "file": "chef_boy_curly_s3_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s4_brown": {
+    "file": "chef_boy_curly_s4_brown.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s4_black": {
+    "file": "chef_boy_curly_s4_black.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s4_blonde": {
+    "file": "chef_boy_curly_s4_blonde.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "chef_boy_curly_s4_red": {
+    "file": "chef_boy_curly_s4_red.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "chef"
+  },
+  "customer_nino_happy": {
+    "file": "customer_nino_happy.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "happy"
+  },
+  "customer_nino_neutral": {
+    "file": "customer_nino_neutral.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "neutral"
+  },
+  "customer_nino_angry": {
+    "file": "customer_nino_angry.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "angry"
+  },
+  "customer_vano_happy": {
+    "file": "customer_vano_happy.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "happy"
+  },
+  "customer_vano_neutral": {
+    "file": "customer_vano_neutral.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "neutral"
+  },
+  "customer_vano_angry": {
+    "file": "customer_vano_angry.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "angry"
+  },
+  "customer_ana_happy": {
+    "file": "customer_ana_happy.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "happy"
+  },
+  "customer_ana_neutral": {
+    "file": "customer_ana_neutral.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "neutral"
+  },
+  "customer_ana_angry": {
+    "file": "customer_ana_angry.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "angry"
+  },
+  "customer_dato_happy": {
+    "file": "customer_dato_happy.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "happy"
+  },
+  "customer_dato_neutral": {
+    "file": "customer_dato_neutral.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "neutral"
+  },
+  "customer_dato_angry": {
+    "file": "customer_dato_angry.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "angry"
+  },
+  "customer_tamari_happy": {
+    "file": "customer_tamari_happy.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "happy"
+  },
+  "customer_tamari_neutral": {
+    "file": "customer_tamari_neutral.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "neutral"
+  },
+  "customer_tamari_angry": {
+    "file": "customer_tamari_angry.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "angry"
+  },
+  "customer_luka_happy": {
+    "file": "customer_luka_happy.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "happy"
+  },
+  "customer_luka_neutral": {
+    "file": "customer_luka_neutral.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "neutral"
+  },
+  "customer_luka_angry": {
+    "file": "customer_luka_angry.svg",
+    "w": 140,
+    "h": 220,
+    "anchor": [
+      70,
+      212
+    ],
+    "kind": "customer",
+    "mood": "angry"
+  }
+}
