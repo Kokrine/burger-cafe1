@@ -207,10 +207,11 @@ export { rint, pick };
 export function listSumProblem(terms: number[], kind: 'revenue' | 'expenses', grade: Grade, rnd: Rnd = Math.random): Problem | null {
   const t = terms.filter((x) => x > 0);
   const answer = t.reduce((a, b) => a + b, 0);
-  if (!t.length || answer > gradeMax(grade)) return null;
+  // ერთი რიცხვი შესაკრები არ არის („შეკრიბე: 5") — ანგარიში თავად ჩაიწერება
+  if (t.length < 2 || answer > gradeMax(grade)) return null;
   return finalize({
     kind, vars: { items: t.join(' + ') }, op: 'add', answer,
-    steps: t.length > 1 ? additionSteps(t) : [{ expr: String(answer), value: answer }], hint: addHint(t),
+    steps: additionSteps(t), hint: addHint(t),
   }, grade, rnd);
 }
 
@@ -230,10 +231,16 @@ export function profitProblem(revenue: number, expenses: number, grade: Grade, r
 
 const two = (n: number) => String(n).padStart(2, '0');
 
-/** „კაფე 9:00-დან 13:00-მდე მუშაობს — რამდენი საათი?" (1 კლასში — პატარა რიცხვებით). */
-export function hoursProblem(grade: Grade, rnd: Rnd = Math.random): Problem {
+/** დღის სამუშაო საათები [გახსნა, დახურვა] (1 კლასში — პატარა რიცხვებით). */
+export function dayHours(grade: Grade, rnd: Rnd = Math.random): [number, number] {
   const open = grade === 1 ? rint(8, 10, rnd) : rint(7, 11, rnd);
   const close = grade === 1 ? open + rint(2, 5, rnd) : rint(Math.max(open + 3, 14), 21, rnd);
+  return [open, close];
+}
+
+/** „კაფე 9:00-დან 13:00-მდე მუშაობს — რამდენი საათი?" hours — დღის საათები (სამუშაო დღის საათიც მათ აჩვენებს). */
+export function hoursProblem(grade: Grade, rnd: Rnd = Math.random, hours: [number, number] = dayHours(grade, rnd)): Problem {
+  const [open, close] = hours;
   return finalize({
     kind: 'hours', vars: { open: `${open}:00`, close: `${close}:00` }, op: 'sub', answer: close - open,
     steps: [{ expr: `${close} − ${open}`, value: close - open }], hint: { type: 'line', from: open, to: close },
@@ -287,8 +294,8 @@ export const FRACTION_WORDS: Record<string, string> = {
 };
 
 /** დილის მომზადების ამოცანა: სახეობა კლასის მიხედვით (გაყოფა, საათები, წუთები, წილადები). */
-export function prepProblem(grade: Grade, levels: { sub: number; div: number }, rnd: Rnd = Math.random): Problem | null {
-  const options: (() => Problem | null)[] = [() => hoursProblem(grade, rnd)];
+export function prepProblem(grade: Grade, levels: { sub: number; div: number }, rnd: Rnd = Math.random, hours?: [number, number]): Problem | null {
+  const options: (() => Problem | null)[] = [() => hoursProblem(grade, rnd, hours)];
   if (allows(grade, 'div')) options.push(() => groupProblem(grade, levels.div, rnd), () => groupProblem(grade, levels.div, rnd));
   if (grade >= 3) options.push(() => cookTimeProblem(grade, rnd), () => fractionProblem(grade, levels.div, rnd));
   return pick(options, rnd)();

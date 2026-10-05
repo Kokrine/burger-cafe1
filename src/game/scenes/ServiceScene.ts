@@ -97,6 +97,8 @@ export class ServiceScene extends CafeScene {
   private clockTick = 0;
   private ended = false;
   private built = false;
+  /** სამუშაო საათები [გახსნა, დახურვა] — იგივე, რაც დილის ამოცანაში. */
+  private hours: [number, number] = [SERVICE.openHour, SERVICE.closeHour];
   // პირველი დღის სწავლება
   private tut: Tut | null = null;
   private tutPtr?: Phaser.GameObjects.Container;
@@ -156,6 +158,7 @@ export class ServiceScene extends CafeScene {
     this.built = true;
     this.stats = cafeStats(p);
     this.grade = p.today?.grade ?? p.grade; // დღის ფასები იმ კლასისაა, რომლითაც დღე დაიწყო
+    this.hours = p.today?.hours ?? [SERVICE.openHour, SERVICE.closeHour];
     this.fitRoom();
     this.buildBench(p);
     // გვერდის გადატვირთვის/გასვლის შემდეგ იგივე დღე გრძელდება — უკვე მოსული კლიენტები აღარ მოდიან
@@ -168,7 +171,14 @@ export class ServiceScene extends CafeScene {
     // პაუზის მენიუდან „სწავლების თავიდან ნახვა" — დღის შუაშიც
     const onTutorial = () => { if (!this.tut && !this.ended) this.tut = { step: 'wait', t: 0, said: '' }; };
     bus.on('tutorial', onTutorial);
-    this.events.once('shutdown', () => { bus.off('tutorial', onTutorial); this.coach?.remove(); this.coach = undefined; stopSpeech(); });
+    document.body.classList.add('in-service');
+    this.events.once('shutdown', () => {
+      bus.off('tutorial', onTutorial);
+      this.coach?.remove();
+      this.coach = undefined;
+      stopSpeech();
+      document.body.classList.remove('in-service');
+    });
     void this.prep(p);
     if (p.owned.jukebox) startMusic();
   }
@@ -177,7 +187,7 @@ export class ServiceScene extends CafeScene {
   private async prep(p: Progress) {
     // გაგრძელებულ დღეზე (გვერდის გადატვირთვის შემდეგ) მომზადება უკვე გაკეთებულია
     // სახეობა კლასის მიხედვით: გაყოფა თეფშებზე, საათები, კოტლეტის წუთები, წილადები
-    const pr = (p.today?.seen ?? 0) > 0 ? null : prepProblem(this.grade, { sub: p.adaptive?.sub.level ?? 2, div: p.adaptive?.div.level ?? 2 });
+    const pr = (p.today?.seen ?? 0) > 0 ? null : prepProblem(this.grade, { sub: p.adaptive?.sub.level ?? 2, div: p.adaptive?.div.level ?? 2 }, Math.random, this.hours);
     if (pr) {
       this.pauses.add('prep');
       await askProblem(S.service.prepTitle, pr, { cancellable: false });
@@ -206,7 +216,23 @@ export class ServiceScene extends CafeScene {
     img.setX(VIEW.w / 2 - width / 2).setScale((width / VIEW.w) / R, 1 / R);
   }
 
+  /**
+   * შეტყობინებები და სწავლების ყუთი — მაგიდის ზემოთ, ოთახის იატაკზე (ზემოთ კლიენტების ბუშტებია,
+   * ბავშვმა შეკვეთა ყოველთვის უნდა დაინახოს). CSS ცვლადები: app.css → .in-service.
+   */
+  private placeOverlays() {
+    const canvas = this.game.canvas;
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width) return;
+    const k = canvas.width / rect.width;
+    const benchTop = rect.top + (canvas.height / 2 + (BENCH_Y - VIEW.h / 2) * R) / k;
+    const css = document.documentElement.style;
+    css.setProperty('--above-bench', `${Math.round(Math.max(0, window.innerHeight - benchTop) + 8)}px`);
+    css.setProperty('--coach-h', `${this.coach?.offsetHeight ?? 0}px`);
+  }
+
   private fitRoom() {
+    this.placeOverlays();
     // ოთახის სილუეტი მაგიდის ზემოთ, HUD-ის ელემენტების გარეშე (იატაკის წინა წვერო მაგიდის ქვეშ შეიძლება შევიდეს)
     const canvas = this.game.canvas;
     const rect = canvas.getBoundingClientRect();
@@ -565,7 +591,7 @@ export class ServiceScene extends CafeScene {
     this.drawPlate();
     play('pop');
     this.chefHop();
-    if (burgerDone(this.plate)) toast(S.service.serveHint, 'menu_burger');
+    if (burgerDone(this.plate) && !this.tut) toast(S.service.serveHint, 'menu_burger'); // სწავლებისას ამას ყუთი ამბობს
     return true;
   }
 
@@ -864,7 +890,8 @@ export class ServiceScene extends CafeScene {
   // ---------------- დრო ----------------
 
   private clockText(f: number) {
-    const mins = Math.round((SERVICE.openHour + (SERVICE.closeHour - SERVICE.openHour) * Math.min(1, f)) * 60);
+    const [open, close] = this.hours;
+    const mins = Math.round((open + (close - open) * Math.min(1, f)) * 60);
     const hh = Math.floor(mins / 60), mm = Math.floor((mins % 60) / 10) * 10;
     return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
   }
@@ -1023,6 +1050,7 @@ export class ServiceScene extends CafeScene {
       ),
     );
     layers.coach.append(this.coach);
+    this.placeOverlays(); // შეტყობინება სწავლების ყუთის ზემოთ ჯდება
     if (autoRead() && !document.querySelector('#ui .modal')) void speak(text);
   }
 
@@ -1031,6 +1059,7 @@ export class ServiceScene extends CafeScene {
     this.tut = null;
     this.coach?.remove();
     this.coach = undefined;
+    this.placeOverlays();
     if (this.tutPtr) this.tweens.killTweensOf(this.tutPtr.list);
     this.tutPtr?.destroy();
     this.tutPtr = undefined;

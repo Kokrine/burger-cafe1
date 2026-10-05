@@ -6,6 +6,8 @@ import { EMERGENCY, RECIPES, SERVICE, type BurgerId } from '../config/service';
 import { cafeStats, scaledPrice } from './economy';
 import { bump, touchPlayDate } from './badges';
 import { pickQuests } from './quests';
+import { makeFeasibleOrder, needsOf } from './orders';
+import { dayHours } from './math/generator';
 
 const BURGERS: BurgerId[] = ['burger', 'cheeseburger', 'double'];
 
@@ -54,14 +56,46 @@ export function ensureToday(p: Progress): Today {
   if (p.today && p.today.day === p.day) {
     // განახლებამდე დაწყებულ დღეს დავალებები ჯერ არ ჰქონდა
     if (!p.today.quests && !p.today.played) p.today.quests = pickQuests(p);
+    p.today.hours ??= dayHours(p.today.grade ?? p.grade);
     return p.today;
   }
   p.today = {
     day: p.day, goal: dayGoal(p), rent: rentFor(p), purchases: [], ingredients: 0, sales: {},
     revenue: 0, tips: 0, served: 0, left: 0, wasted: 0, startStars: p.stars, played: false, grade: p.grade,
-    quests: pickQuests(p),
+    quests: pickQuests(p), hours: dayHours(p.grade),
   };
   return p.today;
+}
+
+/**
+ * მომწოდებლის დახმარება: ვერცერთ ბურგერს ვერ აკეთებ და საჭირო შეკვრების ფულიც არ გაქვს —
+ * ყველაზე იაფი ბურგერის ინგრედიენტები უფასოდ, თორემ თამაში ჩაიჭედება (ვერც ყიდი, ვერც ხსნი).
+ * დღეში ერთხელ. აბრუნებს მიცემულ ინგრედიენტებს (ცარიელი — დახმარება არ სჭირდება).
+ */
+export function supplierAid(p: Progress): StockId[] {
+  const t = ensureToday(p);
+  if (t.aid || t.played) return [];
+  const have = (id: string) => p.stock[id as StockId] ?? 0;
+  if (makeFeasibleOrder(p.menu, have)) return [];
+  const grade = t.grade ?? p.grade;
+  let best: Cart | null = null;
+  let bestCost = Infinity;
+  for (const b of BURGERS) {
+    if (!p.menu.includes(b)) continue;
+    for (const mid of RECIPES[b]) {
+      const cart: Cart = {};
+      for (const [id, k] of Object.entries(needsOf(['bun_bottom', ...mid], [])) as [StockId, number][]) {
+        if (have(id) < k) cart[id] = Math.ceil((k - have(id)) / STOCK[id].pack);
+      }
+      const cost = cartCost(cart, grade);
+      if (cost < bestCost) { best = cart; bestCost = cost; }
+    }
+  }
+  if (!best || p.money >= bestCost) return []; // ფული ჰყოფნის — თვითონ იყიდის
+  const given = Object.keys(best) as StockId[];
+  for (const id of given) p.stock[id] = have(id) + best[id]! * STOCK[id].pack;
+  t.aid = given;
+  return given;
 }
 
 export type Cart = Partial<Record<StockId, number>>;

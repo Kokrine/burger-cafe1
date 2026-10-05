@@ -3,8 +3,8 @@ import { newProgress } from '../core/store';
 import { STOCK } from '../config/economy';
 import { DIFFICULTY } from '../config/difficulty';
 import type { Grade } from '../core/types';
-import { buyPacks, cartCost, consume, ensureToday, finishDay, forecast, makeReport, neededStock, recordSale, rentFor } from './day';
-import { listSumProblem, profitProblem } from './math/generator';
+import { buyPacks, cartCost, consume, ensureToday, finishDay, forecast, makeReport, neededStock, recordSale, rentFor, supplierAid } from './day';
+import { hoursProblem, listSumProblem, prepProblem, profitProblem } from './math/generator';
 import { makeFeasibleOrder } from './orders';
 
 describe('საწყობი', () => {
@@ -98,7 +98,7 @@ describe('დღის ანგარიში', () => {
       for (const terms of [[3, 4, 2], [40, 35, 12], [300, 450], [5]]) {
         const pr = listSumProblem(terms, 'revenue', g);
         const sum = terms.reduce((a, b) => a + b, 0);
-        if (sum > DIFFICULTY[g].max) expect(pr).toBeNull();
+        if (sum > DIFFICULTY[g].max || terms.length < 2) expect(pr).toBeNull(); // ერთი რიცხვი შესაკრები არ არის
         else expect(pr!.answer).toBe(sum);
       }
       const profit = profitProblem(15, 9, g)!;
@@ -131,5 +131,56 @@ describe('დღის მდგრადობა', () => {
     const have = (s: Record<string, number>) => (id: string) => s[id] ?? 0;
     expect(makeFeasibleOrder(['burger'], have({ bun: 5, patty: 5, lettuce: 5 }))).toBeNull();
     expect(makeFeasibleOrder(['burger'], have({ bun: 5, patty: 5, lettuce: 5, ketchup: 5, mayo: 5 }))).not.toBeNull();
+  });
+});
+
+describe('სამუშაო საათები', () => {
+  it('დილის ამოცანა და სამუშაო დღის საათი ერთსა და იმავე საათებს იყენებს', () => {
+    for (const g of [1, 2, 3, 4] as Grade[]) {
+      const p = newProgress(g);
+      const t = ensureToday(p);
+      const [open, close] = t.hours!;
+      expect(close).toBeGreaterThan(open);
+      const pr = hoursProblem(g, Math.random, t.hours);
+      expect(pr.vars.open).toBe(`${open}:00`);
+      expect(pr.vars.close).toBe(`${close}:00`);
+      expect(pr.answer).toBe(close - open);
+      // prepProblem-იც იგივე საათებს გადასცემს
+      for (let i = 0; i < 30; i++) {
+        const q = prepProblem(g, { sub: 2, div: 2 }, Math.random, t.hours);
+        if (q?.kind === 'hours') expect(q.answer).toBe(close - open);
+      }
+    }
+  });
+  it('ძველ შენახულ დღეს საათები ემატება', () => {
+    const p = newProgress(2);
+    const t = ensureToday(p);
+    delete t.hours;
+    expect(ensureToday(p).hours).toBeDefined();
+  });
+});
+
+describe('მომწოდებლის დახმარება (თამაში არ ჩაიჭედება)', () => {
+  it('ფული და მარაგი ორივე ამოიწურა — უფასოდ იაფი ბურგერის ინგრედიენტები', () => {
+    const p = newProgress(2);
+    p.money = 0;
+    for (const k of Object.keys(p.stock)) p.stock[k as keyof typeof p.stock] = 0;
+    const given = supplierAid(p);
+    expect(given).toEqual(expect.arrayContaining(['bun', 'patty']));
+    expect(makeFeasibleOrder(p.menu, (id) => p.stock[id as keyof typeof p.stock] ?? 0)).not.toBeNull();
+    expect(p.money).toBe(0);
+    expect(ensureToday(p).ingredients).toBe(0); // ხარჯად არ ითვლება
+    expect(supplierAid(p)).toEqual([]); // დღეში ერთხელ
+  });
+  it('ფული ჰყოფნის — თვითონ იყიდის, საჩუქარი არ არის', () => {
+    const p = newProgress(2);
+    p.money = 50;
+    for (const k of Object.keys(p.stock)) p.stock[k as keyof typeof p.stock] = 0;
+    expect(supplierAid(p)).toEqual([]);
+  });
+  it('ბურგერი კეთდება — დახმარება არ სჭირდება', () => {
+    const p = newProgress(2);
+    p.money = 0;
+    expect(supplierAid(p)).toEqual([]);
   });
 });

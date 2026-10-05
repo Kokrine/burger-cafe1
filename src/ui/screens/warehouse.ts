@@ -4,7 +4,7 @@ import { S, t } from '../../i18n/strings.ka';
 import { store } from '../../core/store';
 import { SIDE_STOCK, STOCK, type StockId } from '../../config/economy';
 import { cafeStats } from '../../logic/economy';
-import { buyPacks, cartCost, forecast, neededStock, type Cart } from '../../logic/day';
+import { buyPacks, cartCost, forecast, neededStock, supplierAid, type Cart } from '../../logic/day';
 import { budgetProblem, gradeMax, packsProblem } from '../../logic/math/generator';
 import { play } from '../../audio/sfx';
 import { askProblem } from '../mathModal';
@@ -136,6 +136,13 @@ export function warehouseScreen(): HTMLElement {
     showScene('service');
   };
 
+  // ფულიც აღარ არის და ბურგერსაც ვერ აკეთებ — მომწოდებელი უფასოდ გეხმარება (თამაში არ ჩაიჭედება)
+  let aid: StockId[] = [];
+  store.update((q) => { aid = supplierAid(q); });
   render();
+  if (aid.length) {
+    toast(t(S.warehouse.aid, { names: aid.map((id) => S.stock[id]).join(', ') }), 'icon_box');
+    play('buy');
+  }
   return root;
 }
