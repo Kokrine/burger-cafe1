@@ -30,6 +30,7 @@ export const BADGES: BadgeDef[] = [
   { id: 'tycoon', icon: 'icon_store', target: () => 1, value: (p) => p.branches - 1 },
   { id: 'practice25', icon: 'icon_menu_book', target: () => 25, value: (p) => c(p, 'practice') },
   { id: 'events3', icon: 'icon_sparkle', target: () => 3, value: (p) => c(p, 'events') },
+  { id: 'allBuilt', icon: 'icon_level_up', target: () => 1, value: (p) => c(p, 'allBuilt') },
 ];
 
 export const badgeAvailable = (b: BadgeDef, g: Grade) => b.available?.(g) ?? true;

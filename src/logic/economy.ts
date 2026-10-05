@@ -90,3 +90,6 @@ export function cafeStats(p: Progress): CafeStats {
   s.cookSpeed = Math.round(s.cookSpeed * 100) / 100;
   return s;
 }
+
+/** მაღაზიის ყველა ნივთი ნაყიდია (ყველა დონე, ფილიალი, რეცეპტები, დეკორი — მაქსიმუმამდე). */
+export const allBuilt = (p: Pick<Progress, 'owned'>) => ITEMS.every((it) => it.starter || (p.owned[it.id] ?? 0) >= it.max);

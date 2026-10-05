@@ -5,7 +5,8 @@ import { store } from '../../core/store';
 import { bus } from '../../core/bus';
 import type { Progress } from '../../core/types';
 import { CAFE_LEVELS, ITEMS, PRODUCTS, type Category, type ItemDef, type ProductId } from '../../config/economy';
-import { applyPurchase, boughtCount, cafeStats, canBuy, itemById, itemPrice } from '../../logic/economy';
+import { allBuilt, applyPurchase, boughtCount, cafeStats, canBuy, itemById, itemPrice } from '../../logic/economy';
+import { bump } from '../../logic/badges';
 import { play } from '../../audio/sfx';
 import { askPurchase } from '../mathModal';
 import { button, h, img } from '../dom';
@@ -55,7 +56,10 @@ export function shopScreen(): HTMLElement {
     const price = itemPrice(it, p.grade);
     const done = await askPurchase(nameOf(it.id), p.money, price, p.grade);
     if (!done || !canBuy(store.get(), it).ok) return;
+    const wasAll = allBuilt(store.get());
     store.update((q) => applyPurchase(q, it));
+    const nowAll = !wasAll && allBuilt(store.get());
+    if (nowAll) store.update((q) => bump(q, 'allBuilt'));
     const big = it.effects.level || it.effects.branch;
     play(big ? 'levelUp' : 'buy');
     if (it.effects.level) toast(t(S.shop.levelUp, { name: S.levels[it.effects.level] }), 'icon_level_up');
@@ -66,6 +70,7 @@ export function shopScreen(): HTMLElement {
     root.style.pointerEvents = 'none';
     bus.emit('bought', it.id);
     window.setTimeout(() => {
+      if (nowAll) { unsub(); go('menu'); allCelebration(); return; }
       if (it.effects.branch) { unsub(); go('menu'); branchCelebration(); return; }
       if (it.effects.level) {
         const fresh = ITEMS.filter((x) => x.minLevel === it.effects.level && !x.starter).length;
@@ -220,6 +225,23 @@ export function shopScreen(): HTMLElement {
       ),
     ));
     window.setTimeout(() => burstAt(title, 16), 200);
+  };
+
+  /** ყველაფერი აშენდა — დიდი ზეიმი და შედეგები. */
+  const allCelebration = () => {
+    const p = store.get();
+    const profit = p.history.reduce((a, d) => a + d.profit, 0);
+    let close = () => {};
+    const title = h('h2', null, S.shop.allTitle);
+    close = openModal(h('div', { class: 'panel modal bounce-in' },
+      h('div', { class: 'panel-head' }, img('icon_level_up'), title),
+      h('div', { class: 'panel-body', style: 'display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center' },
+        h('div', { class: 'branch-pics' }, img('badge_gold'), img('icon_store'), img('badge_gold')),
+        h('p', { class: 'question' }, t(S.shop.allText, { days: p.history.length, profit, stars: p.stars })),
+        button(S.common.continue, () => close(), 'green big'),
+      ),
+    ));
+    window.setTimeout(() => { burstAt(title, 24); window.setTimeout(() => burstAt(title, 18), 500); }, 200);
   };
 
   const content = (p: Progress): HTMLElement => {

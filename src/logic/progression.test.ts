@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { newProgress } from '../core/store';
 import { ITEMS, PRODUCTS } from '../config/economy';
 import type { Grade } from '../core/types';
-import { applyPurchase, canBuy, cafeStats, itemById } from './economy';
+import { allBuilt, applyPurchase, canBuy, cafeStats, itemById } from './economy';
 import { branchIncome, closeService, ensureToday, makeReport, recordSale } from './day';
 import { LAYOUTS, isWall } from '../config/layout';
 import { CAFE_LEVELS } from '../config/economy';
@@ -81,5 +81,16 @@ describe('ყოველ ნივთს კაფეში თავისი 
         expect(s.y + 0.8, id).toBeLessThanOrEqual(D);
       }
     }
+  });
+});
+
+describe('ყველაფერი აშენდა', () => {
+  it('allBuilt მხოლოდ მაშინ, როცა ყველა ნივთი მაქსიმუმამდეა', () => {
+    const p = newProgress(4);
+    expect(allBuilt(p)).toBe(false);
+    for (const it of ITEMS) p.owned[it.id] = it.max;
+    expect(allBuilt(p)).toBe(true);
+    p.owned.table = 1;
+    expect(allBuilt(p)).toBe(false);
   });
 });
