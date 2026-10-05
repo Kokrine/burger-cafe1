@@ -8,6 +8,7 @@ import { listSumProblem, profitProblem } from '../../logic/math/generator';
 import { play } from '../../audio/sfx';
 import { askProblem } from '../mathModal';
 import { button, h, img } from '../dom';
+import { questList } from '../quests';
 import { burstAt, go } from '../layers';
 import { openShop } from './shop';
 
@@ -118,7 +119,7 @@ export function reportScreen(): HTMLElement {
       const stockTip = outs.length ? h('p', { class: 'stock-tip' }, img('icon_box'), t(S.report.stockTip, { names: outs.map((x) => S.stock[x]).join(', ') })) : '';
       const msg = h('p', { class: `feedback ${goalMet ? 'good' : 'try'}` },
         goalMet ? t(S.report.goalMet, { n: p.day + 1 }) : t(S.report.goalMiss, { n: today.goal - today.revenue, d: p.day }));
-      finale = h('section', { class: 'card ledger-card wide' }, stats, stockTip, msg,
+      finale = h('section', { class: 'card ledger-card wide' }, stats, stockTip, today.quests?.length ? questList(p, 'report-quests') : '', msg,
         h('div', { class: 'row', style: 'display:flex;gap:12px;flex-wrap:wrap;justify-content:center' },
           button(goalMet ? S.report.next : S.report.retry, () => close('menu'), 'green big', goalMet ? 'icon_level_up' : 'icon_clock'),
           button(S.report.shop, () => close('shop'), 'big', 'icon_store'),

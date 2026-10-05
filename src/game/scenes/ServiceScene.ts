@@ -779,6 +779,7 @@ export class ServiceScene extends CafeScene {
     store.update((q) => {
       q.money += earned;
       recordSale(q, [c.order.burger, ...c.order.sides], totalPrice, tip);
+      if (c.mood === 'happy') { const td = ensureToday(q); td.happy = (td.happy ?? 0) + 1; }
     });
     this.revenue += earned;
     this.tips += tip;

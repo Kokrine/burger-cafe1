@@ -8,6 +8,7 @@ import type { Grade, Op } from '../../core/types';
 import { button, h, img } from '../dom';
 import { go, toast } from '../layers';
 import { openStudentDetail } from './studentDetail';
+import { classInsight } from '../../logic/insight';
 
 const OPS: Op[] = ['add', 'sub', 'mul', 'div'];
 const T = S.teacherPanel;
@@ -58,6 +59,32 @@ export function teacherScreen(): HTMLElement {
     render();
   };
 
+  /** კლასის საერთო სურათი: სიზუსტე ოპერაციებით, სუსტი მხარე, ვის სჭირდება დახმარება. */
+  const insightCard = (): HTMLElement => {
+    const I = T.insight;
+    const ins = classInsight(rows);
+    const attempts = OPS.reduce((a, op) => a + ins.accuracy[op].attempts, 0);
+    const summary = { id: '', nickname: '', points: 0, stars: 0, money: 0, day: 0, cafeLevel: 0, badges: 0, lastActive: null,
+      accuracy: Object.fromEntries(OPS.map((op) => [op, { ...ins.accuracy[op], correct: ins.accuracy[op].firstTry }])) } as StudentSummary;
+    return h('section', { class: 'card insight-card' },
+      h('h3', null, img('icon_people'), I.title),
+      h('div', { class: 'insight-grid' },
+        h('div', null,
+          h('p', null, t(I.active, { n: ins.active7, total: ins.total })),
+          h('p', null, t(I.avgDay, { n: ins.avgDay })),
+          ins.weak
+            ? h('p', { class: 'stock-tip' }, img('icon_target'), t(I.weak, { op: S.profile.ops[ins.weak.op], pct: ins.weak.pct }))
+            : h('p', { class: 'hint' }, attempts >= 20 ? I.allGood : I.fewData),
+        ),
+        accuracyCell(summary),
+      ),
+      ins.attention.length ? h('div', { class: 'attention' }, h('b', null, I.attention),
+        ...ins.attention.map((a) => h('button', {
+          class: 'chip lock', onClick: safe(async () => openStudentDetail(await backend.studentDetail(a.id))),
+        }, `${a.nickname}: ${T.ops[a.op]} ${a.pct}%`))) : '',
+    );
+  };
+
   const classPanel = (c: ClassInfo): HTMLElement => {
     const nick = h('input', { class: 'field', maxlength: '30', placeholder: T.nickname, 'aria-label': T.nickname });
     const add = async () => {
@@ -99,6 +126,7 @@ export function teacherScreen(): HTMLElement {
       notice ? h('p', { class: 'pin-notice', role: 'status' }, img('icon_lock'), notice) : '',
       h('div', { class: 'add-row' }, nick, button(T.add, () => void add(), 'green', 'icon_chef_hat')),
       h('p', { class: 'hint' }, T.privacy),
+      rows.length ? insightCard() : '',
       h('h3', null, t(T.students, { n: rows.length }),
         h('button', { class: 'link-btn', onClick: () => void load() }, T.refresh)),
       rows.length ? h('div', { class: 'table-wrap' }, h('table', { class: 'students' },

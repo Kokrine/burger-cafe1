@@ -49,6 +49,14 @@ export function askProblem(title: string, pr: Problem, opts: AskOptions = {}): P
       let award = { points: 0, stars: 0, streakBonus: false, levelUp: false };
       store.update((p) => {
         award = recordAnswer(p, pr.op, attempt);
+        if (p.today && p.today.day === p.day) {
+          const td = p.today;
+          if (attempt === 1) {
+            td.mathFirst = (td.mathFirst ?? 0) + 1;
+            if (pr.kind === 'change') td.changeFirst = (td.changeFirst ?? 0) + 1;
+          }
+          td.bestStreak = Math.max(td.bestStreak ?? 0, p.streak);
+        }
         if (attempt !== 3) {
           bump(p, `ok_${pr.op}`);
           if (pr.kind === 'change') bump(p, 'change_ok');

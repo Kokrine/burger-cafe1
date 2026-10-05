@@ -5,6 +5,7 @@ import { BRANCH_INCOME, PRODUCTS, RENT_BASE, RENT_LEVEL, SIDE_STOCK, STOCK, type
 import { EMERGENCY, RECIPES, SERVICE, type BurgerId } from '../config/service';
 import { cafeStats, scaledPrice } from './economy';
 import { bump, touchPlayDate } from './badges';
+import { pickQuests } from './quests';
 
 const BURGERS: BurgerId[] = ['burger', 'cheeseburger', 'double'];
 
@@ -50,10 +51,15 @@ export function dayGoal(p: Progress): number {
 /** ახალი დღის დაწყება (ან იმავე დღის გაგრძელება, თუ უკვე დაწყებულია). */
 export function ensureToday(p: Progress): Today {
   // ნათამაშები დღეც იგივე დღეა, სანამ ანგარიში არ დასრულდება (finishDay → today = null)
-  if (p.today && p.today.day === p.day) return p.today;
+  if (p.today && p.today.day === p.day) {
+    // განახლებამდე დაწყებულ დღეს დავალებები ჯერ არ ჰქონდა
+    if (!p.today.quests && !p.today.played) p.today.quests = pickQuests(p);
+    return p.today;
+  }
   p.today = {
     day: p.day, goal: dayGoal(p), rent: rentFor(p), purchases: [], ingredients: 0, sales: {},
     revenue: 0, tips: 0, served: 0, left: 0, wasted: 0, startStars: p.stars, played: false, grade: p.grade,
+    quests: pickQuests(p),
   };
   return p.today;
 }

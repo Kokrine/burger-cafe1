@@ -6,6 +6,7 @@ import { store } from '../../core/store';
 import { button, h, img } from '../dom';
 import { go } from '../layers';
 import { startDay } from './service';
+import { questList, todaysQuests } from '../quests';
 import { openShop } from './shop';
 
 const DEV = new URLSearchParams(location.search).has('dev');
@@ -32,5 +33,6 @@ export function menuScreen(): HTMLElement {
     DEV ? button(S.menu.devMoney, () => store.update((q) => { q.money += 100; }), 'red') : null,
   );
 
-  return h('div', { class: 'interactive' }, title, bar);
+  const quests = todaysQuests(p).quests.length ? questList(p, 'menu-quests') : '';
+  return h('div', { class: 'interactive' }, title, bar, quests);
 }

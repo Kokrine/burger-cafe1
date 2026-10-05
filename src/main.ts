@@ -21,6 +21,8 @@ import { loginScreen } from './ui/screens/login';
 import { teacherScreen } from './ui/screens/teacher';
 import { profileScreen } from './ui/screens/profile';
 import { BADGES } from './logic/badges';
+import { questValue, settleQuests, type Quest } from './logic/quests';
+import { questText, rewardText } from './ui/quests';
 
 async function boot() {
   await Promise.all([
@@ -85,6 +87,19 @@ async function boot() {
       toast(t(S.badges.newBadge, { name: t(S.badges.list[id].name, { n: b.target(p.grade) }) }), b.icon);
       play('badge');
     }, 1200 + i * 3000));
+  });
+
+  // დღის დავალებები: შესრულებისთანავე ჯილდო (ბიზნესი → ₾, მათემატიკა → ⭐)
+  store.subscribe((p) => {
+    if (!isPlaying()) return;
+    const td = p.today;
+    if (!td?.quests?.some((q) => !q.done && questValue(q, td) >= q.target)) return;
+    let fresh: Quest[] = [];
+    store.update((q) => { fresh = settleQuests(q); });
+    fresh.forEach((q, i) => window.setTimeout(() => {
+      toast(`${t(S.quests.done, { name: questText(q) })} ${rewardText(q)}`, q.kind === 'math' ? 'star' : 'coin');
+      play('badge');
+    }, 600 + i * 2500));
   });
 
   // გვერდის დახურვისას ბოლო ცვლილებები შევინახოთ

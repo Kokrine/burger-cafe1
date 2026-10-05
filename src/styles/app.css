@@ -722,3 +722,44 @@ button { -webkit-tap-highlight-color: transparent; }
   .student-detail .info-strip { flex-wrap: wrap; overflow: visible; }
   .student-detail .math-row { grid-template-columns: 96px 1fr auto auto; }
 }
+
+/* ---------- დღის დავალებები (მენიუ, ანგარიში) ---------- */
+.quests { display: flex; flex-direction: column; gap: 8px; }
+.quests h3 { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 17px; font-weight: 900; }
+.quests h3 img { width: 26px; height: 26px; }
+.quest { background: #fff; border: 2.5px solid var(--c-ink); border-radius: var(--r-sm); padding: 6px 10px; }
+.quest p { margin: 0 0 4px; font-size: 14.5px; font-weight: 800; line-height: 1.25; display: flex; align-items: center; gap: 6px; }
+.quest p img { width: 20px; height: 20px; flex: none; }
+.quest.done { background: #E9FBEA; }
+.quest-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; }
+.quest-row small { font-weight: 800; color: var(--c-text-soft); }
+.quest-row .chip img { width: 18px; height: 18px; }
+.menu-quests {
+  position: absolute; right: max(12px, env(safe-area-inset-right)); top: 96px; width: 300px;
+  background: var(--c-panel); border: var(--stroke) solid var(--c-ink); border-radius: var(--r-md);
+  padding: 10px 12px; box-shadow: 4px 5px 0 rgba(43, 24, 16, .2);
+}
+.report-quests { width: 100%; max-width: 520px; text-align: left; }
+@media (max-height: 560px) {
+  .menu-quests { top: auto; bottom: 6px; right: max(6px, env(safe-area-inset-right)); width: 236px; padding: 6px 8px; gap: 4px; }
+  .quests h3 { font-size: 13.5px; }
+  .quests h3 img { width: 20px; height: 20px; }
+  .quest { padding: 3px 7px; }
+  .quest p { font-size: 11.5px; margin-bottom: 2px; }
+  .quest-row { gap: 5px; }
+  .quest-row small { font-size: 11px; }
+  .quest-row .chip { font-size: 11px; padding: 0 6px; }
+}
+@media (max-width: 820px) and (min-height: 561px) {
+  .menu-quests { top: auto; bottom: 150px; width: min(300px, 90vw); right: 50%; transform: translateX(50%); }
+}
+
+/* ---------- მასწავლებელი: კლასის სურათი ---------- */
+.insight-card { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; box-shadow: 4px 5px 0 rgba(43, 24, 16, .15); }
+.insight-card h3 { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 19px; }
+.insight-card h3 img { width: 28px; height: 28px; }
+.insight-card p { margin: 0 0 6px; font-weight: 700; }
+.insight-grid { display: grid; grid-template-columns: 1fr minmax(180px, 260px); gap: 16px; align-items: start; }
+.attention { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.attention .chip { cursor: pointer; font-family: inherit; }
+@media (max-width: 700px), (max-height: 560px) { .insight-grid { grid-template-columns: 1fr; } }
