@@ -3,7 +3,7 @@ import { newProgress } from '../core/store';
 import { PRODUCTS, STOCK } from '../config/economy';
 import { DIFFICULTY } from '../config/difficulty';
 import type { Grade } from '../core/types';
-import { buyPacks, cartCost, consume, ensureToday, finishDay, forecast, makeReport, neededStock, recordSale, rentFor, supplierAid } from './day';
+import { buyPacks, cartCost, consume, dayGoal, ensureToday, finishDay, forecast, makeReport, neededStock, recordSale, rentFor, supplierAid } from './day';
 import { hoursProblem, listSumProblem, prepProblem, profitProblem } from './math/generator';
 import { makeFeasibleOrder } from './orders';
 
@@ -185,5 +185,19 @@ describe('მომწოდებლის დახმარება (თა�
     const p = newProgress(2);
     p.money = 0;
     expect(supplierAid(p)).toEqual([]);
+  });
+});
+
+describe('დღის მიზანი და პროგნოზი', () => {
+  it('მიზანი გვერდით კერძებსაც ითვლის — ფრის ქვაბის ყიდვის შემდეგ იზრდება', () => {
+    for (const g of [2, 3, 4] as Grade[]) {
+      const p = newProgress(g);
+      const before = dayGoal(p);
+      p.menu = [...p.menu, 'fries'];
+      expect(dayGoal(p)).toBeGreaterThan(before);
+    }
+  });
+  it('3–4 კლასში (1–3 ცალი შეკვეთაში) გვერდით კერძს მეტი მარაგი სჭირდება', () => {
+    expect(forecast(['burger', 'fries'], 6, 2).potato).toBeGreaterThan(forecast(['burger', 'fries'], 6, 1).potato);
   });
 });

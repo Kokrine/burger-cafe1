@@ -4,7 +4,7 @@ import { S, t } from '../../i18n/strings.ka';
 import { store } from '../../core/store';
 import { SIDE_STOCK, STOCK, type StockId } from '../../config/economy';
 import { cafeStats } from '../../logic/economy';
-import { buyPacks, cartCost, forecast, neededStock, supplierAid, type Cart } from '../../logic/day';
+import { avgSideQty, buyPacks, cartCost, forecast, neededStock, supplierAid, type Cart } from '../../logic/day';
 import { budgetProblem, gradeMax, packsProblem } from '../../logic/math/generator';
 import { play } from '../../audio/sfx';
 import { askProblem } from '../mathModal';
@@ -22,7 +22,7 @@ export function warehouseScreen(): HTMLElement {
     const p = store.get();
     const today = p.today!;
     const st = cafeStats(p);
-    const fc = forecast(p.menu, st.customersPerDay);
+    const fc = forecast(p.menu, st.customersPerDay, avgSideQty(p));
     const ids = neededStock(p.menu);
     const packs = Object.values(cart).reduce((a, b) => a + (b ?? 0), 0);
     const cost = cartCost(cart, p.grade);
@@ -130,7 +130,7 @@ export function warehouseScreen(): HTMLElement {
       play('wrong');
       return;
     }
-    const fc = forecast(p.menu, cafeStats(p).customersPerDay);
+    const fc = forecast(p.menu, cafeStats(p).customersPerDay, avgSideQty(p));
     if (neededStock(p.menu).some((id) => (p.stock[id] ?? 0) < fc[id])) toast(S.warehouse.low, 'icon_box');
     go('service');
     showScene('service');

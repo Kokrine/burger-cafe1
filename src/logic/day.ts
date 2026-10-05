@@ -7,7 +7,7 @@ import { cafeStats, scaledPrice } from './economy';
 import { bump, touchPlayDate } from './badges';
 import { pickQuests } from './quests';
 import { makeFeasibleOrder, needsOf } from './orders';
-import { dayHours } from './math/generator';
+import { dayHours, sideQtyMax } from './math/generator';
 
 const BURGERS: BurgerId[] = ['burger', 'cheeseburger', 'double'];
 
@@ -27,8 +27,11 @@ export function neededStock(menu: readonly string[]): StockId[] {
   return (Object.keys(STOCK) as StockId[]).filter((id) => s.has(id));
 }
 
-/** დაახლოებით რამდენი ცალი დასჭირდება დღეს (კლიენტების რაოდენობით). */
-export function forecast(menu: readonly string[], customers: number): Record<StockId, number> {
+/** საშუალოდ რამდენ ცალს უკვეთავს კლიენტი ერთი გვერდითი კერძიდან (3–4 კლასში 1–3 ცალი). */
+export const avgSideQty = (p: Pick<Progress, 'grade' | 'adaptive'>) => (1 + sideQtyMax(p.grade, p.adaptive?.mul.level)) / 2;
+
+/** დაახლოებით რამდენი ცალი დასჭირდება დღეს (კლიენტების რაოდენობით). sideQty — საშუალო რაოდენობა შეკვეთაში. */
+export function forecast(menu: readonly string[], customers: number, sideQty = 1): Record<StockId, number> {
   const out = Object.fromEntries(Object.keys(STOCK).map((k) => [k, 0])) as Record<StockId, number>;
   const burgers = BURGERS.filter((b) => menu.includes(b));
   const sides = (['juice', 'fries', 'icecream'] as const).filter((s) => menu.includes(s));
@@ -37,7 +40,7 @@ export function forecast(menu: readonly string[], customers: number): Record<Sto
     out.bun += share;
     for (const v of RECIPES[b]) for (const l of v) out[l as StockId] += share / RECIPES[b].length;
   }
-  for (const s of sides) out[SIDE_STOCK[s]] += (SERVICE.sideChance * 1.4) / sides.length;
+  for (const s of sides) out[SIDE_STOCK[s]] += (SERVICE.sideChance * sideQty * 1.4) / sides.length; // 1.4 — მარაგი
   for (const k of Object.keys(out) as StockId[]) out[k] = Math.ceil(out[k] * customers);
   return out;
 }
@@ -45,9 +48,13 @@ export function forecast(menu: readonly string[], customers: number): Record<Sto
 /** დღის მიზანი (შემოსავალი ₾). */
 export function dayGoal(p: Progress): number {
   const st = cafeStats(p);
-  const burgers = st.menu.filter((m): m is BurgerId => (BURGERS as string[]).includes(m));
-  const avg = burgers.reduce((a, b) => a + PRODUCTS[b].prices[p.grade][0], 0) / Math.max(1, burgers.length);
-  return Math.max(1, Math.round(st.customersPerDay * avg * SERVICE.goalShare));
+  const price = (id: ProductId) => PRODUCTS[id].prices[p.grade][0];
+  const avgOf = (ids: ProductId[]) => ids.reduce((a, b) => a + price(b), 0) / Math.max(1, ids.length);
+  const burgers = st.menu.filter((m) => (BURGERS as string[]).includes(m));
+  const sides = st.menu.filter((m) => m in SIDE_STOCK);
+  // მოსალოდნელი შეკვეთა: ბურგერი + (ზოგჯერ) გვერდითი კერძები — ფრი/ნაყინიც შემოსავალია
+  const perCustomer = avgOf(burgers) + (sides.length ? SERVICE.sideChance * avgSideQty(p) * avgOf(sides) : 0);
+  return Math.max(1, Math.round(st.customersPerDay * perCustomer * SERVICE.goalShare));
 }
 
 /** ახალი დღის დაწყება (ან იმავე დღის გაგრძელება, თუ უკვე დაწყებულია). */

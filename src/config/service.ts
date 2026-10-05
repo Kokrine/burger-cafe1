@@ -42,7 +42,7 @@ export const SERVICE = {
   openHour: 9,
   closeHour: 17,
   /** დღის მიზანი = მოსალოდნელი შემოსავლის ეს წილი. */
-  goalShare: 0.5,
+  goalShare: 0.55,
 };
 
 
