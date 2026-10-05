@@ -28,7 +28,8 @@ export function cashierPlan(order: Order, grade: Grade, levels: Record<Op, numbe
   const total = lines.reduce((a, l, i) => a + linePay(l, promo && i === promoLine), 0);
   const problems: Problem[] = [];
   if (lines.length > 1 || lines.some((l) => l.qty > 1)) problems.push(sumProblem(lines, grade, rnd, promo ? promoLine : -1));
-  const share = rnd() < 0.2 + levels.div * 0.06 ? shareProblem(total, grade, rnd) : null;
+  const items = lines.reduce((a, l) => a + l.qty, 0);
+  const share = rnd() < 0.2 + levels.div * 0.06 ? shareProblem(total, grade, rnd, items) : null;
   const second = share ?? changeProblem(total, grade, levels.sub, rnd);
   if (second) problems.push(second);
   return { problems, total, promo };

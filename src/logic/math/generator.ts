@@ -144,10 +144,13 @@ export function changeProblem(total: number, grade: Grade, level = ADAPTIVE.star
   };
 }
 
-/** „3 მეგობარი ანგარიშს თანაბრად იყოფს: 18 ₾" — null, თუ თანაბრად არ იყოფა. */
-export function shareProblem(total: number, grade: Grade, rnd: Rnd = Math.random): Problem | null {
+/**
+ * „3 მეგობარი ანგარიშს თანაბრად იყოფს: 18 ₾" — null, თუ თანაბრად არ იყოფა.
+ * maxParts — შეკვეთაში რამდენი ცალია: ერთ ბურგერს 5 მეგობარი არ იყოფს.
+ */
+export function shareProblem(total: number, grade: Grade, rnd: Rnd = Math.random, maxParts = Infinity): Problem | null {
   if (!allows(grade, 'div')) return null;
-  const opts = DIFFICULTY[grade].divisors.filter((n) => total % n === 0 && total / n >= 1);
+  const opts = DIFFICULTY[grade].divisors.filter((n) => n <= maxParts && total % n === 0 && total / n >= 1);
   if (!opts.length) return null;
   const n = pick(opts, rnd);
   return finalize({

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { burgerDone, canAdd, layerFor, makeOrder, matches, usedIngredients, type Order } from './orders';
 import { cashierPlan, orderLines } from './cashier';
 import { DIFFICULTY } from '../config/difficulty';
-import { sideQtyMax } from './math/generator';
+import { shareProblem, sideQtyMax } from './math/generator';
 import type { Grade } from '../core/types';
 
 const seeded = (seed: number) => () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
@@ -67,6 +67,17 @@ describe('სალაროს გეგმა', () => {
       }
       const sum = plan.problems.find((p) => p.kind === 'sum' || p.kind === 'sumPromo');
       if (sum) expect(sum.answer).toBe(plan.total);
+    }
+  });
+});
+
+describe('ანგარიშის გაყოფა', () => {
+  it('მეგობრების რაოდენობა შეკვეთის ცალებს არ აჭარბებს (ერთ ბურგერს 5 კაცი არ იყოფს)', () => {
+    for (let i = 0; i < 300; i++) {
+      const p = shareProblem(30, 3, Math.random, 1);
+      expect(p).toBeNull();
+      const q = shareProblem(30, 3, Math.random, 3);
+      if (q) expect(Number(q.vars.n)).toBeLessThanOrEqual(3);
     }
   });
 });
