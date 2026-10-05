@@ -114,11 +114,13 @@ export class SupabaseBackend implements Backend {
 
   async listClasses(): Promise<ClassInfo[]> {
     await this.teacherId();
-    const { data, error } = await this.sb.from('classes').select('id, name, grade, code, students(count)').order('created_at');
+    // students(count) ცხრილზე სრულ SELECT-ს ითხოვს, მოსწავლეებზე კი მხოლოდ რამდენიმე სვეტია ღია
+    // (pin_hash დამალულია) — ამიტომ ვიღებთ id-ებს და ვითვლით აქ.
+    const { data, error } = await this.sb.from('classes').select('id, name, grade, code, students(id)').order('created_at');
     if (error) fail(error);
     return (data ?? []).map((c) => ({
       id: c.id as string, name: c.name as string, grade: c.grade as Grade, code: c.code as string,
-      studentCount: (c.students as { count: number }[] | null)?.[0]?.count ?? 0,
+      studentCount: (c.students as { id: string }[] | null)?.length ?? 0,
     }));
   }
 

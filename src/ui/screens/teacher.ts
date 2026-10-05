@@ -2,7 +2,7 @@
 // ოპერაციების მიხედვით, ბოლო აქტივობა), PIN-ის აღდგენა.
 import { S, t } from '../../i18n/strings.ka';
 import { backend } from '../../data';
-import type { ClassInfo, StudentSummary } from '../../data/backend';
+import { BackendFailure, type ClassInfo, type StudentSummary } from '../../data/backend';
 import { currentSession, signOut } from '../../core/auth';
 import type { Grade, Op } from '../../core/types';
 import { button, h, img } from '../dom';
@@ -37,10 +37,23 @@ export function teacherScreen(): HTMLElement {
   let rows: StudentSummary[] = [];
   let notice = '';
 
+  /** სერვერის შეცდომა → გასაგები შეტყობინება (ქსელი, უფლებები და ა.შ.). */
+  const fail = (e: unknown) => {
+    console.error(e);
+    toast((e instanceof BackendFailure && S.login.errors[e.code]) || S.login.errors.network, 'icon_lock');
+  };
+  /** ერთი მოქმედება შეცდომის დაჭერით — ღილაკზე მეორედ დაჭერა აღარ უნდა დასჭირდეს. */
+  const safe = (fn: () => Promise<void>) => async () => { try { await fn(); } catch (e) { fail(e); } };
+
+  // სიის განახლების შეცდომა ცალკეა: კლასი/მოსწავლე უკვე შეიქმნა, თავიდან შექმნა არ სჭირდება
   const load = async () => {
-    classes = await backend.listClasses();
-    if (!selected || !classes.some((c) => c.id === selected)) selected = classes[0]?.id ?? null;
-    rows = selected ? await backend.classOverview(selected) : [];
+    try {
+      classes = await backend.listClasses();
+      if (!selected || !classes.some((c) => c.id === selected)) selected = classes[0]?.id ?? null;
+      rows = selected ? await backend.classOverview(selected) : [];
+    } catch (e) {
+      fail(e);
+    }
     render();
   };
 
@@ -50,10 +63,11 @@ export function teacherScreen(): HTMLElement {
       try {
         const { student, pin } = await backend.addStudent(c.id, nick.value);
         notice = t(T.pinShown, { name: student.nickname, pin });
-        await load();
-      } catch {
-        toast(S.login.errors['bad-input'], 'icon_lock');
+      } catch (e) {
+        fail(e);
+        return;
       }
+      await load();
     };
     nick.addEventListener('keydown', (e) => { if (e.key === 'Enter') void add(); });
     const copyCode = () => {
@@ -66,7 +80,7 @@ export function teacherScreen(): HTMLElement {
           h('div', { class: 'grade-pick' }, h('span', null, `${T.grade}:`),
             ...([1, 2, 3, 4] as Grade[]).map((g) => h('button', {
               class: `opt grade ${c.grade === g ? 'on' : ''}`,
-              onClick: async () => { await backend.setClassGrade(c.id, g); await load(); },
+              onClick: safe(async () => { await backend.setClassGrade(c.id, g); await load(); }),
             }, t(T.gradeN, { n: g })))),
         ),
         h('div', { class: 'code-box' }, h('small', null, T.code), h('b', null, c.code),
@@ -89,18 +103,18 @@ export function teacherScreen(): HTMLElement {
           h('td', null, accuracyCell(s)),
           h('td', null, lastActive(s.lastActive)),
           h('td', { class: 'actions' },
-            button(T.resetPin, async () => {
+            button(T.resetPin, safe(async () => {
               if (!window.confirm(t(T.resetConfirm, { name: s.nickname }))) return;
               const pin = await backend.resetPin(s.id);
               notice = t(T.pinShown, { name: s.nickname, pin });
               render();
-            }, 'teal'),
-            button(T.remove, async () => {
+            }), 'teal'),
+            button(T.remove, safe(async () => {
               if (!window.confirm(t(T.removeConfirm, { name: s.nickname }))) return;
               await backend.removeStudent(s.id);
               notice = '';
               await load();
-            }, 'red'),
+            }), 'red'),
           ),
         ))),
       )) : h('p', { class: 'hint' }, T.empty),
@@ -118,15 +132,21 @@ export function teacherScreen(): HTMLElement {
         (e.currentTarget as HTMLElement).classList.add('on');
       },
     }, String(g))));
+    let creating = false;
     const create = async () => {
+      if (creating) return; // ორმაგი დაჭერა — ერთი კლასი
+      creating = true;
       try {
         const c = await backend.createClass(name.value, grade);
         selected = c.id;
         notice = '';
-        await load();
-      } catch {
-        toast(S.login.errors['bad-input'], 'icon_lock');
+      } catch (e) {
+        fail(e);
+        return;
+      } finally {
+        creating = false;
       }
+      await load();
     };
     const current = classes.find((c) => c.id === selected);
     root.replaceChildren(h('div', { class: 'panel teacher-panel' },
