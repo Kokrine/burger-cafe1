@@ -2,6 +2,8 @@ import { defineConfig } from 'vite';
 import { resolve } from 'node:path';
 
 export default defineConfig({
+  // GitHub Pages-ზე საიტი ქვესაქაღალდეშია (/burger-cafe1/) — მისამართს workflow გადასცემს BASE_PATH-ით
+  base: process.env.BASE_PATH ?? '/',
   server: { port: 5173, host: true },
   // Windows-ის აპის ვირტუალიზებულ AppData-ში realpath სხვა საქაღალდეს აბრუნებს.
   resolve: { preserveSymlinks: true },

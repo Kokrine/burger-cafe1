@@ -7,11 +7,11 @@ import { S } from '../i18n/strings.ka';
 type Entry = { file: string; w: number; h: number; anchor: [number, number]; stack?: number; slots?: [number, number][]; height?: number };
 type Manifest = Record<string, Entry>;
 
-const A = (k: string) => `/assets/${k}.svg`;
+const A = (k: string) => `${import.meta.env.BASE_URL}assets/${k}.svg`;
 const P = S.preview;
 
 async function main() {
-  const manifest: Manifest = await (await fetch('/assets/manifest.json')).json();
+  const manifest: Manifest = await (await fetch(`${import.meta.env.BASE_URL}assets/manifest.json`)).json();
   const app = document.getElementById('app')!;
   app.innerHTML = `
   <main>
