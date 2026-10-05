@@ -40,7 +40,10 @@ export function newProgress(grade: Grade = 2): Progress {
 /** ძველი შენახვები ახალ ველებს ავსებს ნაგულისხმევით. */
 export function normalize(p: Progress): Progress {
   const base = newProgress(p.grade);
-  return { ...base, ...p, counters: { ...(p.counters ?? {}) }, stock: { ...base.stock, ...(p.stock ?? {}) } };
+  const q = { ...base, ...p, counters: { ...(p.counters ?? {}) }, stock: { ...base.stock, ...(p.stock ?? {}) } };
+  // სწავლებამდე შექმნილი პროგრესი: ვინც უკვე თამაშობდა, სწავლებას აღარ ვაჩვენებთ
+  if (q.tutorialDone === undefined && q.history.length > 0) q.tutorialDone = true;
+  return q;
 }
 
 type Listener = (p: Progress) => void;

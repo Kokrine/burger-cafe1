@@ -8,7 +8,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Grade, Op, Progress } from '../core/types';
 import {
   BackendFailure, type Backend, type ClassInfo, type Roster, type Session, type StudentPublic,
-  type StudentSession, type StudentSummary, type Teacher,
+  type StudentDetail, type StudentSession, type StudentSummary, type Teacher,
 } from './backend';
 import { OfflineBackend } from './offline';
 
@@ -189,6 +189,18 @@ export class SupabaseBackend implements Backend {
         badges: p?.badges ?? 0, accuracy: acc, lastActive: p?.last_active ?? null,
       };
     });
+  }
+
+  async studentDetail(studentId: string): Promise<StudentDetail> {
+    await this.teacherId();
+    // RLS: მასწავლებელი ხედავს მხოლოდ თავისი კლასის მოსწავლეს და მის პროგრესს
+    const { data, error } = await this.sb.from('students').select('id, nickname, progress(data)').eq('id', studentId).maybeSingle();
+    if (error) fail(error);
+    if (!data) throw new BackendFailure('not-found');
+    const raw = data.progress as { data: Progress } | { data: Progress }[] | null;
+    const row = Array.isArray(raw) ? raw[0] : raw;
+    const p = row?.data && Object.keys(row.data).length ? row.data : null;
+    return { id: data.id as string, nickname: data.nickname as string, progress: p };
   }
 
   // ---------------- მოსწავლე ----------------

@@ -4,7 +4,7 @@
 import type { Grade, Progress } from '../core/types';
 import {
   BackendFailure, type Backend, type ClassInfo, type Roster, type Session, type StudentPublic,
-  type StudentSession, type StudentSummary, type Teacher,
+  type StudentDetail, type StudentSession, type StudentSummary, type Teacher,
 } from './backend';
 import { DEMO } from './demo';
 
@@ -189,6 +189,11 @@ export class OfflineBackend implements Backend {
         lastActive: p?.lastActive ?? null,
       };
     });
+  }
+
+  async studentDetail(studentId: string): Promise<StudentDetail> {
+    const s = this.ownStudent(studentId);
+    return { id: s.id, nickname: s.nickname, progress: this.read<Progress | null>(K.progress(s.id), null) };
   }
 
   // ---------------- მოსწავლე ----------------

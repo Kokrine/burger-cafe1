@@ -28,6 +28,9 @@ export interface StudentSummary {
   lastActive: string | null;
 }
 
+/** მასწავლებლისთვის — ერთი მოსწავლის სრული სასწავლო სურათი (პროგრესი, ისტორია, სირთულის დონეები). */
+export interface StudentDetail { id: string; nickname: string; progress: Progress | null }
+
 export type BackendError = 'email-taken' | 'bad-login' | 'bad-code' | 'bad-pin' | 'locked' | 'bad-input' | 'not-found' | 'confirm-email' | 'network';
 export class BackendFailure extends Error {
   constructor(public code: BackendError, public until?: number) {
@@ -54,6 +57,7 @@ export interface Backend {
   resetPin(studentId: string): Promise<string>;
   removeStudent(studentId: string): Promise<void>;
   classOverview(classId: string): Promise<StudentSummary[]>;
+  studentDetail(studentId: string): Promise<StudentDetail>;
   // მოსწავლე
   roster(classCode: string): Promise<Roster>;
   studentSignIn(classCode: string, studentId: string, pin: string): Promise<StudentSession>;

@@ -7,6 +7,7 @@ import { currentSession, signOut } from '../../core/auth';
 import type { Grade, Op } from '../../core/types';
 import { button, h, img } from '../dom';
 import { go, toast } from '../layers';
+import { openStudentDetail } from './studentDetail';
 
 const OPS: Op[] = ['add', 'sub', 'mul', 'div'];
 const T = S.teacherPanel;
@@ -103,7 +104,10 @@ export function teacherScreen(): HTMLElement {
       rows.length ? h('div', { class: 'table-wrap' }, h('table', { class: 'students' },
         h('thead', null, h('tr', null, ...[T.cols.name, T.cols.points, T.cols.stars, T.cols.day, T.cols.level, T.cols.badges, T.cols.accuracy, T.cols.last, T.cols.actions].map((x) => h('th', null, x)))),
         h('tbody', null, ...rows.map((s) => h('tr', null,
-          h('td', { class: 'name' }, s.nickname),
+          h('td', { class: 'name' }, h('button', {
+            class: 'link-btn name-link', title: T.detail.open,
+            onClick: safe(async () => openStudentDetail(await backend.studentDetail(s.id))),
+          }, s.nickname)),
           h('td', null, String(s.points)),
           h('td', null, String(s.stars)),
           h('td', null, String(s.day)),

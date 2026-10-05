@@ -4,7 +4,8 @@ import { store, newProgress } from '../core/store';
 import type { Grade } from '../core/types';
 import { bus } from '../core/bus';
 import { button, h, img } from './dom';
-import { go, openModal } from './layers';
+import { go, openModal, toast } from './layers';
+import { session } from '../core/session';
 import { isGuest, signOut } from '../core/auth';
 import { t } from '../i18n/strings.ka';
 import { showScene } from '../game/game';
@@ -39,6 +40,13 @@ export function openPause() {
       }, 'white', p.settings.sound ? 'icon_sound_on' : 'icon_sound_off'),
       h('h3', { style: 'margin:6px 0 0;text-align:center' }, P.grade),
       isGuest() ? gradeRow : h('p', { class: 'hint', style: 'text-align:center' }, t(P.gradeFromTeacher, { n: p.grade })),
+      button(S.tutorial.replay, () => {
+        store.update((q) => { q.tutorialDone = false; });
+        done();
+        // სამუშაო დღე მიმდინარეობს — სცენა სწავლებას ახლავე იწყებს
+        if (session.active) bus.emit('tutorial');
+        toast(session.active ? S.tutorial.replayNow : S.tutorial.replayNext, 'icon_chef_hat');
+      }, 'white', 'icon_chef_hat'),
       button(P.logout, async () => { done(); showScene('cafe'); await signOut(); go('login'); }, 'white', 'icon_chef_hat'),
       !isGuest() ? '' : button(P.reset, () => {
         if (window.confirm(P.resetConfirm)) {

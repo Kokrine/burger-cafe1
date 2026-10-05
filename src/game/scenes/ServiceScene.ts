@@ -45,6 +45,7 @@ interface Cust {
 }
 
 type TutStep = 'wait' | 'look' | 'build' | 'serve' | 'cash' | 'done';
+type Tut = { step: TutStep; t: number; said: string; cust?: Cust };
 
 export interface DaySummary { day: number; served: number; left: number; revenue: number; tips: number; goal: number }
 
@@ -84,7 +85,7 @@ export class ServiceScene extends CafeScene {
   private ended = false;
   private built = false;
   // პირველი დღის სწავლება
-  private tut: { step: TutStep; t: number; said: string } | null = null;
+  private tut: Tut | null = null;
   private tutPtr?: Phaser.GameObjects.Container;
   private coach?: HTMLElement;
   private binAt = new Map<Ingredient, [number, number]>();
@@ -149,8 +150,11 @@ export class ServiceScene extends CafeScene {
     this.sinceSpawn = SERVICE.spawnEvery - SERVICE.firstSpawn;
     setSession({ active: true, goal: this.goal, earned: 0, clock: this.clockText(0) });
     // პირველი სამუშაო დღე — ნაბიჯ-ნაბიჯ სწავლება (ერთხელ)
-    if (!p.tutorialDone && p.history.length === 0) this.tut = { step: 'wait', t: 0, said: '' };
-    this.events.once('shutdown', () => { this.coach?.remove(); this.coach = undefined; });
+    if (!p.tutorialDone) this.tut = { step: 'wait', t: 0, said: '' };
+    // პაუზის მენიუდან „სწავლების თავიდან ნახვა" — დღის შუაშიც
+    const onTutorial = () => { if (!this.tut && !this.ended) this.tut = { step: 'wait', t: 0, said: '' }; };
+    bus.on('tutorial', onTutorial);
+    this.events.once('shutdown', () => { bus.off('tutorial', onTutorial); this.coach?.remove(); this.coach = undefined; });
     void this.prep(p);
     if (p.owned.jukebox) startMusic();
   }
@@ -629,7 +633,7 @@ export class ServiceScene extends CafeScene {
       }
       return false;
     }
-    if (this.tut) order.sides = []; // სწავლების კლიენტს — მხოლოდ ბურგერი
+    if (this.tut && !this.custs.length) order.sides = []; // სწავლების კლიენტს — მხოლოდ ბურგერი
     const spot = free[Math.floor(Math.random() * free.length)];
     const present = new Set(this.custs.map((c) => c.id));
     const pool = CUSTOMER_IDS.filter((id) => !present.has(id));
@@ -860,7 +864,7 @@ export class ServiceScene extends CafeScene {
     // კლიენტები
     this.sinceSpawn += dt;
     const waiting = this.custs.filter((c) => c.state === 'wait' || c.state === 'walk').length;
-    if (this.spawned < this.total && !(this.tut && this.spawned >= 1) && (this.sinceSpawn >= SERVICE.spawnEvery || (waiting === 0 && this.sinceSpawn >= 2))) {
+    if (this.spawned < this.total && !(this.tut && this.custs.length >= 1) && (this.sinceSpawn >= SERVICE.spawnEvery || (waiting === 0 && this.sinceSpawn >= 2))) {
       if (this.spawn()) this.sinceSpawn = 0;
     }
     for (const c of [...this.custs]) {
@@ -938,6 +942,7 @@ export class ServiceScene extends CafeScene {
     const tt = this.tut;
     if (!tt || tt.said === text) return;
     tt.said = text;
+    play(tt.step === 'done' ? 'badge' : 'order');
     this.coach?.remove();
     this.coach = h('div', { class: 'coach', role: 'status', 'aria-live': 'polite' },
       h('img', { src: `${import.meta.env.BASE_URL}assets/icon_chef_hat.svg`, alt: '' }),
@@ -967,7 +972,8 @@ export class ServiceScene extends CafeScene {
     const tt = this.tut;
     if (!tt) return;
     const T2 = S.tutorial;
-    const c = this.custs[0];
+    if (tt.step === 'wait') tt.cust = this.custs.find((x) => x.state === 'wait');
+    const c = tt.cust;
     const bubbleAt = (): [number, number] | null => {
       const b = c?.bubble[0] as Img | undefined;
       return b ? [b.x, b.y - 80] : null;
@@ -986,6 +992,19 @@ export class ServiceScene extends CafeScene {
         if (!c || c.state !== 'wait') { tt.step = 'cash'; break; }
         if (burgerDone(this.plate) && matches(c.order, this.plate, this.tray)) { tt.step = 'serve'; break; }
         const next = c.order.layers[this.plate.length];
+        if (!next && burgerDone(this.plate)) {
+          // ბურგერი მზადაა, აკლია გვერდითი კერძი (წვენი/ფრი/ნაყინი)
+          const tray = [...this.tray];
+          const need = c.order.sides.find((sd) => { const k = tray.indexOf(sd); if (k < 0) return true; tray.splice(k, 1); return false; });
+          const m = need && this.machines.find((x) => x.side === need);
+          if (m) {
+            const item = S.products[m.side] ?? m.side;
+            if (m.state === 'ready' && m.product) { this.pointAt([m.product.x, m.product.y]); this.say(t(T2.sideTake, { item })); }
+            else if (m.state === 'working') { this.pointAt([m.x, m.top + 70]); this.say(t(T2.sideWait, { item })); }
+            else { this.pointAt([m.x, m.top + 70]); this.say(t(T2.sideStart, { item })); }
+          }
+          break;
+        }
         if (next === 'patty') {
           const ready = this.grills.find((g) => g.state === 'ready');
           const cooking = this.grills.find((g) => g.state === 'cooking');
@@ -1011,7 +1030,7 @@ export class ServiceScene extends CafeScene {
       case 'cash':
         this.pointAt(null);
         this.say(T2.cash);
-        if (!c || c.state === 'leave') { tt.step = 'done'; tt.t = 0; }
+        if (!c || c.state === 'leave' || !this.custs.includes(c)) { tt.step = 'done'; tt.t = 0; }
         break;
       case 'done':
         this.pointAt(null);

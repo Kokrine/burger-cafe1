@@ -703,3 +703,22 @@ button { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) { .coach { animation: none; } }
 /* ამოცანის/მარაგის ფანჯარა ღიაა — სწავლების ყუთი არ უნდა ფარავდეს მას */
 #ui:has(.modal) .coach, #ui:has(.overlay .modal) .coach { display: none; }
+
+/* ---------- მასწავლებელი: მოსწავლის ბარათი ---------- */
+.detail-modal { width: min(900px, 100%); }
+.detail-modal .panel-body.student-detail { display: block; text-align: left; }
+.student-detail h3 { margin: 14px 0 8px; font-size: 18px; font-weight: 900; }
+.student-detail .math-bars { margin-bottom: 8px; }
+.student-detail .math-row { grid-template-columns: 110px 1fr minmax(150px, auto) auto; }
+.student-detail .math-row.low .bar-lg i { background: var(--c-danger); }
+.name-link { padding: 0; min-height: 0; font-size: inherit; text-align: left; color: var(--c-ink); }
+@media (max-height: 560px) {
+  .detail-modal { max-height: calc(100dvh - 8px); }
+  .student-detail h3 { margin: 8px 0 4px; font-size: 15px; }
+  .student-detail .math-row { grid-template-columns: 76px 1fr auto auto; gap: 6px; font-size: 12.5px; }
+  .student-detail .math-row b { font-size: 13px; }
+}
+@media (max-height: 560px) {
+  .student-detail .info-strip { flex-wrap: wrap; overflow: visible; }
+  .student-detail .math-row { grid-template-columns: 96px 1fr auto auto; }
+}

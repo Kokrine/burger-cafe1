@@ -126,3 +126,18 @@ describe('ოფლაინ ანგარიშები', () => {
     expect((await b.loadProgress({ kind: 'guest' }))?.money).toBe(777);
   });
 });
+
+describe('მოსწავლის ბარათი', () => {
+  it('მასწავლებელი ხედავს თავისი მოსწავლის პროგრესს, სხვისას — არა', async () => {
+    const kv = memKV();
+    const b = new OfflineBackend(kv);
+    await b.teacherSignUp('a@a.ge', 'secret12');
+    const c = await b.createClass('2ა', 2);
+    const { student } = await b.addStudent(c.id, 'ლუკა');
+    expect((await b.studentDetail(student.id)).progress).toBeNull();
+    kv.setItem(`bc:progress:${student.id}`, JSON.stringify({ day: 3 }));
+    expect((await b.studentDetail(student.id)).progress?.day).toBe(3);
+    await b.teacherSignUp('b@b.ge', 'secret12');
+    expect(await fail(b.studentDetail(student.id))).toBe('not-found');
+  });
+});
