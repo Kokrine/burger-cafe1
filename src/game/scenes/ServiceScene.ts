@@ -16,7 +16,8 @@ import { cafeStats, type CafeStats } from '../../logic/economy';
 import { burgerDone, canAdd, canMake, layerFor, makeFeasibleOrder, matches, usedIngredients, type Order } from '../../logic/orders';
 import { askStockout } from '../../ui/stockoutModal';
 import { cashierPlan } from '../../logic/cashier';
-import { buyEmergency, closeService, consume, dayGoal, ensureToday, neededStock, noteStockout, receiveDelivery, recordSale } from '../../logic/day';
+import { buyEmergency, closeService, consume, dayCustomers, dayGoal, daySideChance, ensureToday, eventOf, neededStock, noteStockout, receiveDelivery, recordSale } from '../../logic/day';
+import type { DayEventId } from '../../config/events';
 import { prepProblem, sideQtyMax } from '../../logic/math/generator';
 import { S, t } from '../../i18n/strings.ka';
 import { play, startMusic, stopMusic } from '../../audio/sfx';
@@ -54,6 +55,7 @@ interface Cust {
   patience: number; max: number; mood: Mood;
   bubble: Phaser.GameObjects.GameObject[]; bar?: Phaser.GameObjects.Graphics; tail?: Phaser.GameObjects.Graphics;
   soldOut?: boolean; soldTag?: Phaser.GameObjects.Text;
+  vip?: boolean; // დღის მოვლენა „კრიტიკოსი": ჩაის ფული მრავლდება
 }
 
 type TutStep = 'wait' | 'look' | 'build' | 'serve' | 'cash' | 'done';
@@ -99,6 +101,9 @@ export class ServiceScene extends CafeScene {
   private built = false;
   /** სამუშაო საათები [გახსნა, დახურვა] — იგივე, რაც დილის ამოცანაში. */
   private hours: [number, number] = [SERVICE.openHour, SERVICE.closeHour];
+  /** დღის მოვლენა და კრიტიკოსის რიგითი ნომერი (-1 — არ მოდის). */
+  private event?: DayEventId;
+  private vipAt = -1;
   // პირველი დღის სწავლება
   private tut: Tut | null = null;
   private tutPtr?: Phaser.GameObjects.Container;
@@ -162,7 +167,10 @@ export class ServiceScene extends CafeScene {
     this.fitRoom();
     this.buildBench(p);
     // გვერდის გადატვირთვის/გასვლის შემდეგ იგივე დღე გრძელდება — უკვე მოსული კლიენტები აღარ მოდიან
-    this.total = p.today?.closed ? 0 : Math.max(0, this.stats.customersPerDay - (p.today?.seen ?? 0));
+    this.event = p.today?.event;
+    this.total = p.today?.closed ? 0 : Math.max(0, dayCustomers(p) - (p.today?.seen ?? 0));
+    // კრიტიკოსი დღის შუაში მოდის (გადატვირთვის შემდეგ — თუ ჯერ არ მოსულა)
+    this.vipAt = eventOf(p.today)?.vipTip ? Math.max(0, Math.floor(dayCustomers(p) / 2) - (p.today?.seen ?? 0)) : -1;
     this.goal = p.today?.goal ?? dayGoal(p);
     this.sinceSpawn = SERVICE.spawnEvery - SERVICE.firstSpawn;
     setSession({ active: true, goal: this.goal, earned: 0, clock: this.clockText(0) });
@@ -197,6 +205,8 @@ export class ServiceScene extends CafeScene {
       this.pauses.delete('prep');
     }
     banner(S.service.openSign, 'icon_store', 'open');
+    const ev = eventOf(p.today);
+    if (ev && this.event) window.setTimeout(() => toast(S.events[this.event!].title, ev.icon), 1800);
   }
 
   // ---------------- განლაგება ----------------
@@ -700,7 +710,7 @@ export class ServiceScene extends CafeScene {
     const taken = new Set(this.custs.map((c) => c.spot));
     const free = L.spots.map((_, i) => i).filter((i) => !taken.has(i));
     if (!free.length) return false;
-    const order = makeFeasibleOrder(this.stats.menu, (x) => this.have(x), Math.random, sideQtyMax(this.grade, store.get().adaptive?.mul.level));
+    const order = makeFeasibleOrder(this.stats.menu, (x) => this.have(x), Math.random, sideQtyMax(this.grade, store.get().adaptive?.mul.level), daySideChance(this.event));
     if (!order) {
       // ვერცერთ ბურგერს ვერ ვაკეთებთ: ჯერ ვკითხულობთ ამოწურულ ინგრედიენტზე (ჯერ ბურგერისას,
       // მერე გვერდითი კერძებისას). თუ ყველაფერზე უკვე ვიკითხეთ და მიწოდება არ მოდის — კლიენტი
@@ -732,11 +742,12 @@ export class ServiceScene extends CafeScene {
     const img = this.place(`customer_${id}_happy`, door[0], door[1], 0, 10 + door[1]);
     this.uiCam.ignore(img);
     img.setInteractive({ useHandCursor: true });
-    const max = SERVICE.patience * this.stats.patience * SERVICE.patienceByGrade[this.grade];
+    const max = SERVICE.patience * this.stats.patience * SERVICE.patienceByGrade[this.grade] * (eventOf({ event: this.event })?.patience ?? 1);
     const c: Cust = {
       id, order, spot, img, state: 'walk', from: door, to, walkT: 0,
       walkDur: Math.hypot(to[0] - door[0], to[1] - door[1]) / 90 + 0.6, patience: max, max, mood: 'happy', bubble: [],
     };
+    if (this.spawned === this.vipAt) { c.vip = true; toast(S.events.vipArrived, 'star'); }
     img.on('pointerdown', () => void this.serve(c));
     this.custs.push(c);
     this.spawned += 1;
@@ -780,6 +791,8 @@ export class ServiceScene extends CafeScene {
       const n = c.order.sides.filter((x) => x === s).length;
       if (n > 1) parts.push(this.text(bx + 84, by + 2 + i * 40, `×${n}`, 24).setDepth(31).setStroke('#ffffff', 5));
     });
+    // კრიტიკოსი — ვარსკვლავი ბუშტის კუთხეში
+    if (c.vip) parts.push(this.uimg('star', bx - 92, by - 62, 1).setDepth(32));
     const tail = this.addUi(this.add.graphics()).setDepth(19);
     const bar = this.addUi(this.add.graphics()).setDepth(31);
     parts.push(tail, bar);
@@ -862,7 +875,9 @@ export class ServiceScene extends CafeScene {
     const totalPrice = plan.total;
 
     const tipBase = SERVICE.tip[c.mood];
-    const tip = Math.round(tipBase * SERVICE.tipScale[this.grade]);
+    const vipTip = c.vip ? eventOf({ event: this.event })?.vipTip ?? 1 : 1;
+    const tip = Math.round(tipBase * SERVICE.tipScale[this.grade]) * vipTip;
+    if (c.vip && tip > 0) toast(t(S.events.vipTip, { n: vipTip }), 'star');
     const earned = totalPrice + tip;
     store.update((q) => {
       q.money += earned;

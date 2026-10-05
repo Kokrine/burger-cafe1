@@ -43,7 +43,7 @@ export const canMake = (layers: readonly Layer[], sides: readonly Side[], have: 
  * შეკვეთა მხოლოდ იმისგან, რისი გაკეთებაც ახლა შეიძლება (მარაგის მიხედვით).
  * null — თუ არცერთი ბურგერი აღარ კეთდება (მაგ. ფუნთუშა ან კოტლეტი ამოიწურა).
  */
-export function makeFeasibleOrder(menu: readonly string[], have: (id: string) => number, rnd: () => number = Math.random, sideQty = 1): Order | null {
+export function makeFeasibleOrder(menu: readonly string[], have: (id: string) => number, rnd: () => number = Math.random, sideQty = 1, sideChance = SERVICE.sideChance): Order | null {
   const options: { burger: BurgerId; mid: Layer[] }[] = [];
   for (const b of ['burger', 'cheeseburger', 'double'] as BurgerId[]) {
     if (!menu.includes(b)) continue;
@@ -54,7 +54,7 @@ export function makeFeasibleOrder(menu: readonly string[], have: (id: string) =>
   const layers: Layer[] = ['bun_bottom', ...pick.mid, 'bun_top'];
   const sides: Side[] = [];
   const avail = SIDES.filter((s) => menu.includes(s) && have(SIDE_STOCK[s]) > 0);
-  if (avail.length && rnd() < SERVICE.sideChance) {
+  if (avail.length && rnd() < sideChance) {
     const side = avail[Math.floor(rnd() * avail.length)];
     const qty = Math.min(1 + Math.floor(rnd() * sideQty), have(SIDE_STOCK[side]));
     for (let i = 0; i < qty; i++) sides.push(side);

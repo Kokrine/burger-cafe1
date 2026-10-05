@@ -18,7 +18,10 @@ export function reportScreen(): HTMLElement {
   const root = h('div', { class: 'overlay interactive' });
   // kid — ბავშვმა დაითვალა; auto — დიდი რიცხვები (კალკულატორი); given — ერთი რიცხვია, შესაკრები არაფერია;
   // parts — ჯამი კლასის ფარგლებს სცდება: ნაწილები ბავშვმა დაითვალა, დიდი ჯამი — კალკულატორმა
-  const done: Partial<Record<Step, 'kid' | 'auto' | 'given' | 'parts'>> = {};
+  type Done = 'kid' | 'auto' | 'given' | 'parts';
+  // გვერდის გადატვირთვის შემდეგ უკვე დათვლილი ნაბიჯები აღარ მეორდება
+  const done: Partial<Record<Step, Done>> = { ...(store.get().today?.reportDone as Partial<Record<Step, Done>> | undefined) };
+  const saveDone = () => store.update((q) => { if (q.today) q.today.reportDone = { ...done } as Record<string, string>; });
   const skipped = (terms: number[]) => (terms.filter((x) => x > 0).length < 2 ? 'given' : 'auto');
   let finished = false;
 
@@ -71,17 +74,20 @@ export function reportScreen(): HTMLElement {
     };
     const runRevenue = async () => {
       done.revenue = R.discount ? 'auto' : await countSum(revenueTerms, 'revenue', S.report.revenue);
+      saveDone();
       play('coin');
       render();
     };
     const runExpenses = async () => {
       done.expenses = await countSum(expenseTerms, 'expenses', S.report.expenses);
+      saveDone();
       play('coin');
       render();
     };
     const runProfit = async () => {
       const pr = profitProblem(R.revenue, R.expenses, today.grade ?? p.grade);
       if (pr) { await askProblem(loss ? S.report.loss : S.report.profit, pr, { cancellable: false }); done.profit = 'kid'; } else done.profit = 'auto';
+      saveDone();
       play(loss ? 'coin' : 'levelUp');
       render();
     };

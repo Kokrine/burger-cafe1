@@ -3,7 +3,7 @@ import { newProgress } from '../core/store';
 import { PRODUCTS, STOCK } from '../config/economy';
 import { DIFFICULTY } from '../config/difficulty';
 import type { Grade } from '../core/types';
-import { buyPacks, cartCost, consume, dayGoal, ensureToday, finishDay, forecast, makeReport, neededStock, recordSale, rentFor, supplierAid } from './day';
+import { buyPacks, cartCost, consume, dayCustomers, dayGoal, daySideChance, ensureToday, finishDay, forecast, makeReport, neededStock, pickEvent, recordSale, rentFor, supplierAid } from './day';
 import { hoursProblem, listSumProblem, partSumProblems, prepProblem, profitProblem } from './math/generator';
 import { makeFeasibleOrder } from './orders';
 
@@ -217,5 +217,34 @@ describe('დიდი ჯამი ნაწილ-ნაწილ (1 კლა
     }
     expect(partSumProblems([18, 4, 6], 1).map((p) => p.vars.items)).toEqual(['4 + 6']);
     expect(partSumProblems([30, 25], 1)).toEqual([]); // ვერცერთი ნაწილი — კალკულატორი
+  });
+});
+
+describe('დღის მოვლენები', () => {
+  it('პირველ დღეს არ არის; დეტერმინისტულია; ~40% დღეებში', () => {
+    expect(pickEvent({ day: 1, history: [] })).toBeUndefined();
+    expect(pickEvent({ day: 7, history: [] })).toBe(pickEvent({ day: 7, history: [] }));
+    let n = 0;
+    for (let d = 2; d < 402; d++) if (pickEvent({ day: d, history: [] })) n += 1;
+    expect(n).toBeGreaterThan(100);
+    expect(n).toBeLessThan(220);
+  });
+  it('ფესტივალი: მეტი კლიენტი და მეტი მიზანი; წვიმა: ნაკლები', () => {
+    const p = newProgress(2);
+    expect(dayCustomers(p, 'festival')).toBeGreaterThan(dayCustomers(p));
+    expect(dayGoal(p, 'festival')).toBeGreaterThan(dayGoal(p));
+    expect(dayCustomers(p, 'rainy')).toBeLessThan(dayCustomers(p));
+  });
+  it('მზიანი დღე: გვერდით კერძებს მეტი მარაგი სჭირდება', () => {
+    expect(forecast(['burger', 'juice'], 6, 1, daySideChance('sunny')).juice).toBeGreaterThan(forecast(['burger', 'juice'], 6, 1, daySideChance()).juice);
+  });
+  it('ახალ დღეს მოვლენა ინახება და გადატვირთვისას იგივე რჩება', () => {
+    const p = newProgress(2);
+    for (let d = 2; d < 30; d++) {
+      p.day = d; p.today = null;
+      const t = ensureToday(p);
+      expect(t.event).toBe(pickEvent(p));
+      expect(ensureToday(p).event).toBe(t.event);
+    }
   });
 });

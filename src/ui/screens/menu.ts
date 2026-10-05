@@ -1,6 +1,7 @@
 // მთავარი მენიუ — კაფე ჩანს ფონზე (Phaser), ქვემოთ დიდი ღილაკები.
 import { S, t } from '../../i18n/strings.ka';
 import { branchIncome } from '../../logic/day';
+import { cafeTitle } from '../cafeName';
 import { studentName } from '../../core/auth';
 import { store } from '../../core/store';
 import { button, h, img } from '../dom';
@@ -16,7 +17,7 @@ export function menuScreen(): HTMLElement {
   const levelName = p.branches > 1 ? `${S.levels[p.cafeLevel]} · ${S.levels.branch}` : S.levels[p.cafeLevel];
 
   const title = h('div', { class: 'card title-card', style: 'position:absolute;left:12px;top:84px' },
-    h('h1', null, S.appTitle),
+    h('h1', null, cafeTitle(p)),
     studentName() ? h('div', { class: 'level-chip name' }, img('icon_chef_hat'), studentName()) : '',
     h('div', { class: 'level-chip' }, img('icon_level_up'), `${S.hud.level} ${p.cafeLevel} · ${levelName}`),
     p.branches > 1 ? h('div', { class: 'level-chip branch' }, img('icon_store'), t(S.menu.network, { n: branchIncome(p) })) : '',

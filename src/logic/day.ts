@@ -5,7 +5,8 @@ import { BRANCH_INCOME, PRODUCTS, RENT_BASE, RENT_LEVEL, SIDE_STOCK, STOCK, type
 import { EMERGENCY, RECIPES, SERVICE, type BurgerId } from '../config/service';
 import { cafeStats, scaledPrice } from './economy';
 import { bump, touchPlayDate } from './badges';
-import { pickQuests } from './quests';
+import { pickQuests, seeded } from './quests';
+import { DAY_EVENTS, EVENT_CHANCE, type DayEventDef, type DayEventId } from '../config/events';
 import { makeFeasibleOrder, needsOf } from './orders';
 import { dayHours, sideQtyMax } from './math/generator';
 
@@ -30,8 +31,30 @@ export function neededStock(menu: readonly string[]): StockId[] {
 /** საშუალოდ რამდენ ცალს უკვეთავს კლიენტი ერთი გვერდითი კერძიდან (3–4 კლასში 1–3 ცალი). */
 export const avgSideQty = (p: Pick<Progress, 'grade' | 'adaptive'>) => (1 + sideQtyMax(p.grade, p.adaptive?.mul.level)) / 2;
 
+// ---------------- დღის მოვლენები ----------------
+
+/** დღის მოვლენა (დეტერმინისტული დღის ნომრით; პირველ დღეს — არა). */
+export function pickEvent(p: Pick<Progress, 'day' | 'history'>): DayEventId | undefined {
+  if (p.day < 2) return undefined;
+  const rnd = seeded(p.day * 17 + p.history.length * 5 + 11);
+  if (rnd() >= EVENT_CHANCE) return undefined;
+  const ids = Object.keys(DAY_EVENTS) as DayEventId[];
+  return ids[Math.floor(rnd() * ids.length)];
+}
+
+export const eventOf = (t?: Pick<Today, 'event'> | null): DayEventDef | undefined => (t?.event ? DAY_EVENTS[t.event] : undefined);
+
+/** დღეს რამდენი კლიენტი მოვა (კაფეს ნივთები × მოვლენა). */
+export function dayCustomers(p: Progress, event = p.today?.event): number {
+  const base = cafeStats(p).customersPerDay;
+  return Math.max(3, Math.round(base * (event ? DAY_EVENTS[event].customers : 1)));
+}
+
+/** გვერდითი კერძის ალბათობა დღეს (მზიან დღეს — მეტი). */
+export const daySideChance = (event?: DayEventId) => (event ? DAY_EVENTS[event].sideChance : undefined) ?? SERVICE.sideChance;
+
 /** დაახლოებით რამდენი ცალი დასჭირდება დღეს (კლიენტების რაოდენობით). sideQty — საშუალო რაოდენობა შეკვეთაში. */
-export function forecast(menu: readonly string[], customers: number, sideQty = 1): Record<StockId, number> {
+export function forecast(menu: readonly string[], customers: number, sideQty = 1, sideChance = SERVICE.sideChance): Record<StockId, number> {
   const out = Object.fromEntries(Object.keys(STOCK).map((k) => [k, 0])) as Record<StockId, number>;
   const burgers = BURGERS.filter((b) => menu.includes(b));
   const sides = (['juice', 'fries', 'icecream'] as const).filter((s) => menu.includes(s));
@@ -40,21 +63,21 @@ export function forecast(menu: readonly string[], customers: number, sideQty = 1
     out.bun += share;
     for (const v of RECIPES[b]) for (const l of v) out[l as StockId] += share / RECIPES[b].length;
   }
-  for (const s of sides) out[SIDE_STOCK[s]] += (SERVICE.sideChance * sideQty * 1.4) / sides.length; // 1.4 — მარაგი
+  for (const s of sides) out[SIDE_STOCK[s]] += (sideChance * sideQty * 1.4) / sides.length; // 1.4 — მარაგი
   for (const k of Object.keys(out) as StockId[]) out[k] = Math.ceil(out[k] * customers);
   return out;
 }
 
-/** დღის მიზანი (შემოსავალი ₾). */
-export function dayGoal(p: Progress): number {
+/** დღის მიზანი (შემოსავალი ₾). event — დღის მოვლენა (ფესტივალზე მეტი კლიენტი = მეტი მიზანი). */
+export function dayGoal(p: Progress, event = p.today?.event): number {
   const st = cafeStats(p);
   const price = (id: ProductId) => PRODUCTS[id].prices[p.grade][0];
   const avgOf = (ids: ProductId[]) => ids.reduce((a, b) => a + price(b), 0) / Math.max(1, ids.length);
   const burgers = st.menu.filter((m) => (BURGERS as string[]).includes(m));
   const sides = st.menu.filter((m) => m in SIDE_STOCK);
   // მოსალოდნელი შეკვეთა: ბურგერი + (ზოგჯერ) გვერდითი კერძები — ფრი/ნაყინიც შემოსავალია
-  const perCustomer = avgOf(burgers) + (sides.length ? SERVICE.sideChance * avgSideQty(p) * avgOf(sides) : 0);
-  return Math.max(1, Math.round(st.customersPerDay * perCustomer * SERVICE.goalShare));
+  const perCustomer = avgOf(burgers) + (sides.length ? daySideChance(event) * avgSideQty(p) * avgOf(sides) : 0);
+  return Math.max(1, Math.round(dayCustomers(p, event) * perCustomer * SERVICE.goalShare));
 }
 
 /** ახალი დღის დაწყება (ან იმავე დღის გაგრძელება, თუ უკვე დაწყებულია). */
@@ -66,8 +89,9 @@ export function ensureToday(p: Progress): Today {
     p.today.hours ??= dayHours(p.today.grade ?? p.grade);
     return p.today;
   }
+  const event = pickEvent(p);
   p.today = {
-    day: p.day, goal: dayGoal(p), rent: rentFor(p), purchases: [], ingredients: 0, sales: {},
+    day: p.day, goal: dayGoal(p, event), rent: rentFor(p), purchases: [], ingredients: 0, sales: {}, event,
     revenue: 0, tips: 0, served: 0, left: 0, wasted: 0, startStars: p.stars, played: false, grade: p.grade,
     quests: pickQuests(p), hours: dayHours(p.grade),
   };
@@ -228,6 +252,7 @@ export function finishDay(p: Progress, now = new Date()): { goalMet: boolean; re
     customers: t.served, stars: p.stars - t.startStars, date: new Date().toISOString(),
   });
   if (goalMet) { p.day += 1; bump(p, 'goals'); }
+  if (t.event) bump(p, 'events');
   if (report.profit > 0) bump(p, 'profit_total', report.profit);
   touchPlayDate(p, now);
   p.today = null;

@@ -58,6 +58,8 @@ export interface Today {
   bestStreak?: number;          // დღის საუკეთესო სერია
   hours?: [number, number];     // სამუშაო საათები [გახსნა, დახურვა] — დილის ამოცანაც და საათიც მათ იყენებს
   aid?: string[];               // მომწოდებლის უფასო დახმარება (ფულის გარეშე ჩარჩენისას)
+  event?: import('../config/events').DayEventId; // დღის მოვლენა (ფესტივალი, წვიმა…)
+  reportDone?: Record<string, string>; // საღამოს ანგარიშის დათვლილი ნაბიჯები (გადატვირთვაზე არ იკარგება)
 }
 
 /** მოსწავლის მთელი პროგრესი — ინახება localStorage-ში (შემდეგ Supabase-შიც). */
@@ -103,4 +105,5 @@ export interface Progress {
   tutorialDone?: boolean;
   lastBought?: string;
   lastPrep?: string;            // გუშინდელი დილის ამოცანის სახეობა (ზედიზედ რომ არ განმეორდეს)
+  cafeName?: string;           // კაფეს სახელი (ბავშვმა დაარქვა; ცარიელი — „ჩემი ბურგერების კაფე")
 }

@@ -3,8 +3,7 @@
 import { S, t } from '../../i18n/strings.ka';
 import { store } from '../../core/store';
 import { SIDE_STOCK, STOCK, type StockId } from '../../config/economy';
-import { cafeStats } from '../../logic/economy';
-import { avgSideQty, buyPacks, cartCost, forecast, neededStock, supplierAid, type Cart } from '../../logic/day';
+import { avgSideQty, buyPacks, cartCost, dayCustomers, daySideChance, eventOf, forecast, neededStock, supplierAid, type Cart } from '../../logic/day';
 import { budgetProblem, gradeMax, packsProblem } from '../../logic/math/generator';
 import { play } from '../../audio/sfx';
 import { askProblem } from '../mathModal';
@@ -21,8 +20,9 @@ export function warehouseScreen(): HTMLElement {
   const render = () => {
     const p = store.get();
     const today = p.today!;
-    const st = cafeStats(p);
-    const fc = forecast(p.menu, st.customersPerDay, avgSideQty(p));
+    const customers = dayCustomers(p);
+    const ev = eventOf(today);
+    const fc = forecast(p.menu, customers, avgSideQty(p), daySideChance(today.event));
     const ids = neededStock(p.menu);
     const packs = Object.values(cart).reduce((a, b) => a + (b ?? 0), 0);
     const cost = cartCost(cart, p.grade);
@@ -60,7 +60,8 @@ export function warehouseScreen(): HTMLElement {
     const tooMuch = cost > p.money;
     body = h('div', { class: 'panel-body' },
       h('div', { class: 'info-strip wh-info' },
-        h('span', { class: 'chip' }, img('icon_people'), both(S.warehouse.intro, S.warehouse.introShort, { n: st.customersPerDay })),
+        ev && today.event ? h('span', { class: 'chip event' }, img(ev.icon), h('b', null, S.events[today.event].title), ' ', S.events[today.event].text) : '',
+        h('span', { class: 'chip' }, img('icon_people'), both(S.warehouse.intro, S.warehouse.introShort, { n: customers })),
         h('span', { class: 'chip ok' }, img('icon_target'), both(S.warehouse.goal, S.warehouse.goalShort, { n: today.goal })),
         h('span', { class: 'chip' }, img('icon_store'), both(S.warehouse.rent, S.warehouse.rentShort, { n: today.rent })),
         p.lastStockouts?.length ? h('span', { class: 'chip lock' }, img('icon_box'), both(S.warehouse.yesterday, S.warehouse.yesterdayShort, { names: p.lastStockouts.map((x) => S.stock[x]).join(', ') })) : '',
@@ -81,7 +82,8 @@ export function warehouseScreen(): HTMLElement {
       h('div', { class: 'panel-head' }, img('icon_box'), h('h2', null, t(S.warehouse.title, { n: p.day })),
         // ტელეფონზე (დაბალი ეკრანი) მოკლე ინფო სათაურის ზოლშია — ბარათებს მეტი სიმაღლე რჩება
         h('div', { class: 'head-info' },
-          h('span', { class: 'chip' }, img('icon_people'), t(S.warehouse.introShort, { n: st.customersPerDay })),
+          ev && today.event ? h('span', { class: 'chip event' }, img(ev.icon), S.events[today.event].title) : '',
+          h('span', { class: 'chip' }, img('icon_people'), t(S.warehouse.introShort, { n: customers })),
           h('span', { class: 'chip ok' }, img('icon_target'), t(S.warehouse.goalShort, { n: today.goal })),
           h('span', { class: 'chip' }, img('icon_store'), t(S.warehouse.rentShort, { n: today.rent })),
           p.lastStockouts?.length ? h('span', { class: 'chip lock' }, img('icon_box'), t(S.warehouse.yesterdayShort, { names: p.lastStockouts.map((x) => S.stock[x]).join(', ') })) : '',
@@ -130,7 +132,7 @@ export function warehouseScreen(): HTMLElement {
       play('wrong');
       return;
     }
-    const fc = forecast(p.menu, cafeStats(p).customersPerDay, avgSideQty(p));
+    const fc = forecast(p.menu, dayCustomers(p), avgSideQty(p), daySideChance(p.today?.event));
     if (neededStock(p.menu).some((id) => (p.stock[id] ?? 0) < fc[id])) toast(S.warehouse.low, 'icon_box');
     go('service');
     showScene('service');

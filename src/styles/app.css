@@ -798,3 +798,25 @@ button { -webkit-tap-highlight-color: transparent; }
 /* მინიშნება „დაარიგე": ხატულა თეფშზე ყოველთვის თეფშის ზომისაა (ფუნთუშა, კოტლეტი, მონეტა) */
 .group.plate .c { display: grid; place-items: center; width: 100%; height: 100%; }
 .group.plate .c img { width: 46px; height: 46px; object-fit: contain; }
+
+/* დღის მოვლენა საწყობში (ფესტივალი, წვიმა…) */
+.chip.event { background: var(--c-cheese); font-weight: 800; white-space: normal; text-align: left; }
+.chip.event b { margin-right: 4px; }
+
+/* ---------- ჩემი ანგარიში: ვარჯიში, კაფეს სახელი, მოგების დიაგრამა ---------- */
+.math-bars .math-row { grid-template-columns: 120px 1fr minmax(160px, auto) auto; }
+.btn.small { min-height: 38px; font-size: 15px; padding: 2px 12px; }
+.practice-cta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 4px 0 14px; }
+.practice-cta .hint { flex: 1; min-width: 180px; }
+.chip.name-chip { cursor: pointer; font: inherit; font-weight: 900; border: 2.5px solid var(--c-ink); }
+.profit-chart { background: #fff; border: 3px solid var(--c-ink); border-radius: var(--r-md); padding: 8px 10px; margin-bottom: 16px; }
+.profit-chart svg { display: block; width: 100%; max-width: 520px; height: auto; margin: 0 auto; }
+.profit-chart rect.pos { fill: var(--c-success); stroke: var(--c-ink); stroke-width: 2; }
+.profit-chart rect.neg { fill: var(--c-danger); stroke: var(--c-ink); stroke-width: 2; }
+.profit-chart .axis { stroke: var(--c-ink); stroke-width: 2; }
+.profit-chart text { font: 800 12px 'Noto Sans Georgian', sans-serif; text-anchor: middle; fill: var(--c-text); }
+.profit-chart text.d { fill: var(--c-text-soft); font-weight: 700; }
+@media (max-width: 820px), (max-height: 560px) {
+  .math-bars .math-row { grid-template-columns: 96px 1fr auto; }
+  .math-bars .math-row > span { grid-column: 1 / -1; font-size: 13px; }
+}

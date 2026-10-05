@@ -24,12 +24,15 @@ export const QUEST_POINTS = 15;
 const SIDE_IDS: ProductId[] = ['juice', 'fries', 'icecream'];
 
 /** მარტივი დეტერმინისტული „შემთხვევითობა" დღის ნომრიდან. */
-function seeded(n: number) {
+export function seeded(n: number) {
   let s = (n * 2654435761) >>> 0;
-  return () => {
+  const next = () => {
     s = (s ^ (s << 13)) >>> 0; s = (s ^ (s >>> 17)) >>> 0; s = (s ^ (s << 5)) >>> 0;
     return s / 4294967296;
   };
+  // „გახურება": მეზობელი თესლების (დღე 4, 5, 6…) პირველი მნიშვნელობები ერთმანეთს ჰგავს — მოვლენები/დავალებები ჯგუფდებოდა
+  for (let k = 0; k < 4; k++) next();
+  return next;
 }
 
 /** დღის დავალებები. seed = დღე + ისტორიის სიგრძე (განმეორებით დღეს სხვა დავალებები შეიძლება იყოს). */
