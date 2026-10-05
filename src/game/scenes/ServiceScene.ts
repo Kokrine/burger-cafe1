@@ -25,6 +25,8 @@ import { isBlockedPortrait } from '../../ui/orientation';
 import { askProblem } from '../../ui/mathModal';
 import { layers, toast } from '../../ui/layers';
 import { h } from '../../ui/dom';
+import { autoRead, speakButton } from '../../ui/speak';
+import { speak } from '../../audio/speech';
 
 const T = tokens.iso.tile;
 const BENCH_Y = 570;
@@ -972,11 +974,13 @@ export class ServiceScene extends CafeScene {
       h('img', { src: `${import.meta.env.BASE_URL}assets/icon_chef_hat.svg`, alt: '' }),
       h('p', null, text),
       h('div', { class: 'coach-btns interactive' },
+        speakButton(() => text),
         ok ? h('button', { class: 'btn green', onClick: ok }, S.tutorial.ok) : '',
         tt.step !== 'done' ? h('button', { class: 'link-btn', onClick: () => this.endTutorial() }, S.tutorial.skip) : '',
       ),
     );
     layers.toast.append(this.coach);
+    if (autoRead()) void speak(text);
   }
 
   private endTutorial() {

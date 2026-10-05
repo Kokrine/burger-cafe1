@@ -15,6 +15,11 @@ const ac = () => {
 };
 const out = () => (ac(), master!);
 
+/** საერთო AudioContext (ხმით კითხვისთვის — iOS-ზე შეხების შემდეგ უკვე „გახსნილია"). */
+export function audioCtx(): AudioContext | null {
+  try { return ac(); } catch { return null; }
+}
+
 /** ბრაუზერები (განსაკუთრებით iOS) ხმას მხოლოდ მომხმარებლის შეხების შემდეგ რთავენ. */
 export function unlockAudio() {
   const unlock = () => {

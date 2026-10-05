@@ -772,3 +772,17 @@ button { -webkit-tap-highlight-color: transparent; }
   .menu-quests:not(.open) .quest { display: none; }
   .menu-quests.open { width: 236px; }
 }
+
+/* ---------- 🔊 ხმით კითხვა ---------- */
+.speak-row { display: flex; align-items: flex-start; gap: 10px; width: 100%; }
+.speak-row > :last-child { flex: 1; min-width: 0; }
+.btn.round.speak-btn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0; flex: none; }
+.btn.round.speak-btn img { width: 26px; height: 26px; }
+.coach-btns .speak-btn { align-self: center; }
+@media (max-height: 560px) {
+  .btn.round.speak-btn { width: 36px; height: 36px; min-width: 36px; min-height: 36px; }
+  .btn.round.speak-btn img { width: 22px; height: 22px; }
+}
+@media (max-height: 560px) {
+  .modal .panel-body > .speak-row { grid-column: 1; }
+}

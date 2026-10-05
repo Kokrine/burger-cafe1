@@ -13,6 +13,8 @@ import { bump } from '../logic/badges';
 import { play } from '../audio/sfx';
 import { button, h, img } from './dom';
 import { burstAt, openModal } from './layers';
+import { autoRead, withSpeak } from './speak';
+import { speak } from '../audio/speech';
 
 const pick = <T,>(a: readonly T[]) => a[Math.floor(Math.random() * a.length)];
 export const problemText = (p: Problem) => t(S.problems[p.kind], p.vars);
@@ -40,7 +42,8 @@ export function askProblem(title: string, pr: Problem, opts: AskOptions = {}): P
     const feedback = h('p', { class: 'feedback' });
     const extra = h('div', { style: 'width:100%' });
     const inputArea = h('div', { style: 'width:100%;display:flex;justify-content:center' });
-    const body = h('div', { class: 'panel-body' }, h('p', { class: 'question' }, problemText(pr)), feedback, extra, inputArea);
+    const question = h('p', { class: 'question' }, problemText(pr));
+    const body = h('div', { class: 'panel-body' }, withSpeak(question, () => problemText(pr)), feedback, extra, inputArea);
 
     const finish = (attempt: Attempt) => {
       if (finished) return;
@@ -96,7 +99,7 @@ export function askProblem(title: string, pr: Problem, opts: AskOptions = {}): P
       feedback.className = 'feedback try';
       if (wrong === 1) {
         feedback.textContent = S.math.wrong1;
-        extra.replaceChildren(renderHint(pr.hint));
+        extra.replaceChildren(withSpeak(renderHint(pr.hint)));
         value = '';
         answerBox.textContent = '?';
         renderInput();
@@ -141,7 +144,7 @@ export function askProblem(title: string, pr: Problem, opts: AskOptions = {}): P
     document.addEventListener('keydown', onKey);
 
     renderInput();
-    if (opts.hintFirst) extra.replaceChildren(renderHint(pr.hint));
+    if (opts.hintFirst) extra.replaceChildren(withSpeak(renderHint(pr.hint)));
     const panel = h('div', { class: 'panel modal bounce-in' },
       h('div', { class: 'panel-head' }, img('coin'), h('h2', null, title)),
       opts.cancellable === false ? '' : h('button', {
@@ -156,6 +159,8 @@ export function askProblem(title: string, pr: Problem, opts: AskOptions = {}): P
       body,
     );
     close = openModal(panel);
+    // 1 კლასი (ან ჩართული პარამეტრი): ამოცანა ავტომატურად იკითხება
+    if (autoRead()) void speak(problemText(pr));
   });
 }
 
