@@ -210,12 +210,26 @@ export class ServiceScene extends CafeScene {
       const gx = grills === 1 ? 850 : 735 + g * 240, gy = 892;
       this.uimg(g === 0 ? gKey : 'grill', gx, gy, s, 0.5, 1).setDepth(1);
       const left = gx - (e.w * s) / 2, top = gy - e.h * s;
+      const own: GrillSlot[] = [];
       for (const [dx, dy] of e.slots ?? []) {
         const slot: GrillSlot = { x: left + (e.anchor[0] + dx) * s, y: top + (e.anchor[1] + dy) * s, state: 'empty', t: 0, puffs: [] };
         this.grills.push(slot);
-        const zone = this.addUi(this.add.zone(slot.x, slot.y, 110, 74)).setDepth(8).setInteractive({ useHandCursor: true });
-        zone.on('pointerdown', () => { if (slot.state !== 'empty') this.onPatty(slot); });
+        own.push(slot);
       }
+      // ერთი შეხების არე მთელ გრილზე: ადგილები ერთმანეთთან ახლოსაა და ცალკე არეები ერთმანეთს ფარავდა
+      // (ცარიელი ადგილის არე „ყლაპავდა" მეზობელ კოტლეტზე შეხებას). ვიღებთ თითთან უახლოეს კოტლეტს.
+      const pad = 46;
+      const x0 = Math.min(...own.map((q) => q.x)) - pad, x1 = Math.max(...own.map((q) => q.x)) + pad;
+      const y0 = Math.min(...own.map((q) => q.y)) - pad, y1 = Math.max(...own.map((q) => q.y)) + pad;
+      const zone = this.addUi(this.add.zone((x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0)).setDepth(8).setInteractive({ useHandCursor: true });
+      zone.on('pointerdown', (_p: Phaser.Input.Pointer, lx: number, ly: number) => {
+        const px = x0 + lx, py = y0 + ly;
+        const near = own
+          .filter((q) => q.state !== 'empty')
+          .map((q) => ({ q, d: Math.hypot((q.x - px) / 1.3, q.y - py) })) // კოტლეტი ფართოა — ჰორიზონტალურად მეტ ცდომილებას ვუშვებთ
+          .sort((a, b) => a.d - b.d)[0];
+        if (near && near.d < 90) this.onPatty(near.q);
+      });
     }
 
     // თეფში, ლანგარი, ნაგავი
@@ -255,6 +269,8 @@ export class ServiceScene extends CafeScene {
   }
 
   private shake(o: Phaser.GameObjects.Image) {
+    // ხშირ შეხებაზე ახალი რყევა არ ვიწყოთ — თორემ შუა მოძრაობის x დაიმახსოვრება და ობიექტი გადაცურდება
+    if (this.tweens.isTweening(o)) return;
     const x = o.x;
     this.tweens.add({ targets: o, x: x + 8, duration: 50, yoyo: true, repeat: 2, onComplete: () => o.setX(x) });
   }
@@ -447,8 +463,8 @@ export class ServiceScene extends CafeScene {
       if (!this.take('patty')) { this.outOfStock('patty', box); return; }
       slot.state = 'cooking';
       slot.t = 0;
-      slot.img = this.uimg('grill_patty_raw', slot.x, slot.y, this.grills.length > 4 ? 1.05 : 1.25).setDepth(3).setInteractive({ useHandCursor: true });
-      slot.img.on('pointerdown', () => this.onPatty(slot));
+      // შეხებას გრილის საერთო არე იჭერს (buildBench)
+      slot.img = this.uimg('grill_patty_raw', slot.x, slot.y, this.grills.length > 4 ? 1.05 : 1.25).setDepth(3);
       play('sizzle');
       this.chefHop();
       return;

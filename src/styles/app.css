@@ -538,3 +538,141 @@ button { -webkit-tap-highlight-color: transparent; }
   .pill img { width: 24px; height: 24px; }
   .hud-buttons .btn.round { width: 40px; height: 40px; min-width: 40px; min-height: 40px; }
 }
+
+/* ================= ტელეფონი ჰორიზონტალურად: კომპაქტური პანელები =================
+   სიმაღლე ცოტაა, სიგანე — ბევრი: ბარათები ჰორიზონტალურია (სურათი მარცხნივ),
+   მაღაზიის ჩანართები მარცხენა სვეტშია, ტექსტები — მოკლე ვარიანტით. */
+.txt-short { display: none; }
+@media (max-height: 560px) {
+  .txt-long { display: none; }
+  .txt-short { display: inline; }
+
+  .panel-head { padding: 4px 10px; min-height: 0; }
+  .panel-head h2 { font-size: 17px; }
+  .panel-head > img { width: 28px; height: 28px; }
+  .panel-head .btn.round { width: 38px; height: 38px; min-width: 38px; min-height: 38px; font-size: 18px; }
+  .panel-body { padding: 8px 10px; }
+  .panel-foot { padding: 5px 10px; gap: 8px; flex-wrap: nowrap; }
+  .panel-foot .btn { min-height: 44px; font-size: 16px; padding: 4px 14px; }
+  .panel-foot .btn.big { font-size: 18px; }
+  .panel-foot .btn img { width: 28px; height: 28px; }
+
+  /* ჰორიზონტალური ბარათი: სურათი მარცხნივ, ტექსტი მარჯვნივ */
+  .grid-items { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+  .item { display: grid; grid-template-columns: 60px minmax(0, 1fr); column-gap: 10px; row-gap: 3px; align-content: start; padding: 7px 8px; }
+  .item > * { grid-column: 2; min-width: 0; }
+  .item > .pic { grid-column: 1; grid-row: 1 / span 4; height: 60px; align-self: start; background-size: 14px 14px; }
+  .item > .pic img { max-height: 54px; }
+  .item h4 { font-size: 14.5px; }
+  .item p { font-size: 12.5px; line-height: 1.25; }
+  .item .row { gap: 4px 6px; }
+  .item .btn { min-height: 40px; font-size: 15px; padding: 3px 10px; }
+  .item .btn img { width: 22px; height: 22px; }
+  .item .price { font-size: 16px; }
+  .item .price img { width: 22px; height: 22px; }
+  .item .chip { font-size: 12px; padding: 1px 7px; }
+  .money-line { font-size: 13px; gap: 2px 6px; }
+  .money-line b { font-size: 14px; }
+  .count-badge { top: -8px; right: -6px; font-size: 14px; padding: 0 7px; border-width: 2.5px; }
+
+  /* საწყობი: მოკლე ინფო ერთ ხაზზე; ბარათზე +/− მარჯვენა სვეტად */
+  .info-strip { gap: 6px; margin-bottom: 8px; flex-wrap: nowrap; overflow: hidden; }
+  .info-strip .chip { font-size: 13px; padding: 2px 9px 2px 4px; white-space: nowrap; }
+  .info-strip .chip img { width: 20px; height: 20px; }
+  .stock-card { grid-template-columns: 50px minmax(0, 1fr) 42px; }
+  .stock-card > .pic { height: 50px; grid-row: 1 / span 3; }
+  .stock-card > .pic img { max-height: 44px; }
+  .stock-card > .stepper { grid-column: 3; grid-row: 1 / span 3; flex-direction: column-reverse; justify-content: center; gap: 3px; }
+  .stepper .btn { min-width: 42px; min-height: 34px; font-size: 22px; }
+  .stepper b { font-size: 16px; text-align: center; }
+  .stepper .unit { display: none; }
+  .stock-card.short { box-shadow: 0 0 0 3px var(--c-danger), 3px 4px 0 rgba(43, 24, 16, .15); }
+
+  /* მაღაზია: ჩანართები მარცხნივ სვეტად — სიმაღლე ბარათებს რჩება */
+  .panel.tabbed { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .panel.tabbed > .panel-head { grid-column: 1 / -1; }
+  .panel.tabbed > .tabs {
+    flex-direction: column; flex-wrap: nowrap; overflow: auto; gap: 5px; padding: 6px 0 6px 6px;
+    border-bottom: 0; border-right: var(--stroke) solid var(--c-ink);
+  }
+  .panel.tabbed .tab {
+    min-height: 42px; font-size: 13.5px; padding: 4px 10px 4px 6px; gap: 6px; white-space: nowrap;
+    border: var(--stroke) solid var(--c-ink); border-right: none; border-radius: var(--r-sm) 0 0 var(--r-sm); margin: 0 -3.5px 0 0;
+  }
+  .panel.tabbed .tab img { width: 22px; height: 22px; }
+  .panel.tabbed > .panel-body { grid-column: 2; }
+  .shop-layout { grid-template-columns: minmax(0, 1fr) 190px; gap: 10px; }
+  .shop-layout .grid-items { grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); }
+  .side { position: sticky; top: 0; gap: 8px; }
+  .side .card { padding: 8px 10px; }
+  .side h3 { font-size: 14.5px; margin-bottom: 4px; }
+  .stat { font-size: 12.5px; gap: 6px; padding: 2px 0; }
+  .stat img { width: 22px; height: 22px; }
+  .stat b { font-size: 14px; }
+}
+@media (max-height: 560px) {
+  .stock-card { row-gap: 2px; padding: 6px 8px; }
+  .stepper .btn { min-height: 30px; font-size: 20px; }
+  .stepper b { font-size: 15px; line-height: 1; }
+}
+.head-info { display: none; }
+@media (max-height: 560px) {
+  .head-info { display: flex; gap: 5px; min-width: 0; overflow: hidden; flex-shrink: 1; }
+  .head-info .chip { font-size: 12.5px; padding: 1px 8px 1px 3px; white-space: nowrap; color: var(--c-text); }
+  .head-info .chip img { width: 18px; height: 18px; }
+  .panel-head h2 { flex: 0 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .panel-head .btn.round { margin-left: auto; }
+  .info-strip.wh-info { display: none; }
+  .stock-card .chip { font-size: 11.5px; padding: 0 6px; }
+}
+@media (max-height: 560px) {
+  .panel-body { padding: 6px 8px; }
+  .grid-items { gap: 6px; }
+  .stock-card > .stepper { gap: 1px; }
+  .stepper .btn { min-height: 28px; }
+  .stock-card .row { gap: 2px 4px; }
+}
+@media (max-height: 560px) {
+  .panel-foot { padding: 4px 10px; }
+  .panel-foot .btn { min-height: 40px; }
+}
+@media (max-height: 560px) {
+  /* რაოდენობას ბარათის კუთხის „+2" ნიშანი აჩვენებს */
+  .stock-card .stepper b { display: none; }
+  .stock-card > .stepper { gap: 10px; }
+  .stock-card .stepper .btn { min-height: 32px; }
+}
+@media (max-height: 560px) {
+  .stock-card .count-badge { right: auto; left: -6px; }
+}
+@media (max-height: 560px) {
+  .panel.tabbed > .tabs { overflow-x: hidden; overflow-y: auto; }
+  .shop-layout { grid-template-columns: minmax(0, 1fr); }
+  .shop-layout .grid-items { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+  .side { position: static; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }
+}
+@media (max-height: 560px) {
+  .money-line { grid-template-columns: 22px minmax(0, 1fr) auto; }
+  .money-line img { width: 22px; height: 22px; }
+  .money-line .info-btn { width: 22px; height: 22px; min-width: 22px; min-height: 22px; font-size: 13px; border-width: 2px; padding: 0; }
+  .money-line b { white-space: nowrap; }
+}
+@media (max-height: 560px) {
+  .road-title { font-size: 16px; margin-bottom: 4px; }
+  .road-title img { width: 24px; height: 24px; }
+  .roadmap { padding: 6px 4px 8px; }
+  .stop { flex-basis: 175px; padding: 7px 8px; gap: 4px; }
+  .stop h4 { font-size: 14.5px; }
+  .stop p { font-size: 12px; line-height: 1.25; }
+  .stop .hint { font-size: 11.5px; margin: 0; }
+  .stop-pic { height: 46px; }
+  .stop-pic img { max-height: 44px; }
+  .stop .btn { min-height: 38px; font-size: 14px; padding: 3px 10px; }
+  .stop .chip { font-size: 11.5px; }
+  .road-link { flex-basis: 18px; }
+}
+@media (max-height: 560px) {
+  .stop .price { font-size: 16px; }
+  .stop .price img { width: 22px; height: 22px; }
+  .stop .bar-lg { height: 12px; }
+}

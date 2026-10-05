@@ -1,5 +1,6 @@
 // მინიმალური DOM დამხმარე: h('div', { class: 'x', onClick }, ...children)
 import { play } from '../audio/sfx';
+import { t } from '../i18n/strings.ka';
 
 type Child = Node | string | number | null | undefined | false;
 type Attrs = Record<string, unknown> & { class?: string; style?: string; onClick?: (e: MouseEvent) => void };
@@ -41,4 +42,11 @@ export const $ = <T extends Element = HTMLElement>(sel: string, root: ParentNode
 /** ღილაკი სტანდარტული სტილით. */
 export function button(label: Child, onClick: () => void, cls = '', icon?: string) {
   return h('button', { class: `btn ${cls}`, onClick }, icon ? img(icon) : null, label);
+}
+
+/** ერთი ტექსტის გრძელი და მოკლე ვარიანტი — მოკლე ჩანს დაბალ (ჰორიზონტალური ტელეფონის) ეკრანზე (CSS: .txt-long / .txt-short). */
+export function both(long: string, short: string, vars: Record<string, string | number> = {}): DocumentFragment {
+  const f = document.createDocumentFragment();
+  f.append(h('span', { class: 'txt-long' }, t(long, vars)), h('span', { class: 'txt-short' }, t(short, vars)));
+  return f;
 }

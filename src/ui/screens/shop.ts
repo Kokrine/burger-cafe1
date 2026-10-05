@@ -37,13 +37,13 @@ export function shopScreen(): HTMLElement {
     if (!root.isConnected && body) { unsub(); return; }
     const scroll = body?.scrollTop ?? 0;
     body = h('div', { class: 'panel-body' }, h('div', { class: 'shop-layout' }, content(p), sidebar(p)));
-    const panel = h('div', { class: 'panel' },
+    const panel = h('div', { class: 'panel tabbed' },
       h('div', { class: 'panel-head' }, img('icon_store'), h('h2', null, S.shop.title),
         h('button', { class: 'btn white round', 'aria-label': S.common.close, onClick: () => { unsub(); go('menu'); } }, '✕')),
       h('div', { class: 'tabs', role: 'tablist' }, ...TABS.map((tb) => h('button', {
         class: `tab ${tab === tb.id ? 'on' : ''}`, role: 'tab', 'aria-selected': tab === tb.id ? 'true' : 'false',
         onClick: () => { tab = tb.id; render(store.get()); body!.scrollTop = 0; },
-      }, img(tb.icon), S.shop.tabs[tb.id]))),
+      }, img(tb.icon), h('span', { class: 'txt-long' }, S.shop.tabs[tb.id]), h('span', { class: 'txt-short' }, S.shop.tabsShort[tb.id])))),
       body,
     );
     root.replaceChildren(panel);

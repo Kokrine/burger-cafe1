@@ -242,6 +242,14 @@ export const S = {
       expansion: 'კაფეს გაფართოება',
       inventory: 'ჩემი ინვენტარი',
     },
+    // ტელეფონზე ჩანართები მარცხნივ, ვიწრო სვეტად
+    tabsShort: {
+      equipment: 'აპარატები',
+      decor: 'დეკორი',
+      menu: 'მენიუ',
+      expansion: 'გაფართოება',
+      inventory: 'ინვენტარი',
+    },
     buy: 'ყიდვა',
     owned: 'გაქვს',
     ownedCount: 'გაქვს: {n} / {max}',
@@ -370,6 +378,12 @@ export const S = {
     empty: 'ფუნთუშა ან კოტლეტი არ გაქვს! ჯერ იყიდე, თორემ ბურგერს ვერ გააკეთებ.',
     budget: 'საწყობის ამოცანა',
     yesterday: 'გუშინ ამოგეწურა: {names} — დღეს მეტი იყიდე!',
+    // მოკლე ვარიანტები დაბალი (ჰორიზონტალური ტელეფონის) ეკრანისთვის
+    introShort: '≈ {n} კლიენტი',
+    goalShort: 'მიზანი: {n} ₾',
+    rentShort: 'ქირა: {n} ₾',
+    yesterdayShort: 'გუშინ ამოიწურა: {names}',
+    packShort: '{size} ც. = {price} ₾',
   },
 
   report: {

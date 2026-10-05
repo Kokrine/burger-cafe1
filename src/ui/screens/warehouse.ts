@@ -8,7 +8,7 @@ import { buyPacks, cartCost, forecast, neededStock, type Cart } from '../../logi
 import { budgetProblem, gradeMax, packsProblem } from '../../logic/math/generator';
 import { play } from '../../audio/sfx';
 import { askProblem } from '../mathModal';
-import { button, h, img } from '../dom';
+import { both, button, h, img } from '../dom';
 import { go, toast } from '../layers';
 import { showScene } from '../../game/game';
 
@@ -47,10 +47,10 @@ export function warehouseScreen(): HTMLElement {
           h('span', { class: `chip ${have < need ? 'lock' : 'ok'}` }, t(S.warehouse.inStock, { n: have })),
           h('span', { class: 'chip' }, t(S.warehouse.need, { n: need })),
         ),
-        h('p', null, t(S.warehouse.pack, { size: def.pack, price: def.price[p.grade] })),
+        h('p', null, both(S.warehouse.pack, S.warehouse.packShort, { size: def.pack, price: def.price[p.grade] })),
         h('div', { class: 'stepper' },
           h('button', { class: 'btn white', 'aria-label': '−', onClick: () => set(n - 1), disabled: n === 0 }, '−'),
-          h('b', null, `${n} ${S.warehouse.packs}`),
+          h('b', null, `${n}`, h('span', { class: 'unit' }, ` ${S.warehouse.packs}`)),
           h('button', { class: 'btn teal', 'aria-label': '+', onClick: () => set(n + 1), disabled: n >= 9 }, '+'),
         ),
       );
@@ -58,11 +58,11 @@ export function warehouseScreen(): HTMLElement {
 
     const tooMuch = cost > p.money;
     body = h('div', { class: 'panel-body' },
-      h('div', { class: 'info-strip' },
-        h('span', { class: 'chip' }, img('icon_people'), t(S.warehouse.intro, { n: st.customersPerDay })),
-        h('span', { class: 'chip ok' }, img('icon_target'), t(S.warehouse.goal, { n: today.goal })),
-        h('span', { class: 'chip' }, img('icon_store'), t(S.warehouse.rent, { n: today.rent })),
-        p.lastStockouts?.length ? h('span', { class: 'chip lock' }, img('icon_box'), t(S.warehouse.yesterday, { names: p.lastStockouts.map((x) => S.stock[x]).join(', ') })) : '',
+      h('div', { class: 'info-strip wh-info' },
+        h('span', { class: 'chip' }, img('icon_people'), both(S.warehouse.intro, S.warehouse.introShort, { n: st.customersPerDay })),
+        h('span', { class: 'chip ok' }, img('icon_target'), both(S.warehouse.goal, S.warehouse.goalShort, { n: today.goal })),
+        h('span', { class: 'chip' }, img('icon_store'), both(S.warehouse.rent, S.warehouse.rentShort, { n: today.rent })),
+        p.lastStockouts?.length ? h('span', { class: 'chip lock' }, img('icon_box'), both(S.warehouse.yesterday, S.warehouse.yesterdayShort, { names: p.lastStockouts.map((x) => S.stock[x]).join(', ') })) : '',
       ),
       h('div', { class: 'grid-items' }, ...ids.map(card)),
     );
@@ -78,6 +78,13 @@ export function warehouseScreen(): HTMLElement {
 
     root.replaceChildren(h('div', { class: 'panel' },
       h('div', { class: 'panel-head' }, img('icon_box'), h('h2', null, t(S.warehouse.title, { n: p.day })),
+        // ტელეფონზე (დაბალი ეკრანი) მოკლე ინფო სათაურის ზოლშია — ბარათებს მეტი სიმაღლე რჩება
+        h('div', { class: 'head-info' },
+          h('span', { class: 'chip' }, img('icon_people'), t(S.warehouse.introShort, { n: st.customersPerDay })),
+          h('span', { class: 'chip ok' }, img('icon_target'), t(S.warehouse.goalShort, { n: today.goal })),
+          h('span', { class: 'chip' }, img('icon_store'), t(S.warehouse.rentShort, { n: today.rent })),
+          p.lastStockouts?.length ? h('span', { class: 'chip lock' }, img('icon_box'), t(S.warehouse.yesterdayShort, { names: p.lastStockouts.map((x) => S.stock[x]).join(', ') })) : '',
+        ),
         h('button', { class: 'btn white round', 'aria-label': S.common.close, onClick: () => go('menu') }, '✕')),
       body,
       footer,
