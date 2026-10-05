@@ -817,6 +817,8 @@ button { -webkit-tap-highlight-color: transparent; }
 .profit-chart text { font: 800 12px 'Noto Sans Georgian', sans-serif; text-anchor: middle; fill: var(--c-text); }
 .profit-chart text.d { fill: var(--c-text-soft); font-weight: 700; }
 @media (max-width: 820px), (max-height: 560px) {
-  .math-bars .math-row { grid-template-columns: 96px 1fr auto; }
-  .math-bars .math-row > span { grid-column: 1 / -1; font-size: 13px; }
+  /* ტელეფონი: [სახელი | ზოლი | ღილაკი], ქვემოთ — სიზუსტის ტექსტი */
+  .math-bars .math-row { grid-template-columns: auto 1fr auto; gap: 4px 8px; }
+  .math-bars .math-row b { font-size: 15px; white-space: nowrap; }
+  .math-bars .math-row > span { grid-column: 1 / -1; order: 1; font-size: 13px; margin-top: -2px; }
 }

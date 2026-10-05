@@ -47,7 +47,9 @@ export const eventOf = (t?: Pick<Today, 'event'> | null): DayEventDef | undefine
 /** დღეს რამდენი კლიენტი მოვა (კაფეს ნივთები × მოვლენა). */
 export function dayCustomers(p: Progress, event = p.today?.event): number {
   const base = cafeStats(p).customersPerDay;
-  return Math.max(3, Math.round(base * (event ? DAY_EVENTS[event].customers : 1)));
+  // მოვლენის გავლენა ±6 კლიენტამდე: დიდ კაფეში ფესტივალი 19 → 29 კლიენტი ძალიან გრძელი დღე იქნებოდა
+  const extra = Math.round(base * ((event ? DAY_EVENTS[event].customers : 1) - 1));
+  return Math.max(3, base + Math.max(-6, Math.min(6, extra)));
 }
 
 /** გვერდითი კერძის ალბათობა დღეს (მზიან დღეს — მეტი). */

@@ -28,6 +28,8 @@ export function openStudentDetail(d: StudentDetail) {
       h('span', { class: 'chip' }, img('icon_level_up'), t(D.level, { n: p.cafeLevel })),
       h('span', { class: 'chip' }, img('icon_clock'), t(D.streak, { n: p.dayStreak ?? 0 })),
       h('span', { class: 'chip' }, img('badge_gold'), t(D.badgesN, { n: p.badges.length })),
+      h('span', { class: 'chip' }, img('icon_menu_book'), t(D.practiceN, { n: p.counters?.practice ?? 0 })),
+      p.cafeName ? h('span', { class: 'chip' }, img('icon_store'), p.cafeName) : '',
     );
 
     const ops = OPS.filter((op) => allows(p.grade, op) || (p.accuracy[op]?.attempts ?? 0) > 0);
