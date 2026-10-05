@@ -8,7 +8,7 @@ import { bus } from '../../core/bus';
 import type { Progress } from '../../core/types';
 import { CAFE_LEVELS, ITEMS, type CafeLevel } from '../../config/economy';
 import { isWall, LAYOUTS, REPLACES, type Pos, type WallPos } from '../../config/layout';
-import { R, VIEW } from '../game';
+import { R, VIEW, visibleSize } from '../game';
 
 const T = tokens.iso.tile;
 const WALL_H = 220;
@@ -63,6 +63,27 @@ export class CafeScene extends Phaser.Scene {
     cam.setZoom(R);
     cam.centerOn(VIEW.w / 2, VIEW.h / 2);
     cam.fadeIn(450, 255, 231, 184);
+    // ეკრანის ზომის/ორიენტაციის ცვლილება — კამერები თავიდან ლაგდება
+    const onResize = () => this.layoutCameras();
+    this.scale.on('resize', onResize);
+    this.events.once('shutdown', () => this.scale.off('resize', onResize));
+  }
+
+  /** კამერის ზომა = ეკრანის ზომა; მენიუში — ოთახი მთელ ეკრანზე. */
+  protected layoutCameras() {
+    this.cameras.main.setSize(this.scale.width, this.scale.height);
+    if (this.idleCustomers) this.fitMenuRoom();
+  }
+
+  /** მთავარი მენიუ: ოთახი ეკრანის მეტ ნაწილს იკავებს (ზემოთ HUD-ის, ქვემოთ ღილაკების ადგილი რჩება). */
+  private fitMenuRoom() {
+    if (!this.room.W) return;
+    const { W, D } = this.room;
+    const { w, h } = visibleSize(this.scale);
+    const minX = this.ox - D * T - 10, maxX = this.ox + W * T + 10;
+    const minY = this.oy - WALL_H - 10, maxY = this.oy + ((W + D) * T) / 2 + 6;
+    const f = Math.min(1.9, (w * 0.9) / (maxX - minX), (h * 0.96) / (maxY - minY));
+    this.cameras.main.setZoom(R * f).centerOn((minX + maxX) / 2, (minY + maxY) / 2);
   }
 
   /** ოთახის აწყობის შემდეგ (ქვეკლასებისთვის). */
@@ -131,6 +152,7 @@ export class CafeScene extends Phaser.Scene {
     // მზარეული და კლიენტები
     this.chefImg = this.bob(this.placeObj(chef, L.chef, this.entry(chef)), 3, 1400);
     if (!this.idleCustomers) { this.afterBuild(p); return; }
+    this.layoutCameras();
     if (this.customers.length !== L.spots.length) {
       this.customers = Phaser.Utils.Array.Shuffle([...CUSTOMER_IDS]).slice(0, L.spots.length);
     }
@@ -265,7 +287,7 @@ export class CafeScene extends Phaser.Scene {
     const top = Phaser.Display.Color.HexStringToColor(tokens.color.bgTop).color;
     const bot = Phaser.Display.Color.HexStringToColor(tokens.color.bgBottom).color;
     g.fillGradientStyle(top, top, bot, bot, 1);
-    g.fillRect(-200, -200, VIEW.w + 400, VIEW.h + 400);
+    g.fillRect(-VIEW.w, -VIEW.h, VIEW.w * 3, VIEW.h * 3); // EXPAND: ხილული არე 1600×900-ზე დიდი შეიძლება იყოს
     // რბილი წრეები ფონზე
     for (let i = 0; i < 9; i++) {
       g.fillStyle(0xffffff, 0.12);

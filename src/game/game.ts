@@ -15,6 +15,11 @@ export const R = (() => {
 
 let game: Phaser.Game | null = null;
 
+/** ხილული არე ლოგიკურ ერთეულებში (≥ 1600×900 — EXPAND-ის გამო შეიძლება უფრო განიერი/მაღალი იყოს). */
+export function visibleSize(scale: Phaser.Scale.ScaleManager): { w: number; h: number } {
+  return { w: scale.width / R, h: scale.height / R };
+}
+
 export function createGame(parent: HTMLElement): Phaser.Game {
   game = new Phaser.Game({
     type: Phaser.AUTO,
@@ -22,7 +27,8 @@ export function createGame(parent: HTMLElement): Phaser.Game {
     width: VIEW.w * R,
     height: VIEW.h * R,
     backgroundColor: tokens.color.bgTop,
-    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+    // EXPAND: ტილო მთელ ეკრანს ავსებს; ფართო ტელეფონზე ხილული არე 1600-ზე განიერდება (ცარიელი ზოლები აღარ არის)
+    scale: { mode: Phaser.Scale.EXPAND, autoCenter: Phaser.Scale.CENTER_BOTH },
     render: { antialias: true, roundPixels: false },
     scene: [BootScene, CafeScene, ServiceScene],
   });

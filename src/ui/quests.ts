@@ -22,15 +22,18 @@ export function todaysQuests(p: Progress): { quests: Quest[]; values: number[] }
 
 export function questList(p: Progress, cls = ''): HTMLElement {
   const { quests, values } = todaysQuests(p);
-  return h('div', { class: `quests ${cls}` },
-    h('h3', null, img('icon_target'), S.quests.title),
-    ...quests.map((q, i) => h('div', { class: `quest ${q.done ? 'done' : ''} ${q.kind}` },
+  const doneN = quests.filter((q) => q.done).length;
+  // სათაურზე დაჭერა: ტელეფონზე ბარათი იკეცება/იშლება (CSS), რომ კაფე არ დაფაროს
+  const box = h('div', { class: `quests ${cls}` });
+  const head = h('h3', { role: 'button', tabindex: '0', onClick: () => box.classList.toggle('open') },
+    img('icon_target'), S.quests.title, h('span', { class: 'quest-count' }, `${doneN}/${quests.length}`));
+  box.append(head, ...quests.map((q, i) => h('div', { class: `quest ${q.done ? 'done' : ''} ${q.kind}` },
       h('p', null, q.done ? img('icon_check') : '', questText(q)),
       h('div', { class: 'quest-row' },
         h('div', { class: 'bar-lg small' }, h('i', { style: `width:${(values[i] / q.target) * 100}%` })),
         h('small', null, `${values[i]}/${q.target}`),
         h('span', { class: `chip ${q.kind === 'math' ? 'ok' : ''}` }, img(q.kind === 'math' ? 'star' : 'coin'), q.kind === 'math' ? `+${q.reward.stars}` : rewardText(q)),
       ),
-    )),
-  );
+    )));
+  return box;
 }

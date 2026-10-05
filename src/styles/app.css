@@ -763,3 +763,12 @@ button { -webkit-tap-highlight-color: transparent; }
 .attention { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .attention .chip { cursor: pointer; font-family: inherit; }
 @media (max-width: 700px), (max-height: 560px) { .insight-grid { grid-template-columns: 1fr; } }
+.quest-count { margin-left: auto; font-size: 13px; color: var(--c-text-soft); }
+.quests h3 { cursor: default; }
+@media (max-height: 560px) {
+  /* ტელეფონი: მენიუს დავალებები ჩაკეცილია — სათაურზე დაჭერით იშლება */
+  .menu-quests { width: auto; min-width: 190px; }
+  .menu-quests h3 { cursor: pointer; }
+  .menu-quests:not(.open) .quest { display: none; }
+  .menu-quests.open { width: 236px; }
+}

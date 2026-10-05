@@ -4,7 +4,7 @@
 import Phaser from 'phaser';
 import tokens from '../../design/tokens.json';
 import { CafeScene } from './CafeScene';
-import { R, VIEW } from '../game';
+import { R, VIEW, visibleSize } from '../game';
 import { CUSTOMER_IDS, getManifest, type CustomerId } from '../../core/assets';
 import { store } from '../../core/store';
 import { bus } from '../../core/bus';
@@ -54,6 +54,7 @@ export class ServiceScene extends CafeScene {
   private ui!: Phaser.GameObjects.Layer;
   private uiCam!: Phaser.Cameras.Scene2D.Camera;
   private z = 0.7;
+  private benchImg?: Img;
   private camCenter: [number, number] = [0, 0];
 
   private stats!: CafeStats;
@@ -118,6 +119,7 @@ export class ServiceScene extends CafeScene {
     this.ui = this.add.layer().setDepth(1000);
     this.uiCam = this.cameras.add(0, 0, this.scale.width, this.scale.height);
     this.uiCam.setZoom(R).centerOn(VIEW.w / 2, VIEW.h / 2);
+    this.events.once('shutdown', () => { this.benchImg = undefined; });
     this.uiCam.ignore([this.layer, this.bg] as Phaser.GameObjects.GameObject[]);
     this.cameras.main.ignore(this.ui);
     this.cameras.main.setBackgroundColor(tokens.color.bgTop);
@@ -173,11 +175,31 @@ export class ServiceScene extends CafeScene {
 
   // ---------------- განლაგება ----------------
 
+  /** ეკრანის ზომა შეიცვალა: ორივე კამერა ეკრანის ზომისაა, ოთახი და მაგიდა თავიდან ლაგდება. */
+  protected layoutCameras() {
+    super.layoutCameras();
+    if (!this.uiCam) return;
+    this.uiCam.setSize(this.scale.width, this.scale.height).centerOn(VIEW.w / 2, VIEW.h / 2);
+    if (this.built) this.fitRoom();
+    this.stretchBench();
+  }
+
+  /** მაგიდის ფონი ხილული არის მთელ სიგანეზე (EXPAND-ით ეკრანი 1600-ზე განიერი შეიძლება იყოს). */
+  private stretchBench() {
+    const img = this.benchImg;
+    if (!img) return;
+    const { w } = visibleSize(this.scale);
+    const width = Math.max(VIEW.w, w + 4);
+    img.setX(VIEW.w / 2 - width / 2).setScale((width / VIEW.w) / R, 1 / R);
+  }
+
   private fitRoom() {
     const { W, D } = this.room;
     const minX = this.ox - D * T, maxX = this.ox + W * T;
-    const minY = this.oy - 240, maxY = this.oy + ((W + D) * T) / 2;
-    this.z = Math.min(0.8, ROOM_H / (maxY - minY), 1500 / (maxX - minX));
+    // იატაკის წინა წვერო მაგიდის ქვეშ შეიძლება მოექცეს — ოთახი უფრო დიდი ჩანს
+    const minY = this.oy - 215, maxY = this.oy + ((W + D) * T) / 2 - 80;
+    const { w } = visibleSize(this.scale);
+    this.z = Math.min(1, (ROOM_H + 30) / (maxY - minY), (w - 100) / (maxX - minX));
     const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
     this.camCenter = [cx, cy + (VIEW.h / 2 - (ROOM_TOP + ROOM_H / 2)) / this.z];
     this.cameras.main.setZoom(R * this.z).centerOn(this.camCenter[0], this.camCenter[1]);
@@ -203,7 +225,8 @@ export class ServiceScene extends CafeScene {
   }
 
   private buildBench(p: Progress) {
-    this.uimg('workbench', 0, BENCH_Y, 1, 0, 0).setDepth(0);
+    this.benchImg = this.uimg('workbench', 0, BENCH_Y, 1, 0, 0).setDepth(0);
+    this.stretchBench();
     const used = usedIngredients(p.menu);
 
     // ინგრედიენტების ყუთები: 2 რიგი × 4
