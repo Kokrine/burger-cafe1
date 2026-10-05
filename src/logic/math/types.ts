@@ -16,7 +16,7 @@ export type Kind =
   | 'remain' | 'payChange' | 'bills'          // მაღაზია
   | 'sum' | 'sumPromo' | 'change' | 'share'   // სალარო
   | 'group' | 'groupRem' | 'packs' | 'budget'  // საწყობი / სამზარეულო
-  | 'revenue' | 'expenses' | 'profit' | 'loss'  // საღამოს ანგარიში
+  | 'revenue' | 'expenses' | 'profit' | 'loss' | 'partSum' // საღამოს ანგარიში (partSum — დიდი ჯამის ნაწილი)
   | 'hours' | 'cookTime' | 'fraction'          // დილის მომზადება: დრო, წილადები
   | 'customers' | 'stockLeft' | 'missing' | 'compare' // დილის მომზადება: შეკრება/გამოკლება
   | 'pattern' | 'patternDown' | 'doublePatty'   // მიმდევრობა, გაორმაგება

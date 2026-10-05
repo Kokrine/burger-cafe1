@@ -4,7 +4,7 @@ import { S, t } from '../../i18n/strings.ka';
 import { store } from '../../core/store';
 import { PRODUCTS, STOCK, type ProductId, type StockId } from '../../config/economy';
 import { finishDay, makeReport, type Report, type ReportRow } from '../../logic/day';
-import { listSumProblem, profitProblem } from '../../logic/math/generator';
+import { listSumProblem, partSumProblems, profitProblem } from '../../logic/math/generator';
 import { play } from '../../audio/sfx';
 import { askProblem } from '../mathModal';
 import { button, h, img } from '../dom';
@@ -16,8 +16,9 @@ type Step = 'revenue' | 'expenses' | 'profit';
 
 export function reportScreen(): HTMLElement {
   const root = h('div', { class: 'overlay interactive' });
-  // kid — ბავშვმა დაითვალა; auto — დიდი რიცხვები (კალკულატორი); given — ერთი რიცხვია, შესაკრები არაფერია
-  const done: Partial<Record<Step, 'kid' | 'auto' | 'given'>> = {};
+  // kid — ბავშვმა დაითვალა; auto — დიდი რიცხვები (კალკულატორი); given — ერთი რიცხვია, შესაკრები არაფერია;
+  // parts — ჯამი კლასის ფარგლებს სცდება: ნაწილები ბავშვმა დაითვალა, დიდი ჯამი — კალკულატორმა
+  const done: Partial<Record<Step, 'kid' | 'auto' | 'given' | 'parts'>> = {};
   const skipped = (terms: number[]) => (terms.filter((x) => x > 0).length < 2 ? 'given' : 'auto');
   let finished = false;
 
@@ -41,6 +42,7 @@ export function reportScreen(): HTMLElement {
       h('span', null, `${label} =`),
       h('b', null, v ? `${value} ₾` : '? ₾'),
       v === 'auto' && value > 0 ? h('small', { class: 'hint' }, S.report.auto) : '',
+      v === 'parts' ? h('small', { class: 'hint' }, S.report.parts) : '',
     );
   };
 
@@ -58,15 +60,22 @@ export function reportScreen(): HTMLElement {
     const revenueTerms = [...R.revenueRows.map((r) => r.sum), R.tips, R.branch];
     const expenseTerms = [...R.expenseRows.map((r) => r.sum), R.rent];
 
+    /** ჯამი: ბავშვი კრებს მთლიანად; კლასის ფარგლებს თუ სცდება — ნაწილ-ნაწილ (1 კლასი: 20-მდე); თორემ კალკულატორი. */
+    const countSum = async (terms: number[], kind: 'revenue' | 'expenses', title: string) => {
+      const grade = today.grade ?? p.grade;
+      const pr = listSumProblem(terms, kind, grade);
+      if (pr) { await askProblem(title, pr, { cancellable: false }); return 'kid' as const; }
+      const parts = partSumProblems(terms, grade);
+      for (const part of parts) await askProblem(title, part, { cancellable: false });
+      return parts.length ? 'parts' as const : skipped(terms);
+    };
     const runRevenue = async () => {
-      const pr = R.discount ? null : listSumProblem(revenueTerms, 'revenue', today.grade ?? p.grade);
-      if (pr) { await askProblem(S.report.revenue, pr, { cancellable: false }); done.revenue = 'kid'; } else done.revenue = R.discount ? 'auto' : skipped(revenueTerms);
+      done.revenue = R.discount ? 'auto' : await countSum(revenueTerms, 'revenue', S.report.revenue);
       play('coin');
       render();
     };
     const runExpenses = async () => {
-      const pr = listSumProblem(expenseTerms, 'expenses', today.grade ?? p.grade);
-      if (pr) { await askProblem(S.report.expenses, pr, { cancellable: false }); done.expenses = 'kid'; } else done.expenses = skipped(expenseTerms);
+      done.expenses = await countSum(expenseTerms, 'expenses', S.report.expenses);
       play('coin');
       render();
     };

@@ -4,7 +4,7 @@ import { PRODUCTS, STOCK } from '../config/economy';
 import { DIFFICULTY } from '../config/difficulty';
 import type { Grade } from '../core/types';
 import { buyPacks, cartCost, consume, dayGoal, ensureToday, finishDay, forecast, makeReport, neededStock, recordSale, rentFor, supplierAid } from './day';
-import { hoursProblem, listSumProblem, prepProblem, profitProblem } from './math/generator';
+import { hoursProblem, listSumProblem, partSumProblems, prepProblem, profitProblem } from './math/generator';
 import { makeFeasibleOrder } from './orders';
 
 describe('საწყობი', () => {
@@ -199,5 +199,23 @@ describe('დღის მიზანი და პროგნოზი', () =
   });
   it('3–4 კლასში (1–3 ცალი შეკვეთაში) გვერდით კერძს მეტი მარაგი სჭირდება', () => {
     expect(forecast(['burger', 'fries'], 6, 2).potato).toBeGreaterThan(forecast(['burger', 'fries'], 6, 1).potato);
+  });
+});
+
+describe('დიდი ჯამი ნაწილ-ნაწილ (1 კლასი)', () => {
+  it('ყოველი ნაწილი 20-ის ფარგლებშია და 2+ შესაკრებია; ნაწილები ერთად მთლიანზე მეტს არ აჭარბებს', () => {
+    for (const terms of [[18, 4, 6], [9, 6, 8, 3], [12, 2, 3, 1, 6], [21, 4]]) {
+      const parts = partSumProblems(terms, 1);
+      for (const pr of parts) {
+        const items = String(pr.vars.items).split(' + ').map(Number);
+        expect(items.length).toBeGreaterThanOrEqual(2);
+        expect(pr.answer).toBe(items.reduce((a, b) => a + b, 0));
+        expect(pr.answer).toBeLessThanOrEqual(DIFFICULTY[1].max);
+        expect(pr.input).toBe('choice');
+      }
+      expect(parts.reduce((a, pr) => a + pr.answer, 0)).toBeLessThanOrEqual(terms.reduce((a, b) => a + b, 0));
+    }
+    expect(partSumProblems([18, 4, 6], 1).map((p) => p.vars.items)).toEqual(['4 + 6']);
+    expect(partSumProblems([30, 25], 1)).toEqual([]); // ვერცერთი ნაწილი — კალკულატორი
   });
 });

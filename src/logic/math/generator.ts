@@ -220,6 +220,25 @@ export function listSumProblem(terms: number[], kind: 'revenue' | 'expenses', gr
   }, grade, rnd);
 }
 
+/**
+ * ჯამი კლასის ფარგლებს სცდება (1 კლასი: 20) — ნაწილ-ნაწილ: შესაკრებებს ვაჯგუფებთ ისე, რომ თითო
+ * ჯგუფის ჯამი ფარგლებში იყოს, და ბავშვი თვითონ კრებს ყოველ ჯგუფს (2+ რიცხვით). დიდ ჯამს კალკულატორი ითვლის.
+ */
+export function partSumProblems(terms: number[], grade: Grade, rnd: Rnd = Math.random): Problem[] {
+  const max = gradeMax(grade);
+  const groups: number[][] = [];
+  let cur: number[] = [];
+  for (const x of terms.filter((v) => v > 0 && v <= max).sort((a, b) => a - b)) {
+    if (cur.reduce((a, b) => a + b, 0) + x > max) { groups.push(cur); cur = []; }
+    cur.push(x);
+  }
+  groups.push(cur);
+  return groups.filter((g) => g.length >= 2).map((g) => finalize({
+    kind: 'partSum', vars: { items: g.join(' + ') }, op: 'add', answer: g.reduce((a, b) => a + b, 0),
+    steps: additionSteps(g), hint: addHint(g),
+  }, grade, rnd));
+}
+
 /** მოგება = შემოსავალი − ხარჯი; თუ ხარჯი მეტია — ზარალი = ხარჯი − შემოსავალი. */
 export function profitProblem(revenue: number, expenses: number, grade: Grade, rnd: Rnd = Math.random): Problem | null {
   const max = gradeMax(grade);
