@@ -9,6 +9,10 @@ import type { Progress } from '../../core/types';
 import { CAFE_LEVELS, ITEMS, type CafeLevel } from '../../config/economy';
 import { isWall, LAYOUTS, REPLACES, type Pos, type WallPos } from '../../config/layout';
 import { R, VIEW, visibleSize } from '../game';
+import { bestFit, clipToRect, roomOutline, uiObstacles, type Fit, type Pt } from '../fit';
+
+/** მენიუს ელემენტები, რომლებსაც ოთახი არ უნდა ეხებოდეს. */
+const MENU_UI = ['.hud-left > *', '.hud-right > *', '.menu-bar > *', '.title-card', '.menu-quests'];
 
 const T = tokens.iso.tile;
 const WALL_H = 220;
@@ -66,7 +70,11 @@ export class CafeScene extends Phaser.Scene {
     // ეკრანის ზომის/ორიენტაციის ცვლილება — კამერები თავიდან ლაგდება
     const onResize = () => this.layoutCameras();
     this.scale.on('resize', onResize);
-    this.events.once('shutdown', () => this.scale.off('resize', onResize));
+    // ინტერფეისი შეიცვალა (ეკრანი, დავალებების ბარათი) — DOM-ის განლაგების შემდეგ თავიდან
+    let pending = 0;
+    const onLayout = () => { window.clearTimeout(pending); pending = window.setTimeout(() => this.layoutCameras(), 60); };
+    bus.on('layout', onLayout);
+    this.events.once('shutdown', () => { this.scale.off('resize', onResize); bus.off('layout', onLayout); window.clearTimeout(pending); });
   }
 
   /** კამერის ზომა = ეკრანის ზომა; მენიუში — ოთახი მთელ ეკრანზე. */
@@ -75,9 +83,59 @@ export class CafeScene extends Phaser.Scene {
     if (this.idleCustomers) this.fitMenuRoom();
   }
 
-  /** მთავარი მენიუ: ოთახი ეკრანის მეტ ნაწილს იკავებს (ზემოთ HUD-ის, ქვემოთ ღილაკების ადგილი რჩება). */
+  /**
+   * ოთახის სილუეტის (რომბი + კედლები) ჩასმა ეკრანზე მაქსიმალური ზომით ისე, რომ avoid
+   * ელემენტებს არ ეხებოდეს. აბრუნებს მასშტაბს (canvas px / world) და კამერის ცენტრს world-ში.
+   */
+  protected fitOutline(bounds: { x0: number; y0: number; x1: number; y1: number }, avoid: string[], maxZoom: number, wallH = WALL_H + 10): { zoom: number; center: Pt } | null {
+    const canvas = this.game.canvas;
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !this.room.W) return null;
+    const k = canvas.width / rect.width; // canvas px ერთ CSS px-ზე
+    // ეკრანზე სრულად უნდა ჩანდეს მხოლოდ ოთახის შიგთავსი (ავეჯი, მზარეული, კლიენტები, კედლის დეკორი);
+    // კედლების ზედა კიდე და ცარიელი იატაკი შეიძლება ეკრანს გასცდეს — ასე კაფე გაცილებით დიდია
+    const c = this.contentBounds();
+    const poly0 = roomOutline(this.ox, this.oy, this.room.W, this.room.D, T, wallH);
+    const poly = c ? clipToRect(poly0, { x0: c.x0 - 24, y0: c.y0 - 20, x1: c.x1 + 24, y1: c.y1 + 26 }) : poly0;
+    const fit: Fit | null = bestFit(poly, bounds, uiObstacles(avoid), maxZoom / k);
+    if (!fit) return null;
+    const xs = poly.map((p) => p[0]), ys = poly.map((p) => p[1]);
+    const pc: Pt = [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2];
+    const mid: Pt = [rect.left + rect.width / 2, rect.top + rect.height / 2];
+    return { zoom: fit.scale * k, center: [pc[0] + (mid[0] - fit.center[0]) / fit.scale, pc[1] + (mid[1] - fit.center[1]) / fit.scale] };
+  }
+
+  /** ოთახში მდგომი ყველაფრის (ავეჯი, მზარეული, კლიენტები, კედლის დეკორი) საზღვრები — იატაკისა და კედლების გარეშე. */
+  private contentBounds(): { x0: number; y0: number; x1: number; y1: number } | null {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const o of this.layer.list) {
+      const img = o as Phaser.GameObjects.Image;
+      const key = img.texture?.key ?? '';
+      if (!key || key.startsWith('floor_') || key.startsWith('wall_') || !img.visible) continue;
+      const b = img.getBounds();
+      x0 = Math.min(x0, b.left); y0 = Math.min(y0, b.top); x1 = Math.max(x1, b.right); y1 = Math.max(y1, b.bottom);
+    }
+    // კლიენტების ადგილები და კარი — სამუშაო დღის დასაწყისში კლიენტები ჯერ არ არიან, მაგრამ მოვლენ
+    const L = this.room.layout;
+    const pts: [number, number][] = [...L.spots.map((sp): [number, number] => [sp.x * T, sp.y * T]), [0.4 * T, (L.door.at + 0.8) * T]];
+    for (const [wx, wy] of pts) {
+      const [sx, sy] = this.iso(wx, wy);
+      x0 = Math.min(x0, sx - 60); x1 = Math.max(x1, sx + 60); y0 = Math.min(y0, sy - 230); y1 = Math.max(y1, sy + 12);
+    }
+    return Number.isFinite(x0) ? { x0, y0, x1, y1 } : null;
+  }
+
+  /** მთავარი მენიუ: ოთახი მაქსიმალურად, HUD-ს, ღილაკებს და დავალებებს შორის. */
   private fitMenuRoom() {
     if (!this.room.W) return;
+    // ეკრანზე პანელია (მაღაზია, საწყობი…) — ფონს არ ვცვლით
+    if (document.querySelector('#ui .overlay')) return;
+    const rect = this.game.canvas.getBoundingClientRect();
+    const fitted = this.fitOutline({ x0: rect.left + 4, y0: rect.top + 4, x1: rect.right - 4, y1: rect.bottom - 4 }, MENU_UI, R * 2);
+    if (fitted) {
+      this.cameras.main.setZoom(fitted.zoom).centerOn(fitted.center[0], fitted.center[1]);
+      return;
+    }
     const { W, D } = this.room;
     const { w, h } = visibleSize(this.scale);
     const minX = this.ox - D * T - 10, maxX = this.ox + W * T + 10;

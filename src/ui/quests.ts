@@ -3,6 +3,7 @@ import { S, t } from '../i18n/strings.ka';
 import type { Progress } from '../core/types';
 import { pickQuests, questValue, type Quest } from '../logic/quests';
 import { h, img } from './dom';
+import { bus } from '../core/bus';
 
 export function questText(q: Quest): string {
   return t(S.quests[q.id], { n: q.target, product: q.product ? S.products[q.product] ?? q.product : '' });
@@ -25,7 +26,7 @@ export function questList(p: Progress, cls = ''): HTMLElement {
   const doneN = quests.filter((q) => q.done).length;
   // სათაურზე დაჭერა: ტელეფონზე ბარათი იკეცება/იშლება (CSS), რომ კაფე არ დაფაროს
   const box = h('div', { class: `quests ${cls}` });
-  const head = h('h3', { role: 'button', tabindex: '0', onClick: () => box.classList.toggle('open') },
+  const head = h('h3', { role: 'button', tabindex: '0', onClick: () => { box.classList.toggle('open'); bus.emit('layout'); } },
     img('icon_target'), S.quests.title, h('span', { class: 'quest-count' }, `${doneN}/${quests.length}`));
   box.append(head, ...quests.map((q, i) => h('div', { class: `quest ${q.done ? 'done' : ''} ${q.kind}` },
       h('p', null, q.done ? img('icon_check') : '', questText(q)),

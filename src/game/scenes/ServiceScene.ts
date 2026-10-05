@@ -196,6 +196,22 @@ export class ServiceScene extends CafeScene {
   }
 
   private fitRoom() {
+    // ოთახის სილუეტი მაგიდის ზემოთ, HUD-ის ელემენტების გარეშე (იატაკის წინა წვერო მაგიდის ქვეშ შეიძლება შევიდეს)
+    const canvas = this.game.canvas;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width) {
+      const k = canvas.width / rect.width;
+      const benchTop = rect.top + (canvas.height / 2 + (BENCH_Y - VIEW.h / 2) * R) / k;
+      const fitted = this.fitOutline(
+        { x0: rect.left + 6, y0: rect.top + 4, x1: rect.right - 6, y1: benchTop + (benchTop - rect.top) * 0.08 },
+        ['.hud-left > *', '.hud-right > *'], R * 1.25, 215);
+      if (fitted) {
+        this.z = fitted.zoom / R;
+        this.camCenter = fitted.center;
+        this.cameras.main.setZoom(fitted.zoom).centerOn(this.camCenter[0], this.camCenter[1]);
+        return;
+      }
+    }
     const { W, D } = this.room;
     const minX = this.ox - D * T, maxX = this.ox + W * T;
     // იატაკის წინა წვერო მაგიდის ქვეშ შეიძლება მოექცეს — ოთახი უფრო დიდი ჩანს

@@ -1,5 +1,6 @@
 // UI ფენები Phaser-ის ტილოს თავზე: HUD, ეკრანი, მოდალი, შეტყობინება.
 import { h, img } from './dom';
+import { bus } from '../core/bus';
 
 export const layers = {
   hud: h('div'),
@@ -26,6 +27,8 @@ export function go(name: string) {
   if (!s) throw new Error(`no screen ${name}`);
   current = name;
   layers.screen.replaceChildren(s());
+  // ოთახი ინტერფეისის ელემენტებს შორის თავიდან ეწყობა (game/fit.ts)
+  bus.emit('layout');
 }
 export const currentScreen = () => current;
 

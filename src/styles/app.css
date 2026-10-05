@@ -786,3 +786,8 @@ button { -webkit-tap-highlight-color: transparent; }
 @media (max-height: 560px) {
   .modal .panel-body > .speak-row { grid-column: 1; }
 }
+/* დავალებების ბარათი ყველა ეკრანზე ჩაკეცილია — ოთახს ადგილს არ ართმევს; დაჭერით იშლება */
+.menu-quests { width: auto; min-width: 220px; }
+.menu-quests h3 { cursor: pointer; }
+.menu-quests:not(.open) .quest { display: none; }
+.menu-quests.open { width: 300px; }
