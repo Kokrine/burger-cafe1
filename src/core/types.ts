@@ -47,6 +47,8 @@ export interface Today {
   branch?: number;              // მეორე ფილიალის დღიური შემოსავალი
   stockouts?: string[];         // რა ამოიწურა დღის განმავლობაში
   missed?: number;              // კლიენტები, ვისაც მარაგის გამო ვერ მოემსახურე
+  seen?: number;                // რამდენი კლიენტი მოვიდა დღეს (გადატვირთვის შემდეგ გაგრძელებისთვის)
+  grade?: Grade;                // კლასი, რომლითაც დღე დაიწყო (ფასები ანგარიშში)
 }
 
 /** მოსწავლის მთელი პროგრესი — ინახება localStorage-ში (შემდეგ Supabase-შიც). */
@@ -87,5 +89,7 @@ export interface Progress {
   badges: string[];
   history: DayRecord[];
   settings: { sound: boolean };
+  /** პირველი სამუშაო დღის სწავლება ნანახია (ან გამოტოვებულია). */
+  tutorialDone?: boolean;
   lastBought?: string;
 }

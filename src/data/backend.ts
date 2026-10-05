@@ -59,4 +59,6 @@ export interface Backend {
   studentSignIn(classCode: string, studentId: string, pin: string): Promise<StudentSession>;
   loadProgress(session: Session): Promise<Progress | null>;
   saveProgress(session: Session, p: Progress): Promise<void>;
+  /** გაშვებისას შენახული სესიის შემოწმება (Supabase: ავტორიზაცია ისევ მოქმედებს?). */
+  validateSession?(session: Session): Promise<boolean>;
 }

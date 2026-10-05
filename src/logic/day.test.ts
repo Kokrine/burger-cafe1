@@ -5,6 +5,7 @@ import { DIFFICULTY } from '../config/difficulty';
 import type { Grade } from '../core/types';
 import { buyPacks, cartCost, consume, ensureToday, finishDay, forecast, makeReport, neededStock, recordSale, rentFor } from './day';
 import { listSumProblem, profitProblem } from './math/generator';
+import { makeFeasibleOrder } from './orders';
 
 describe('საწყობი', () => {
   it('საჭირო ინგრედიენტები მენიუს მიხედვით', () => {
@@ -112,5 +113,23 @@ describe('დღის ანგარიში', () => {
   });
   it('კალათის ფასი', () => {
     expect(cartCost({ bun: 4 }, 2)).toBe(12);
+  });
+});
+
+describe('დღის მდგრადობა', () => {
+  it('დღე იმ კლასის ფასებით ითვლება, რომლითაც დაიწყო (კლასი შუა დღეს შეიცვალა)', () => {
+    const p = newProgress(3);
+    const t = ensureToday(p);
+    expect(t.grade).toBe(3);
+    recordSale(p, ['burger'], 8, 0);
+    p.grade = 1; // მაგ. მასწავლებელმა კლასის დონე შეცვალა
+    const { report } = finishDay(p);
+    expect(report.discount).toBe(0); // სტრიქონების ჯამი = შემოსავალი, ყალბი „ფასდაკლება" არ ჩნდება
+    expect(report.revenueRows[0].price).toBe(8);
+  });
+  it('სოუსის გარეშე ბურგერი არ კეთდება — საწყობი ამას ამოწმებს', () => {
+    const have = (s: Record<string, number>) => (id: string) => s[id] ?? 0;
+    expect(makeFeasibleOrder(['burger'], have({ bun: 5, patty: 5, lettuce: 5 }))).toBeNull();
+    expect(makeFeasibleOrder(['burger'], have({ bun: 5, patty: 5, lettuce: 5, ketchup: 5, mayo: 5 }))).not.toBeNull();
   });
 });

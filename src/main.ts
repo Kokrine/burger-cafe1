@@ -51,7 +51,12 @@ async function boot() {
   await assetsReady;
 
   // შენახული სესია: მოსწავლე/სტუმარი → თამაში, მასწავლებელი → პანელი, სხვა → შესვლა
-  const session = backend.getSession();
+  let session = backend.getSession();
+  // ღრუბლის სესია შეიძლება ვადაგასული იყოს (ან კომპიუტერზე სხვა შევიდა) — მაშინ თავიდან შესვლა
+  if (session && backend.validateSession && !(await backend.validateSession(session))) {
+    await backend.signOut();
+    session = null;
+  }
   if (session) {
     await enterSession(session);
     if (session.kind === 'teacher') go('teacher');

@@ -45,7 +45,7 @@ export function reportScreen(): HTMLElement {
     const p = store.get();
     const today = p.today;
     if (!today) { go('menu'); return; }
-    const R: Report = makeReport(today, p.grade);
+    const R: Report = makeReport(today, today.grade ?? p.grade);
     const iR = info(S.report.info.revenue), iE = info(S.report.info.expenses), iP = info(S.report.info.profit);
     const loss = R.profit < 0;
 

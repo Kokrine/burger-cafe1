@@ -678,3 +678,28 @@ button { -webkit-tap-highlight-color: transparent; }
   .stop .price img { width: 22px; height: 22px; }
   .stop .bar-lg { height: 12px; }
 }
+
+/* ---------- პირველი დღის სწავლება (ServiceScene) ---------- */
+.coach {
+  position: fixed; left: 50%; top: 30%; transform: translateX(-50%); z-index: 40;
+  width: min(600px, 64vw); display: flex; align-items: center; gap: 12px;
+  background: #fff; border: var(--stroke) solid var(--c-ink); border-radius: var(--r-md);
+  padding: 10px 14px; box-shadow: 4px 6px 0 rgba(43, 24, 16, .2);
+  animation: coachIn .3s ease-out;
+}
+.coach > img { width: 46px; height: 46px; flex: none; }
+.coach p { margin: 0; flex: 1; font-size: 19px; font-weight: 800; line-height: 1.3; color: var(--c-text); }
+.coach-btns { display: flex; flex-direction: column; align-items: stretch; gap: 2px; flex: none; }
+.coach-btns .btn { min-height: 44px; font-size: 17px; padding: 4px 18px; }
+.coach-btns .link-btn { font-size: 13px; min-height: 30px; padding: 2px 6px; }
+@keyframes coachIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (max-height: 560px) {
+  .coach { top: 27%; width: min(520px, 58vw); padding: 6px 10px; gap: 8px; }
+  .coach > img { width: 30px; height: 30px; }
+  .coach p { font-size: 14px; }
+  .coach-btns .btn { min-height: 36px; font-size: 14px; padding: 2px 12px; }
+  .coach-btns .link-btn { font-size: 12px; min-height: 26px; }
+}
+@media (prefers-reduced-motion: reduce) { .coach { animation: none; } }
+/* ამოცანის/მარაგის ფანჯარა ღიაა — სწავლების ყუთი არ უნდა ფარავდეს მას */
+#ui:has(.modal) .coach, #ui:has(.overlay .modal) .coach { display: none; }

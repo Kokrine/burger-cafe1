@@ -244,16 +244,43 @@ export class SupabaseBackend implements Backend {
     }
   }
 
-  async saveProgress(session: Session, p: Progress) {
-    if (session.kind === 'teacher') return;
+  /** შენახვები რიგრიგობით — ძველი ასლი ახალს არ გადააწერს. */
+  private saving: Promise<void> = Promise.resolve();
+
+  saveProgress(session: Session, p: Progress): Promise<void> {
+    if (session.kind === 'teacher') return Promise.resolve();
     if (session.kind === 'guest') return this.local.saveProgress(session, p);
     this.write(K.progress(session.studentId), p);
-    const { error } = await this.sb.from('progress').update({
+    this.saving = this.saving.then(() => this.upload(session, p)).catch(() => undefined);
+    return this.saving;
+  }
+
+  private async upload(session: StudentSession, p: Progress) {
+    // RLS 0 მწკრივზე შეცდომას არ აბრუნებს (მაგ. სესია სხვა მომხმარებლისაა) — ამიტომ ვამოწმებთ, რომ ჩაიწერა
+    const { data, error } = await this.sb.from('progress').update({
       data: p, points: p.points, stars: p.stars, money: p.money, day: p.day, cafe_level: p.cafeLevel,
       badges: p.badges?.length ?? 0, accuracy: p.accuracy, last_active: new Date().toISOString(),
-    }).eq('student_id', session.studentId);
-    if (error) this.write(K.pending(session.studentId), true);
+    }).eq('student_id', session.studentId).select('student_id');
+    if (error || !data?.length) this.write(K.pending(session.studentId), true);
     else this.kv.removeItem(K.pending(session.studentId));
+  }
+
+  /** გაშვებისას: შენახული სესია ისევ მოქმედებს? (ინტერნეტის გარეშე — ვენდობით ლოკალურ ასლს) */
+  async validateSession(session: Session): Promise<boolean> {
+    if (session.kind === 'guest') return true;
+    try {
+      const { data: auth } = await this.sb.auth.getSession();
+      const user = auth.session?.user;
+      if (!user) return false;
+      if (session.kind === 'teacher') return !user.is_anonymous && user.id === session.teacher.id;
+      if (!user.is_anonymous) return false;
+      // ანონიმური სესია ამ მოსწავლესთანაა დაკავშირებული? (RLS-ით მხოლოდ მაშინ ჩანს მისი მწკრივი)
+      const { data, error } = await this.sb.from('progress').select('student_id').eq('student_id', session.studentId).maybeSingle();
+      if (error) return true; // ქსელის პრობლემა — თამაში ლოკალური ასლით გრძელდება
+      return !!data;
+    } catch {
+      return true;
+    }
   }
 
   /** ინტერნეტის დაბრუნებისას: ბოლო ლოკალური პროგრესის ატვირთვა. */

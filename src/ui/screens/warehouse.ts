@@ -8,6 +8,7 @@ import { buyPacks, cartCost, forecast, neededStock, type Cart } from '../../logi
 import { budgetProblem, gradeMax, packsProblem } from '../../logic/math/generator';
 import { play } from '../../audio/sfx';
 import { askProblem } from '../mathModal';
+import { makeFeasibleOrder } from '../../logic/orders';
 import { both, button, h, img } from '../dom';
 import { go, toast } from '../layers';
 import { showScene } from '../../game/game';
@@ -99,7 +100,8 @@ export function warehouseScreen(): HTMLElement {
     const cost = cartCost(cart, p.grade);
     // 1) შეკვრების ფასი (ყველაზე დიდი ხაზი)
     const [bigId, bigN] = lines[0];
-    if (bigN >= 2) {
+    const bigPrice = STOCK[bigId].price[p.grade];
+    if (bigN >= 2 && bigN * bigPrice <= gradeMax(p.grade) && (p.grade > 1 || bigN <= 3)) {
       await askProblem(S.warehouse.budget, packsProblem(bigN, STOCK[bigId].price[p.grade], S.stock[bigId], p.grade), { cancellable: false });
     }
     // 2) ბიუჯეტი: რამდენი დაგრჩა (თუ რიცხვები კლასის ფარგლებშია)
@@ -117,6 +119,13 @@ export function warehouseScreen(): HTMLElement {
     const p = store.get();
     if (!(p.stock.bun > 0) || !(p.stock.patty > 0)) {
       toast(S.warehouse.empty, 'layer_patty');
+      play('wrong');
+      return;
+    }
+    // ვერცერთ ბურგერს ვერ გააკეთებ (მაგ. სოუსი არ არის) — სთხოვე, რომ იყიდოს
+    if (!makeFeasibleOrder(p.menu, (id) => p.stock[id as StockId] ?? 0)) {
+      const miss = neededStock(p.menu).filter((id) => !(p.stock[id] > 0) && !['juice', 'fries', 'icecream'].includes(id));
+      toast(t(S.warehouse.noBurger, { names: miss.map((id) => S.stock[id]).join(', ') }), 'icon_box');
       play('wrong');
       return;
     }

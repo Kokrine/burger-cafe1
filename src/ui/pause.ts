@@ -42,6 +42,7 @@ export function openPause() {
       button(P.logout, async () => { done(); showScene('cafe'); await signOut(); go('login'); }, 'white', 'icon_chef_hat'),
       !isGuest() ? '' : button(P.reset, () => {
         if (window.confirm(P.resetConfirm)) {
+          showScene('cafe'); // სამუშაო დღე ჩერდება, სანამ პროგრესი თავიდან იწყება
           store.replace(newProgress(store.get().grade));
           done();
           go('character');

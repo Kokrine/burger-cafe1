@@ -53,7 +53,7 @@ export function ensureToday(p: Progress): Today {
   if (p.today && p.today.day === p.day) return p.today;
   p.today = {
     day: p.day, goal: dayGoal(p), rent: rentFor(p), purchases: [], ingredients: 0, sales: {},
-    revenue: 0, tips: 0, served: 0, left: 0, wasted: 0, startStars: p.stars, played: false,
+    revenue: 0, tips: 0, served: 0, left: 0, wasted: 0, startStars: p.stars, played: false, grade: p.grade,
   };
   return p.today;
 }
@@ -129,8 +129,10 @@ export function branchIncome(p: Pick<Progress, 'branches' | 'grade'>): number {
 /** სამუშაო დღის დასასრული: წასული კლიენტები, მეორე ფილიალის შემოსავალი, ანგარიში ელოდება. */
 export function closeService(p: Progress, left: number, missed = 0) {
   const t = ensureToday(p);
-  t.left = left;
-  t.missed = missed;
+  if (t.played) return; // დასრულებული დღე მეორედ არ იხურება
+  // დღე შეიძლება რამდენიმე ნაწილად ითამაშოს (გვერდის გადატვირთვა) — ვამატებთ
+  t.left = (t.left ?? 0) + left;
+  t.missed = (t.missed ?? 0) + missed;
   t.played = true;
   const b = branchIncome(p);
   if (b && !t.branch) {
@@ -170,7 +172,7 @@ export function makeReport(t: Today, grade: Grade): Report {
 /** დღის დასრულება: ქირის გადახდა, ისტორია, შემდეგი დღე (მხოლოდ მიზნის შესრულებისას). */
 export function finishDay(p: Progress, now = new Date()): { goalMet: boolean; report: Report } {
   const t = ensureToday(p);
-  const report = makeReport(t, p.grade);
+  const report = makeReport(t, t.grade ?? p.grade);
   const goalMet = t.revenue >= t.goal;
   p.money = Math.max(0, p.money - t.rent);
   p.lastStockouts = [...(t.stockouts ?? [])];
