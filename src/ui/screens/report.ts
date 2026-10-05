@@ -57,19 +57,19 @@ export function reportScreen(): HTMLElement {
     const expenseTerms = [...R.expenseRows.map((r) => r.sum), R.rent];
 
     const runRevenue = async () => {
-      const pr = R.discount ? null : listSumProblem(revenueTerms, 'revenue', p.grade);
+      const pr = R.discount ? null : listSumProblem(revenueTerms, 'revenue', today.grade ?? p.grade);
       if (pr) { await askProblem(S.report.revenue, pr, { cancellable: false }); done.revenue = 'kid'; } else done.revenue = 'auto';
       play('coin');
       render();
     };
     const runExpenses = async () => {
-      const pr = listSumProblem(expenseTerms, 'expenses', p.grade);
+      const pr = listSumProblem(expenseTerms, 'expenses', today.grade ?? p.grade);
       if (pr) { await askProblem(S.report.expenses, pr, { cancellable: false }); done.expenses = 'kid'; } else done.expenses = 'auto';
       play('coin');
       render();
     };
     const runProfit = async () => {
-      const pr = profitProblem(R.revenue, R.expenses, p.grade);
+      const pr = profitProblem(R.revenue, R.expenses, today.grade ?? p.grade);
       if (pr) { await askProblem(loss ? S.report.loss : S.report.profit, pr, { cancellable: false }); done.profit = 'kid'; } else done.profit = 'auto';
       play(loss ? 'coin' : 'levelUp');
       render();

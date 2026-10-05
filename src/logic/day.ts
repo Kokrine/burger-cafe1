@@ -89,9 +89,9 @@ export const emergencyPrice = (id: StockId, grade: Grade) => Math.ceil(STOCK[id]
 
 /** სასწრაფო შეკვეთა: ფული ახლავე იხდება, მარაგი კურიერის მოსვლისას ემატება (receiveDelivery). */
 export function buyEmergency(p: Progress, id: StockId, packs: number): number {
-  const cost = packs * emergencyPrice(id, p.grade);
-  if (packs < 1 || cost > p.money) throw new Error('cannot buy');
   const t = ensureToday(p);
+  const cost = packs * emergencyPrice(id, t.grade ?? p.grade);
+  if (packs < 1 || cost > p.money) throw new Error('cannot buy');
   t.purchases.push({ id, packs, cost, emergency: true });
   t.ingredients += cost;
   p.money -= cost;

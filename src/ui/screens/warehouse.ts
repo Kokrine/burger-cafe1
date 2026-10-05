@@ -2,7 +2,7 @@
 // მათემატიკა: „4 შეკვრა × 3 ₾ = ?" და „ბიუჯეტი 50 ₾, დახარჯე 32 ₾ — რამდენი დაგრჩა?"
 import { S, t } from '../../i18n/strings.ka';
 import { store } from '../../core/store';
-import { STOCK, type StockId } from '../../config/economy';
+import { SIDE_STOCK, STOCK, type StockId } from '../../config/economy';
 import { cafeStats } from '../../logic/economy';
 import { buyPacks, cartCost, forecast, neededStock, type Cart } from '../../logic/day';
 import { budgetProblem, gradeMax, packsProblem } from '../../logic/math/generator';
@@ -124,7 +124,8 @@ export function warehouseScreen(): HTMLElement {
     }
     // ვერცერთ ბურგერს ვერ გააკეთებ (მაგ. სოუსი არ არის) — სთხოვე, რომ იყიდოს
     if (!makeFeasibleOrder(p.menu, (id) => p.stock[id as StockId] ?? 0)) {
-      const miss = neededStock(p.menu).filter((id) => !(p.stock[id] > 0) && !['juice', 'fries', 'icecream'].includes(id));
+      const sideStock = new Set<string>(Object.values(SIDE_STOCK));
+      const miss = neededStock(p.menu).filter((id) => !(p.stock[id] > 0) && !sideStock.has(id));
       toast(t(S.warehouse.noBurger, { names: miss.map((id) => S.stock[id]).join(', ') }), 'icon_box');
       play('wrong');
       return;

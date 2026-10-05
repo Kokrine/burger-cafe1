@@ -32,6 +32,8 @@ export function askPurchase(itemName: string, balance: number, price: number, gr
 }
 
 export function askProblem(title: string, pr: Problem, opts: AskOptions = {}): Promise<boolean> {
+  // ავტომატური ტესტირებისთვის (მხოლოდ dev რეჟიმში): მიმდინარე ამოცანა
+  if (import.meta.env.DEV) (window as unknown as { __problem?: Problem }).__problem = pr;
   return new Promise((resolve) => {
     let wrong = 0;
     let value = '';
@@ -58,7 +60,8 @@ export function askProblem(title: string, pr: Problem, opts: AskOptions = {}): P
             td.mathFirst = (td.mathFirst ?? 0) + 1;
             if (pr.kind === 'change') td.changeFirst = (td.changeFirst ?? 0) + 1;
           }
-          td.bestStreak = Math.max(td.bestStreak ?? 0, p.streak);
+          td.streak = attempt === 1 ? (td.streak ?? 0) + 1 : 0; // გუშინდელი სერია არ ითვლება
+          td.bestStreak = Math.max(td.bestStreak ?? 0, td.streak);
         }
         if (attempt !== 3) {
           bump(p, `ok_${pr.op}`);

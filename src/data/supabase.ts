@@ -281,7 +281,8 @@ export class SupabaseBackend implements Backend {
   async validateSession(session: Session): Promise<boolean> {
     if (session.kind === 'guest') return true;
     try {
-      const { data: auth } = await this.sb.auth.getSession();
+      const { data: auth, error: authErr } = await this.sb.auth.getSession();
+      if (authErr) return true; // ტოკენის განახლება ქსელის გამო ვერ მოხერხდა — ლოკალური ასლით ვთამაშობთ
       const user = auth.session?.user;
       if (!user) return false;
       if (session.kind === 'teacher') return !user.is_anonymous && user.id === session.teacher.id;

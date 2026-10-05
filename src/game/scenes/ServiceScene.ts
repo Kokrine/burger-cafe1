@@ -26,17 +26,27 @@ import { askProblem } from '../../ui/mathModal';
 import { layers, toast } from '../../ui/layers';
 import { h } from '../../ui/dom';
 import { autoRead, speakButton } from '../../ui/speak';
-import { speak } from '../../audio/speech';
+import { speak, stopSpeech } from '../../audio/speech';
 
 const T = tokens.iso.tile;
 const BENCH_Y = 570;
 const FONT = tokens.font.family.replace(/'/g, '');
 const ROOM_TOP = 70, ROOM_H = 500;
+// მაგიდის განლაგება (UI კოორდინატები): ყუთები მარცხნივ → გრილი შუაში → თეფში წინ (აწყობა)
+// → მზა გვერდითი კერძები თეფშის მარჯვნივ → ნაგავი. აპარატები უკანა რიგში, თითო ცალკე.
+const GRILL_X = 790, GRILL_Y = 892;
+const PLATE_X = 1110, PLATE_Y = 856;
+const TRAY_X = 1300, TRAY_Y = 840;
+const MACH_Y = 752;
 
 type Img = Phaser.GameObjects.Image;
 
 interface GrillSlot { x: number; y: number; state: 'empty' | 'cooking' | 'ready' | 'burnt'; t: number; img?: Img; puffs: Phaser.GameObjects.Arc[] }
-interface Machine { side: Side; x: number; top: number; state: 'idle' | 'working' | 'ready'; t: number; dur: number; img: Img; bar: Phaser.GameObjects.Graphics; product?: Img }
+interface Machine {
+  side: Side; x: number; top: number; state: 'idle' | 'working' | 'ready'; t: number; dur: number; img: Img; bar: Phaser.GameObjects.Graphics; product?: Img;
+  /** სად ჩნდება მზა პროდუქტი (ჭიქა ონკანის ქვეშ…) და საიდან ისხმება (ონკანი) */
+  out: [number, number]; spout?: [number, number];
+}
 interface Cust {
   id: CustomerId; order: Order; spot: number; img: Img;
   state: 'walk' | 'wait' | 'pay' | 'leave';
@@ -149,7 +159,7 @@ export class ServiceScene extends CafeScene {
     this.fitRoom();
     this.buildBench(p);
     // გვერდის გადატვირთვის/გასვლის შემდეგ იგივე დღე გრძელდება — უკვე მოსული კლიენტები აღარ მოდიან
-    this.total = Math.max(0, this.stats.customersPerDay - (p.today?.seen ?? 0));
+    this.total = p.today?.closed ? 0 : Math.max(0, this.stats.customersPerDay - (p.today?.seen ?? 0));
     this.goal = p.today?.goal ?? dayGoal(p);
     this.sinceSpawn = SERVICE.spawnEvery - SERVICE.firstSpawn;
     setSession({ active: true, goal: this.goal, earned: 0, clock: this.clockText(0) });
@@ -158,7 +168,7 @@ export class ServiceScene extends CafeScene {
     // პაუზის მენიუდან „სწავლების თავიდან ნახვა" — დღის შუაშიც
     const onTutorial = () => { if (!this.tut && !this.ended) this.tut = { step: 'wait', t: 0, said: '' }; };
     bus.on('tutorial', onTutorial);
-    this.events.once('shutdown', () => { bus.off('tutorial', onTutorial); this.coach?.remove(); this.coach = undefined; });
+    this.events.once('shutdown', () => { bus.off('tutorial', onTutorial); this.coach?.remove(); this.coach = undefined; stopSpeech(); });
     void this.prep(p);
     if (p.owned.jukebox) startMusic();
   }
@@ -266,17 +276,17 @@ export class ServiceScene extends CafeScene {
     this.updateBadges();
 
     // გრილ(ებ)ი
-    const grills = 1 + (p.owned.grill2 ? 1 : 0);
-    const gKey = p.owned.grillFast ? 'grill_fast' : 'grill';
+    // მეორე გრილი = ერთი ფართო გრილი 8 ადგილით (2 რიგი × 4), წინიდან დახატული
+    const gKey = `bench_grill${p.owned.grill2 ? '_big' : ''}${p.owned.grillFast ? '_fast' : ''}`;
     const e = getManifest()[gKey];
-    const s = grills === 1 ? 1.55 : 1.2;
-    for (let g = 0; g < grills; g++) {
-      const gx = grills === 1 ? 850 : 735 + g * 240, gy = 892;
-      this.uimg(g === 0 ? gKey : 'grill', gx, gy, s, 0.5, 1).setDepth(1);
+    const s = p.owned.grill2 ? 1 : 1.15;
+    {
+      const gx = GRILL_X, gy = GRILL_Y;
+      this.uimg(gKey, gx, gy, s, 0.5, 1).setDepth(1);
       const left = gx - (e.w * s) / 2, top = gy - e.h * s;
       const own: GrillSlot[] = [];
       for (const [dx, dy] of e.slots ?? []) {
-        const slot: GrillSlot = { x: left + (e.anchor[0] + dx) * s, y: top + (e.anchor[1] + dy) * s, state: 'empty', t: 0, puffs: [] };
+        const slot: GrillSlot = { x: left + dx * s, y: top + dy * s, state: 'empty', t: 0, puffs: [] };
         this.grills.push(slot);
         own.push(slot);
       }
@@ -297,22 +307,24 @@ export class ServiceScene extends CafeScene {
     }
 
     // თეფში, ლანგარი, ნაგავი
-    this.uimg('plate', 1235, 856, 1.1).setDepth(1);
+    this.uimg('plate', PLATE_X, PLATE_Y, 1.1).setDepth(1);
     const trash = this.uimg('icon_trash', 1555, 836, 1.7).setDepth(2).setInteractive({ useHandCursor: true });
     trash.on('pointerdown', () => this.clearPlate(true));
     this.text(1555, 884, S.service.trash, 16).setDepth(2);
 
     // აპარატები (მენიუს მიხედვით)
     const sides: { side: Side; key: string; x: number }[] = [];
-    if (p.menu.includes('juice')) sides.push({ side: 'juice', key: this.stats.autoDrink ? 'drink_machine_auto' : 'drink_machine', x: 1180 });
-    if (p.menu.includes('fries')) sides.push({ side: 'fries', key: 'fryer', x: 1335 });
-    if (p.menu.includes('icecream')) sides.push({ side: 'icecream', key: 'ice_cream_machine', x: 1490 });
+    if (p.menu.includes('juice')) sides.push({ side: 'juice', key: this.stats.autoDrink ? 'bench_drink_auto' : 'bench_drink', x: 1265 });
+    if (p.menu.includes('fries')) sides.push({ side: 'fries', key: 'bench_fryer', x: 1400 });
+    if (p.menu.includes('icecream')) sides.push({ side: 'icecream', key: 'bench_icecream', x: 1530 });
     for (const m of sides) {
-      const me = getManifest()[m.key];
-      const ms = 0.95;
-      const img = this.uimg(m.key, m.x, 735, ms, 0.5, 1).setDepth(1).setInteractive({ useHandCursor: true });
+      const me = getManifest()[m.key] as { w: number; h: number; out?: [number, number]; spout?: [number, number] };
+      const ms = 0.92;
+      const img = this.uimg(m.key, m.x, MACH_Y, ms, 0.5, 1).setDepth(1).setInteractive({ useHandCursor: true });
+      const top = MACH_Y - me.h * ms, left = m.x - (me.w * ms) / 2;
+      const at = (q?: [number, number]): [number, number] | undefined => (q ? [left + q[0] * ms, top + q[1] * ms] : undefined);
       const mach: Machine = {
-        side: m.side, x: m.x, top: 735 - me.h * ms, state: 'idle', t: 0,
+        side: m.side, x: m.x, top, state: 'idle', t: 0, out: at(me.out) ?? [m.x, top - 22], spout: at(me.spout),
         dur: m.side === 'juice' ? SERVICE.drinkTime : m.side === 'fries' ? SERVICE.friesTime : SERVICE.icecreamTime,
         img, bar: this.addUi(this.add.graphics()).setDepth(4),
       };
@@ -361,6 +373,8 @@ export class ServiceScene extends CafeScene {
     this.tweens.add({
       targets: o, scaleY: 0, y: o.y - 14, duration: 120, ease: 'Quad.in',
       onComplete: () => {
+        // კოტლეტი შეიძლება ამ დროს უკვე აიღეს (გაქრა) — განადგურებულ სურათზე setTexture თამაშს გააჩერებდა
+        if (!o.active) return;
         o.setTexture(key);
         this.tweens.add({ targets: o, scaleY: sy, y: o.y + 14, duration: 160, ease: 'Back.out' });
       },
@@ -436,7 +450,7 @@ export class ServiceScene extends CafeScene {
   private startDelivery(id: StockId, packs: number) {
     const bin = [...this.binBadges.entries()].find(([ing]) => ing === id)?.[1];
     const mach = this.machines.find((m) => SIDE_STOCK[m.side] === id);
-    const [x, y] = bin ? [bin.x - 48, bin.y + 40] : mach ? [mach.x, mach.top - 60] : [1235, 700];
+    const [x, y] = bin ? [bin.x - 48, bin.y + 40] : mach ? [mach.x, mach.top - 60] : [PLATE_X, 700];
     const bg = this.addUi(this.add.circle(x, y, 34, 0xffffff, 0.95)).setDepth(40).setStrokeStyle(4, 0x2b1810);
     const icon = this.uimg('icon_clock', x, y - 6, 0.8).setDepth(41);
     const label = this.text(x, y + 22, String(EMERGENCY.deliverySeconds), 22, tokens.color.primaryDark).setDepth(42).setStroke('#ffffff', 5);
@@ -485,6 +499,7 @@ export class ServiceScene extends CafeScene {
   /** ადრე დაკეტვა: ახალი კლიენტები აღარ მოდიან, ვისაც ვერ მოემსახურები — ბოდიშით მიდის. */
   private closeEarly() {
     this.closing = true;
+    store.update((q) => { ensureToday(q).closed = true; }); // გადატვირთვის შემდეგ ახალი კლიენტები აღარ მოვლენ
     this.total = this.spawned;
     toast(S.service.stockout.closing, 'icon_store');
     this.refreshSoldOut();
@@ -492,7 +507,7 @@ export class ServiceScene extends CafeScene {
   }
 
   private apologize(c: Cust) {
-    this.missed += 1;
+    this.noteMissed();
     c.mood = 'neutral';
     c.img.setTexture(`customer_${c.id}_neutral`);
     toast(S.service.stockout.sorry, `customer_${c.id}_neutral`);
@@ -528,7 +543,7 @@ export class ServiceScene extends CafeScene {
       slot.state = 'cooking';
       slot.t = 0;
       // შეხებას გრილის საერთო არე იჭერს (buildBench)
-      slot.img = this.uimg('grill_patty_raw', slot.x, slot.y, this.grills.length > 4 ? 1.05 : 1.25).setDepth(3);
+      slot.img = this.uimg('grill_patty_raw', slot.x, slot.y, 1).setDepth(3);
       play('sizzle');
       this.chefHop();
       return;
@@ -555,13 +570,13 @@ export class ServiceScene extends CafeScene {
   }
 
   private drawPlate() {
-    for (const i of this.plateImgs) i.destroy();
+    for (const i of this.plateImgs) { this.tweens.killTweensOf(i); i.destroy(); }
     this.plateImgs = [];
     const k = 1;
     let y = 852;
     this.plate.forEach((l, i) => {
       const e = getManifest()[`layer_${l}`];
-      const img = this.uimg(`layer_${l}`, 1235, y, k, 0.5, e.anchor[1] / e.h).setDepth(10 + i);
+      const img = this.uimg(`layer_${l}`, PLATE_X, y, k, 0.5, e.anchor[1] / e.h).setDepth(10 + i);
       this.plateImgs.push(img);
       y -= (e.stack ?? 10) * k;
       if (i === this.plate.length - 1) this.tweens.add({ targets: img, y: { from: img.y - 30, to: img.y }, duration: 220, ease: 'Bounce.out' });
@@ -576,9 +591,9 @@ export class ServiceScene extends CafeScene {
     const kinds = [...new Set(this.tray)];
     this.trayImgs = kinds.map((s, i) => {
       const n = this.tray.filter((x) => x === s).length;
-      const x = 1420 + i * 76;
-      if (n > 1) this.trayTexts.push(this.text(x + 26, 868, `×${n}`, 22).setDepth(6).setStroke('#ffffff', 5));
-      return this.uimg(PRODUCTS[s].icon, x, 830, s === 'fries' ? 0.9 : 0.72).setDepth(5);
+      const x = TRAY_X + i * 72;
+      if (n > 1) this.trayTexts.push(this.text(x + 26, TRAY_Y + 38, `×${n}`, 22).setDepth(6).setStroke('#ffffff', 5));
+      return this.uimg(PRODUCTS[s].icon, x, TRAY_Y, s === 'fries' ? 0.9 : 0.72).setDepth(5);
     });
   }
 
@@ -600,15 +615,16 @@ export class ServiceScene extends CafeScene {
   }
 
   private emptySlot(slot: GrillSlot) {
+    if (slot.img) this.tweens.killTweensOf(slot.img);
     slot.img?.destroy();
     slot.img = undefined;
-    for (const p of slot.puffs) p.destroy();
+    for (const p of slot.puffs) { this.tweens.killTweensOf(p); p.destroy(); }
     slot.puffs = [];
     slot.state = 'empty';
   }
 
   private puffs(slot: GrillSlot, color: number) {
-    for (const p of slot.puffs) p.destroy();
+    for (const p of slot.puffs) { this.tweens.killTweensOf(p); p.destroy(); }
     slot.puffs = [];
     for (let k = 0; k < 3; k++) {
       const c = this.addUi(this.add.circle(slot.x, slot.y - 6, 7, color, 0.8)).setDepth(6);
@@ -628,6 +644,7 @@ export class ServiceScene extends CafeScene {
       this.tray.push(m.side);
       this.drawTray();
       play('pop');
+      if (m.product) this.tweens.killTweensOf(m.product);
       m.product?.destroy();
       m.product = undefined;
       m.state = 'idle';
@@ -669,7 +686,7 @@ export class ServiceScene extends CafeScene {
       }
       if (!this.deliveries.length && !this.pauses.has('stockout')) {
         this.spawned += 1;
-        this.missed += 1;
+        this.noteMissed();
         this.noteSeen();
         return true;
       }
@@ -779,7 +796,7 @@ export class ServiceScene extends CafeScene {
   }
 
   private removeBubble(c: Cust) {
-    for (const p of c.bubble) p.destroy();
+    for (const p of c.bubble) { this.tweens.killTweensOf(p); p.destroy(); }
     c.bubble = [];
   }
 
@@ -892,12 +909,19 @@ export class ServiceScene extends CafeScene {
       m.bar.fillStyle(0xffffff, 1).fillRoundedRect(m.x - 40, m.top - 22, 80, 12, 6);
       m.bar.fillStyle(Phaser.Display.Color.HexStringToColor(tokens.color.success).color, 1).fillRoundedRect(m.x - 40, m.top - 22, Math.max(12, 80 * f), 12, 6);
       m.bar.lineStyle(2.5, 0x2b1810, 1).strokeRoundedRect(m.x - 40, m.top - 22, 80, 12, 6);
+      // ჩანს, რომ წვენი/ნაყინი ონკანიდან ჭიქაში ისხმება
+      if (m.spout) {
+        const col = m.side === 'juice' ? 0xffa53d : 0xffc2d4;
+        const wob = Math.sin(this.elapsed * 18) * 1.5;
+        m.bar.lineStyle(7, 0x2b1810, 0.9).lineBetween(m.spout[0] + wob, m.spout[1], m.spout[0], m.out[1] + 4);
+        m.bar.lineStyle(4, col, 1).lineBetween(m.spout[0] + wob, m.spout[1], m.spout[0], m.out[1] + 4);
+      }
       if (f >= 1) {
         m.state = 'ready';
         m.bar.clear();
-        m.product = this.uimg(PRODUCTS[m.side].icon, m.x, m.top - 22, m.side === 'fries' ? 0.75 : 0.6).setDepth(8).setInteractive({ useHandCursor: true });
+        m.product = this.uimg(PRODUCTS[m.side].icon, m.out[0], m.out[1], m.side === 'fries' ? 0.62 : m.side === 'juice' ? 0.6 : 0.5).setDepth(8).setInteractive({ useHandCursor: true });
         m.product.on('pointerdown', () => this.onMachine(m));
-        this.tweens.add({ targets: m.product, y: m.top - 34, duration: 500, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+        this.tweens.add({ targets: m.product, scale: { from: m.product.scale, to: m.product.scale * 1.12 }, duration: 450, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
         play('ding');
       }
     }
@@ -918,8 +942,8 @@ export class ServiceScene extends CafeScene {
         this.setMood(c);
         this.drawPatience(c);
         if (c.patience <= 0) {
-          if (c.soldOut) this.missed += 1;
-          else this.left += 1;
+          if (c.soldOut) this.noteMissed();
+          else this.noteLeft();
           toast(S.service.leftAngry, `customer_${c.id}_angry`);
           play('grumble');
           this.shake(c.img);
@@ -927,6 +951,7 @@ export class ServiceScene extends CafeScene {
         }
       } else if (c.state === 'leave') {
         if (this.moveCust(c, dt)) {
+          this.tweens.killTweensOf(c.img);
           c.img.destroy();
           this.custs.splice(this.custs.indexOf(c), 1);
         }
@@ -943,6 +968,7 @@ export class ServiceScene extends CafeScene {
     }
 
     if (this.spawned >= this.total && this.custs.length === 0) {
+      if (this.tut && (this.tut.step === 'cash' || this.tut.step === 'done')) this.endTutorial();
       this.ended = true;
       // გადახდილი სასწრაფო მიწოდება არ უნდა დაიკარგოს — მარაგში ემატება
       for (const d of this.deliveries) {
@@ -953,7 +979,7 @@ export class ServiceScene extends CafeScene {
       this.deliveries = [];
       setSession({ clock: this.clockText(1) });
       const summary: DaySummary = { day: store.get().day, served: this.served, left: this.left, revenue: this.revenue, tips: this.tips, goal: this.goal };
-      store.update((q) => closeService(q, this.left, this.missed));
+      store.update((q) => closeService(q, 0, 0)); // left/missed უკვე ჩაწერილია (noteLeft/noteMissed)
       banner(S.service.closedSign, 'icon_store', 'close');
       this.time.delayedCall(1600, () => bus.emit('dayEnd', summary));
     }
@@ -996,8 +1022,8 @@ export class ServiceScene extends CafeScene {
         tt.step !== 'done' ? h('button', { class: 'link-btn', onClick: () => this.endTutorial() }, S.tutorial.skip) : '',
       ),
     );
-    layers.toast.append(this.coach);
-    if (autoRead()) void speak(text);
+    layers.coach.append(this.coach);
+    if (autoRead() && !document.querySelector('#ui .modal')) void speak(text);
   }
 
   private endTutorial() {
@@ -1005,6 +1031,7 @@ export class ServiceScene extends CafeScene {
     this.tut = null;
     this.coach?.remove();
     this.coach = undefined;
+    if (this.tutPtr) this.tweens.killTweensOf(this.tutPtr.list);
     this.tutPtr?.destroy();
     this.tutPtr = undefined;
     store.update((q) => { q.tutorialDone = true; });
@@ -1030,6 +1057,7 @@ export class ServiceScene extends CafeScene {
         if (c?.state === 'wait') tt.step = 'look';
         break;
       case 'look':
+        if (this.plate.length > 0 || (c && c.state !== 'wait')) { tt.step = 'build'; break; }
         this.pointAt(bubbleAt());
         this.say(T2.look, () => { if (this.tut) this.tut.step = 'build'; });
         break;
@@ -1045,8 +1073,8 @@ export class ServiceScene extends CafeScene {
           if (m) {
             const item = S.products[m.side] ?? m.side;
             if (m.state === 'ready' && m.product) { this.pointAt([m.product.x, m.product.y]); this.say(t(T2.sideTake, { item })); }
-            else if (m.state === 'working') { this.pointAt([m.x, m.top + 70]); this.say(t(T2.sideWait, { item })); }
-            else { this.pointAt([m.x, m.top + 70]); this.say(t(T2.sideStart, { item })); }
+            else if (m.state === 'working') { this.pointAt([m.x, m.top + 60]); this.say(t(T2.sideWait, { item })); }
+            else { this.pointAt([m.x, m.top + 60]); this.say(t(T2.sideStart, { item })); }
           }
           break;
         }
@@ -1084,6 +1112,18 @@ export class ServiceScene extends CafeScene {
         if (tt.t > 7) this.endTutorial();
         break;
     }
+  }
+
+  /** გაბრაზებით წასული კლიენტი — მაშინვე ინახება (ანგარიშისთვის, გადატვირთვაზეც). */
+  private noteLeft() {
+    this.left += 1;
+    store.update((q) => { const t0 = ensureToday(q); t0.left = (t0.left ?? 0) + 1; });
+  }
+
+  /** მარაგის გამო ვერმომსახურე კლიენტი. */
+  private noteMissed() {
+    this.missed += 1;
+    store.update((q) => { const t0 = ensureToday(q); t0.missed = (t0.missed ?? 0) + 1; });
   }
 
   /** დღეს მოსული (ან კარიდან დაბრუნებული) კლიენტების რაოდენობა — ინახება პროგრესში. */

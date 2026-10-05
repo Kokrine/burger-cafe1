@@ -9,7 +9,8 @@ const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
 const cache = new Map<string, Promise<AudioBuffer | null>>();
 let current: AudioBufferSourceNode | null = null;
-let serverOff = false; // ფუნქცია ჯერ არ არის მორგებული (Azure-ის გასაღების გარეშე)
+let serverOff = false;
+let generation = 0; // ყოველ speak()/stopSpeech()-ზე იზრდება // ფუნქცია ჯერ არ არის მორგებული (Azure-ის გასაღების გარეშე)
 
 const kaVoice = () => globalThis.speechSynthesis?.getVoices().find((v) => /^ka/i.test(v.lang)) ?? null;
 
@@ -42,12 +43,13 @@ async function fetchBuffer(text: string): Promise<AudioBuffer | null> {
     body: JSON.stringify({ text }),
   });
   // ფუნქცია ჯერ არ არის (404) ან Azure-ის გასაღები აკლია (503) — 🔊 ღილაკები იმალება
-  if (r.status === 503 || r.status === 404) { serverOff = true; return null; }
+  if ([401, 403, 404, 503].includes(r.status)) { serverOff = true; return null; }
   if (!r.ok) return null;
   return ctx.decodeAudioData(await r.arrayBuffer());
 }
 
 export function stopSpeech() {
+  generation += 1;
   try { current?.stop(); } catch { /* უკვე დასრულდა */ }
   current = null;
   globalThis.speechSynthesis?.cancel();
@@ -56,6 +58,7 @@ export function stopSpeech() {
 /** წაიკითხე ტექსტი. აბრუნებს false-ს, თუ ხმა ამ მოწყობილობაზე მიუწვდომელია. */
 export async function speak(raw: string): Promise<boolean> {
   stopSpeech();
+  const my = generation;
   const text = speakable(raw);
   if (!text) return false;
   let p = cache.get(text);
@@ -64,6 +67,7 @@ export async function speak(raw: string): Promise<boolean> {
     cache.set(text, p);
   }
   const buf = await p;
+  if (my !== generation) return true; // სანამ ხმა მოვიდოდა, სხვა ტექსტი დაიწყო ან გაჩერდა
   const ctx = audioCtx();
   if (buf && ctx) {
     if (ctx.state === 'suspended') await ctx.resume().catch(() => undefined);

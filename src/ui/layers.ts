@@ -1,17 +1,20 @@
 // UI ფენები Phaser-ის ტილოს თავზე: HUD, ეკრანი, მოდალი, შეტყობინება.
 import { h, img } from './dom';
 import { bus } from '../core/bus';
+import { stopSpeech } from '../audio/speech';
 
 export const layers = {
   hud: h('div'),
   screen: h('div'),
   modal: h('div'),
   toast: h('div'),
+  /** სწავლების ყუთი — ცალკე, რომ შეტყობინებამ (toast) არ წაშალოს */
+  coach: h('div'),
 };
 
 export function mountLayers(root: HTMLElement) {
   // შეტყობინება მოდალის ქვეშაა, რომ ამოცანის ფანჯარას არ გადაეფაროს
-  root.append(layers.hud, layers.screen, layers.toast, layers.modal);
+  root.append(layers.hud, layers.screen, layers.coach, layers.toast, layers.modal);
 }
 
 type Screen = () => HTMLElement;
@@ -36,7 +39,11 @@ export const currentScreen = () => current;
 export function openModal(content: HTMLElement): () => void {
   const ov = h('div', { class: 'overlay interactive' }, content);
   layers.modal.append(ov);
-  return () => ov.remove();
+  return () => {
+    ov.remove();
+    stopSpeech(); // დახურული ფანჯრის ტექსტი აღარ იკითხება
+    bus.emit('layout'); // მენიუს ოთახი თავიდან ლაგდება (პანელის დროს ეკრანი შეიძლება შეიცვალა)
+  };
 }
 
 let toastTimer = 0;

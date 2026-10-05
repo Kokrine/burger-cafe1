@@ -956,6 +956,218 @@
     ],
     "kind": "icon"
   },
+  "bench_grill": {
+    "file": "bench_grill.svg",
+    "w": 184,
+    "h": 196,
+    "anchor": [
+      92,
+      196
+    ],
+    "kind": "bench",
+    "slots": [
+      [
+        60,
+        38
+      ],
+      [
+        124,
+        38
+      ],
+      [
+        60,
+        72
+      ],
+      [
+        124,
+        72
+      ]
+    ]
+  },
+  "bench_grill_fast": {
+    "file": "bench_grill_fast.svg",
+    "w": 184,
+    "h": 196,
+    "anchor": [
+      92,
+      196
+    ],
+    "kind": "bench",
+    "slots": [
+      [
+        60,
+        38
+      ],
+      [
+        124,
+        38
+      ],
+      [
+        60,
+        72
+      ],
+      [
+        124,
+        72
+      ]
+    ]
+  },
+  "bench_grill_big": {
+    "file": "bench_grill_big.svg",
+    "w": 312,
+    "h": 196,
+    "anchor": [
+      156,
+      196
+    ],
+    "kind": "bench",
+    "slots": [
+      [
+        60,
+        38
+      ],
+      [
+        124,
+        38
+      ],
+      [
+        188,
+        38
+      ],
+      [
+        252,
+        38
+      ],
+      [
+        60,
+        72
+      ],
+      [
+        124,
+        72
+      ],
+      [
+        188,
+        72
+      ],
+      [
+        252,
+        72
+      ]
+    ]
+  },
+  "bench_grill_big_fast": {
+    "file": "bench_grill_big_fast.svg",
+    "w": 312,
+    "h": 196,
+    "anchor": [
+      156,
+      196
+    ],
+    "kind": "bench",
+    "slots": [
+      [
+        60,
+        38
+      ],
+      [
+        124,
+        38
+      ],
+      [
+        188,
+        38
+      ],
+      [
+        252,
+        38
+      ],
+      [
+        60,
+        72
+      ],
+      [
+        124,
+        72
+      ],
+      [
+        188,
+        72
+      ],
+      [
+        252,
+        72
+      ]
+    ]
+  },
+  "bench_drink": {
+    "file": "bench_drink.svg",
+    "w": 140,
+    "h": 224,
+    "anchor": [
+      70,
+      224
+    ],
+    "kind": "bench",
+    "out": [
+      70,
+      172
+    ],
+    "spout": [
+      70,
+      144
+    ]
+  },
+  "bench_drink_auto": {
+    "file": "bench_drink_auto.svg",
+    "w": 140,
+    "h": 224,
+    "anchor": [
+      70,
+      224
+    ],
+    "kind": "bench",
+    "out": [
+      70,
+      172
+    ],
+    "spout": [
+      70,
+      144
+    ]
+  },
+  "bench_fryer": {
+    "file": "bench_fryer.svg",
+    "w": 160,
+    "h": 190,
+    "anchor": [
+      80,
+      190
+    ],
+    "kind": "bench",
+    "out": [
+      80,
+      44
+    ]
+  },
+  "bench_icecream": {
+    "file": "bench_icecream.svg",
+    "w": 140,
+    "h": 232,
+    "anchor": [
+      70,
+      232
+    ],
+    "kind": "bench",
+    "out": [
+      70,
+      170
+    ],
+    "spout": [
+      70,
+      150
+    ]
+  },
   "chef_girl_ponytail_s1_brown": {
     "file": "chef_girl_ponytail_s1_brown.svg",
     "w": 140,

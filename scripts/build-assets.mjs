@@ -7,6 +7,7 @@ import { buildFood } from './assets/food.mjs';
 import { buildFurniture } from './assets/furniture.mjs';
 import { buildEquipment } from './assets/equipment.mjs';
 import { buildIcons } from './assets/icons.mjs';
+import { buildBench } from './assets/bench.mjs';
 
 // ძველი ფაილები წავშალოთ, რომ გადარქმეული ასეტები არ დარჩეს.
 const out = path.join(ROOT, 'public/assets');
@@ -17,6 +18,7 @@ buildFurniture();
 buildEquipment();
 buildFood();
 buildIcons();
+buildBench();
 buildCharacters();
 const count = saveManifest();
 console.log(`✔ ${count} SVG ასეტი შეიქმნა public/assets-ში`);

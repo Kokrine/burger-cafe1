@@ -197,3 +197,9 @@ grant execute on function public.reset_pin(uuid) to authenticated;
 grant execute on function public.is_teacher() to authenticated;
 grant execute on function public.current_student_id() to authenticated;
 grant execute on function public.owns_class(uuid) to authenticated;
+
+-- ---------------------------------------------------------------- ხმით კითხვა (Edge Function „tts")
+-- წაკითხული ფრაზების ქეში: დახურული bucket — მხოლოდ ფუნქცია (service role) კითხულობს და წერს.
+-- ფუნქცია: supabase/functions/tts (Dashboard-ში „Verify JWT" გამორთულია — თამაში publishable
+-- გასაღებს აგზავნის, რომელიც JWT არ არის). საიდუმლოები: AZURE_SPEECH_KEY, AZURE_SPEECH_REGION.
+insert into storage.buckets (id, name, public) values ('tts', 'tts', false) on conflict (id) do nothing;

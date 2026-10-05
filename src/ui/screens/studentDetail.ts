@@ -8,6 +8,7 @@ import { BADGES } from '../../logic/badges';
 import { weakestOp } from '../../logic/insight';
 import { button, h, img } from '../dom';
 import { openModal } from '../layers';
+import { normalize } from '../../core/store';
 
 const OPS: Op[] = ['add', 'sub', 'mul', 'div'];
 const D = S.teacherPanel.detail;
@@ -15,7 +16,7 @@ const P = S.profile;
 
 export function openStudentDetail(d: StudentDetail) {
   let close = () => {};
-  const p = d.progress;
+  const p = d.progress ? normalize(d.progress) : null;
   let body: HTMLElement;
   if (!p) {
     body = h('div', { class: 'panel-body' }, h('p', { class: 'hint' }, D.notPlayed));
