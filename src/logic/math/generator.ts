@@ -120,11 +120,16 @@ export function sumProblem(lines: Line[], grade: Grade, rnd: Rnd = Math.random, 
   }, grade, rnd);
 }
 
-/** კლიენტის კუპიურა: მაღალ დონეზე ზოგჯერ უფრო დიდი (ხურდა რთულდება). */
+/**
+ * კლიენტის კუპიურა: ხშირად უახლოესი, მაგრამ ზოგჯერ უფრო დიდი — ხურდა ყოველ ჯერზე სხვაა
+ * (1 კლასში ფასი მხოლოდ 3 ან 5 ₾-ია და ადრე ყოველთვის „5 − 3 = 2" გამოდიოდა). დონესთან ერთად ხშირდება.
+ */
 export function payBill(total: number, grade: Grade, level = ADAPTIVE.start, rnd: Rnd = Math.random): number | null {
   const ok = PAY_BILLS.filter((b) => b > total && b <= gradeMax(grade));
   if (!ok.length) return null;
-  return level >= 3 && ok.length > 1 && rnd() < 0.5 ? ok[1] : ok[0];
+  const r = rnd();
+  if (ok.length > 2 && level >= 3 && r < 0.15) return ok[2];
+  return ok.length > 1 && r < 0.25 + 0.1 * level ? ok[1] : ok[0];
 }
 
 /** ხურდა მონეტებისა და კუპიურების არჩევით. null — თუ კლიენტი ზუსტად იხდის. */

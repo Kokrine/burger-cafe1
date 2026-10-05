@@ -10,7 +10,7 @@ import { store } from '../../core/store';
 import { bus } from '../../core/bus';
 import { setSession } from '../../core/session';
 import type { Grade, Mood, Progress } from '../../core/types';
-import { GRADE_SCALE, PRODUCTS, SIDE_STOCK, STOCK, type StockId } from '../../config/economy';
+import { PRODUCTS, SIDE_STOCK, STOCK, type StockId } from '../../config/economy';
 import { EMERGENCY, INGREDIENTS, SERVICE, type Ingredient, type Layer, type Side } from '../../config/service';
 import { cafeStats, type CafeStats } from '../../logic/economy';
 import { burgerDone, canAdd, canMake, layerFor, makeFeasibleOrder, matches, usedIngredients, type Order } from '../../logic/orders';
@@ -862,7 +862,7 @@ export class ServiceScene extends CafeScene {
     const totalPrice = plan.total;
 
     const tipBase = SERVICE.tip[c.mood];
-    const tip = Math.round(tipBase * (GRADE_SCALE[this.grade] >= 1 ? GRADE_SCALE[this.grade] : 0.5));
+    const tip = Math.round(tipBase * SERVICE.tipScale[this.grade]);
     const earned = totalPrice + tip;
     store.update((q) => {
       q.money += earned;
