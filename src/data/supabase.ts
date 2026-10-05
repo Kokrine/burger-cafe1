@@ -140,6 +140,14 @@ export class SupabaseBackend implements Backend {
     if (error) fail(error, 'not-found');
   }
 
+  async deleteClass(classId: string) {
+    await this.teacherId();
+    // RLS: მხოლოდ მფლობელი; მოსწავლეები და პროგრესი იშლება კასკადით (on delete cascade)
+    const { error, count } = await this.sb.from('classes').delete({ count: 'exact' }).eq('id', classId);
+    if (error) fail(error, 'not-found');
+    if (count === 0) throw new BackendFailure('not-found');
+  }
+
   async addStudent(classId: string, nickname: string): Promise<{ student: StudentPublic; pin: string }> {
     await this.teacherId();
     const n = nickname.trim();

@@ -137,6 +137,13 @@ export class OfflineBackend implements Backend {
     this.write(K.classes, this.classes().map((c) => (c.id === classId ? { ...c, grade } : c)));
   }
 
+  async deleteClass(classId: string) {
+    this.ownClass(classId);
+    for (const s of this.students().filter((x) => x.classId === classId)) this.kv.removeItem(K.progress(s.id));
+    this.write(K.students, this.students().filter((x) => x.classId !== classId));
+    this.write(K.classes, this.classes().filter((c) => c.id !== classId));
+  }
+
   async addStudent(classId: string, nickname: string): Promise<{ student: StudentPublic; pin: string }> {
     this.ownClass(classId);
     const n = nickname.trim();

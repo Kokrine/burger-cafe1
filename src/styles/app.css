@@ -380,6 +380,8 @@ html, body { height: 100%; overflow: hidden; }
 .class-card { padding: 16px; box-shadow: 4px 5px 0 rgba(43, 24, 16, .15); display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .class-card h3 { margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px; }
 .class-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.class-actions { display: flex; justify-content: flex-end; }
+.class-actions .btn { min-height: 40px; font-size: 15px; padding: 4px 14px; }
 .grade-pick { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 6px; font-weight: 800; }
 .grade-pick .opt.grade { min-width: 54px; min-height: 48px; font-size: 16px; }
 .code-box { display: flex; flex-direction: column; align-items: center; gap: 4px; background: #FFF0D6; border: 3px solid var(--c-ink); border-radius: var(--r-md); padding: 8px 14px; max-width: 280px; text-align: center; }

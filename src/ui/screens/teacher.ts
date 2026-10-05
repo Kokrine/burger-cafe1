@@ -86,6 +86,15 @@ export function teacherScreen(): HTMLElement {
         h('div', { class: 'code-box' }, h('small', null, T.code), h('b', null, c.code),
           button(T.copy, copyCode, 'white'), h('small', null, T.codeHint)),
       ),
+      h('div', { class: 'class-actions' },
+        button(T.deleteClass, safe(async () => {
+          if (!window.confirm(t(T.deleteClassConfirm, { name: c.name, code: c.code }))) return;
+          await backend.deleteClass(c.id);
+          selected = null;
+          notice = '';
+          await load();
+        }), 'red'),
+      ),
       notice ? h('p', { class: 'pin-notice', role: 'status' }, img('icon_lock'), notice) : '',
       h('div', { class: 'add-row' }, nick, button(T.add, () => void add(), 'green', 'icon_chef_hat')),
       h('p', { class: 'hint' }, T.privacy),

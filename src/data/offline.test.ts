@@ -60,6 +60,23 @@ describe('ოფლაინ ანგარიშები', () => {
     expect((await b.studentSignIn(c.code, student.id, fresh)).kind).toBe('student');
   });
 
+  it('კლასის წაშლა: მხოლოდ მფლობელს, მოსწავლეებითა და პროგრესით', async () => {
+    const kv = memKV();
+    const b = new OfflineBackend(kv);
+    await b.teacherSignUp('a@a.ge', 'secret12');
+    const keep = await b.createClass('A', 2);
+    const gone = await b.createClass('B', 2);
+    const { student } = await b.addStudent(gone.id, 'ნინო');
+    kv.setItem(`bc:progress:${student.id}`, '{}');
+    await b.teacherSignUp('b@b.ge', 'secret12');
+    expect(await fail(b.deleteClass(gone.id))).toBe('not-found');
+    await b.teacherSignIn('a@a.ge', 'secret12');
+    await b.deleteClass(gone.id);
+    expect((await b.listClasses()).map((c) => c.id)).toEqual([keep.id]);
+    expect(kv.getItem(`bc:progress:${student.id}`)).toBeNull();
+    expect(await fail(b.roster(gone.code))).toBe('bad-code');
+  });
+
   it('მასწავლებელი მხოლოდ თავის კლასს ხედავს', async () => {
     const b = new OfflineBackend(memKV());
     await b.teacherSignUp('a@a.ge', 'secret12');

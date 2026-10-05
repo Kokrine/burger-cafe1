@@ -47,6 +47,8 @@ export interface Backend {
   listClasses(): Promise<ClassInfo[]>;
   createClass(name: string, grade: Grade): Promise<ClassInfo>;
   setClassGrade(classId: string, grade: Grade): Promise<void>;
+  /** კლასი თავისი მოსწავლეებით და მათი პროგრესით. */
+  deleteClass(classId: string): Promise<void>;
   /** აბრუნებს ახალ (ან მოცემულ) PIN-ს — მასწავლებელს ერთხელ ეჩვენება. */
   addStudent(classId: string, nickname: string): Promise<{ student: StudentPublic; pin: string }>;
   resetPin(studentId: string): Promise<string>;
