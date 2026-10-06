@@ -53,7 +53,7 @@ export function openPause() {
         if (session.active) bus.emit('tutorial');
         toast(session.active ? S.tutorial.replayNow : S.tutorial.replayNext, 'icon_chef_hat');
       }, 'white', 'icon_chef_hat'),
-      button(P.logout, async () => { done(); showScene('cafe'); await signOut(); go('login'); }, 'white', 'icon_chef_hat'),
+      button(P.logout, async () => { done(); showScene('cafe'); await signOut(); go('home'); }, 'white', 'icon_chef_hat'),
       !isGuest() ? '' : button(P.reset, () => {
         if (window.confirm(P.resetConfirm)) {
           showScene('cafe'); // სამუშაო დღე ჩერდება, სანამ პროგრესი თავიდან იწყება

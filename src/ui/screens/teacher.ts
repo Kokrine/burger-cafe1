@@ -193,7 +193,7 @@ export function teacherScreen(): HTMLElement {
     root.replaceChildren(h('div', { class: 'panel teacher-panel' },
       h('div', { class: 'panel-head' }, img('icon_menu_book'), h('h2', null, T.title),
         h('span', { class: 'chip' }, session?.kind === 'teacher' ? session.teacher.email : ''),
-        button(T.logout, async () => { await signOut(); go('login'); }, 'white')),
+        button(T.logout, async () => { await signOut(); go('home'); }, 'white')),
       h('div', { class: 'panel-body teacher-layout' },
         h('aside', { class: 'card class-list' },
           h('h3', null, T.classes),

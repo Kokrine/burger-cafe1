@@ -14,9 +14,17 @@ type Mode = 'student' | 'teacher';
 
 const errText = (e: unknown) => (e instanceof BackendFailure ? S.login.errors[e.code] : S.login.errors['bad-input']);
 
+/** რომელი ჩანართით გაიხსნას შესვლა (მთავარი გვერდიდან „მასწავლებლისთვის" — მასწავლებლით). */
+let nextMode: Mode = 'student';
+export function openLogin(mode: Mode) {
+  nextMode = mode;
+  go('login');
+}
+
 export function loginScreen(): HTMLElement {
   const root = h('div', { class: 'overlay interactive' });
-  let mode: Mode = 'student';
+  let mode: Mode = nextMode;
+  nextMode = 'student';
   let roster: Roster | null = null;
   let picked: StudentPublic | null = null;
   let code = '';
@@ -141,7 +149,8 @@ export function loginScreen(): HTMLElement {
 
   const render = () => {
     root.replaceChildren(h('div', { class: 'panel login bounce-in' },
-      h('div', { class: 'panel-head' }, img('menu_burger'), h('h2', null, `${S.appTitle} — ${S.login.title}`)),
+      h('div', { class: 'panel-head' }, img('menu_burger'), h('h2', null, `${S.appTitle} — ${S.login.title}`),
+        h('button', { class: 'btn white round', 'aria-label': S.common.close, title: S.common.close, onClick: () => go('home') }, '✕')),
       h('div', { class: 'panel-body' },
         h('div', { class: 'login-tabs' },
           h('button', { class: `tab ${mode === 'student' ? 'on' : ''}`, onClick: () => { mode = 'student'; error = ''; render(); } }, img('icon_chef_hat'), S.login.student),

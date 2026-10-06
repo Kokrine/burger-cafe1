@@ -825,3 +825,60 @@ button { -webkit-tap-highlight-color: transparent; }
 
 /* ანგარიში: ბევრი სტრიქონის ჯამი (კალკულატორი) */
 .ledger tr.subtotal td { border-top: 3px solid var(--c-ink); font-weight: 900; background: #FFF7E3; }
+
+/* ================= მთავარი გვერდი (სათაურის ეკრანი) ================= */
+body[data-screen="home"] .hud-left, body[data-screen="home"] .hud-right { display: none; }
+.overlay.home { background: rgba(255, 231, 184, 0.3); backdrop-filter: blur(3px); }
+.home-panel {
+  width: min(940px, 100%); max-height: calc(100dvh - 24px); overflow: auto;
+  background: var(--c-panel); border: var(--stroke) solid var(--c-ink); border-radius: var(--r-lg);
+  box-shadow: 6px 8px 0 rgba(43, 24, 16, .2); padding: 22px 26px 16px; display: flex; flex-direction: column; gap: 16px;
+  animation: coachIn .35s ease-out;
+}
+.home-top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; align-items: center; }
+.home-hero { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.home-hero h1 { margin: 0; font-size: clamp(28px, 4vw, 46px); font-weight: 900; line-height: 1.1; color: var(--c-text); }
+.home-chip { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 15px; background: var(--c-cheese); border: 2.5px solid var(--c-ink); border-radius: 99px; padding: 2px 12px 2px 4px; }
+.home-chip img { width: 24px; height: 24px; }
+.home-tagline { margin: 0; font-size: 18px; font-weight: 700; color: var(--c-text-soft); line-height: 1.35; }
+.home-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 4px; }
+.home-actions .btn.big { min-height: 64px; font-size: 24px; padding: 6px 28px; }
+.home-art { position: relative; height: 230px; }
+.home-art img { position: absolute; bottom: 0; filter: drop-shadow(3px 5px 0 rgba(43, 24, 16, .18)); }
+.home-chef { left: 50%; transform: translateX(-50%); height: 100%; animation: homeBob 2.6s ease-in-out infinite; }
+.home-cust { height: 62%; }
+.home-cust.a { left: 2%; }
+.home-cust.b { right: 2%; }
+.home-burger { left: 50%; bottom: 46% !important; width: 26%; transform: translateX(-160%) rotate(-12deg); }
+@keyframes homeBob { 50% { transform: translateX(-50%) translateY(-6px); } }
+.home-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.home-card { display: grid; grid-template-columns: 44px 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center;
+  background: #fff; border: 3px solid var(--c-ink); border-radius: var(--r-md); padding: 10px 12px; }
+.home-card img { grid-row: 1 / span 2; width: 44px; height: 44px; }
+.home-card b { font-size: 17px; font-weight: 900; }
+.home-card small { font-size: 13.5px; font-weight: 700; color: var(--c-text-soft); line-height: 1.3; }
+.home-foot { margin: 0; text-align: center; font-size: 13.5px; font-weight: 700; color: var(--c-text-soft); }
+@media (prefers-reduced-motion: reduce) { .home-chef, .home-panel { animation: none; } }
+/* ვიწრო ეკრანი (ტაბლეტი ვერტიკალურად, პატარა ფანჯარა) */
+@media (max-width: 760px) {
+  .home-top { grid-template-columns: 1fr; }
+  .home-art { height: 170px; }
+  .home-cards { grid-template-columns: 1fr; }
+}
+/* ტელეფონი ჰორიზონტალურად: ყველაფერი ერთ ეკრანზე */
+@media (max-height: 560px) {
+  .home-panel { padding: 10px 14px 8px; gap: 8px; max-height: calc(100dvh - 8px); }
+  .home-top { grid-template-columns: 1.4fr 1fr; gap: 10px; }
+  .home-hero { gap: 6px; }
+  .home-hero h1 { font-size: 26px; }
+  .home-tagline { font-size: 14px; }
+  .home-chip { font-size: 12.5px; }
+  .home-actions .btn.big { min-height: 48px; font-size: 18px; padding: 4px 18px; }
+  .home-art { height: 150px; }
+  .home-cards { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .home-card { grid-template-columns: 30px 1fr; padding: 6px 8px; column-gap: 6px; }
+  .home-card img { width: 30px; height: 30px; }
+  .home-card b { font-size: 14px; }
+  .home-card small { font-size: 11.5px; }
+  .home-foot { display: none; }
+}

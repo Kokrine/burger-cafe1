@@ -20,6 +20,7 @@ import { reportScreen } from './ui/screens/report';
 import { loginScreen } from './ui/screens/login';
 import { teacherScreen } from './ui/screens/teacher';
 import { profileScreen } from './ui/screens/profile';
+import { homeScreen } from './ui/screens/home';
 import { BADGES } from './logic/badges';
 import { questValue, settleQuests, type Quest } from './logic/quests';
 import { questText, rewardText } from './ui/quests';
@@ -44,6 +45,7 @@ async function boot() {
   // ტესტირებისთვის (მხოლოდ dev რეჟიმში)
   if (import.meta.env.DEV) Object.assign(window, { __game: game, __store: store });
   mountLayers(document.getElementById('ui')!);
+  registerScreen('home', homeScreen);
   registerScreen('login', loginScreen);
   registerScreen('teacher', teacherScreen);
   registerScreen('character', characterScreen);
@@ -68,13 +70,9 @@ async function boot() {
     await backend.signOut();
     session = null;
   }
-  if (session) {
-    await enterSession(session);
-    if (session.kind === 'teacher') go('teacher');
-    else go(store.get().chef ? 'menu' : 'character');
-  } else {
-    go('login');
-  }
+  if (session) await enterSession(session);
+  // ყოველთვის მთავარი გვერდით ვიწყებთ: „თამაში" — შესვლა ან შენახული სესიის გაგრძელება
+  go('home');
 
   // დონის შეცვლისას მთავარი მენიუს სათაური განახლდეს
   let level = store.get().cafeLevel;

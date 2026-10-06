@@ -29,6 +29,7 @@ export function go(name: string) {
   const s = screens.get(name);
   if (!s) throw new Error(`no screen ${name}`);
   current = name;
+  document.body.dataset.screen = name; // CSS: მთავარ გვერდზე HUD იმალება
   layers.screen.replaceChildren(s());
   // ოთახი ინტერფეისის ელემენტებს შორის თავიდან ეწყობა (game/fit.ts)
   bus.emit('layout');
