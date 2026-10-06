@@ -828,10 +828,11 @@ button { -webkit-tap-highlight-color: transparent; }
 
 /* ================= მთავარი გვერდი (სათაურის ეკრანი) ================= */
 body[data-screen="home"] .hud-left, body[data-screen="home"] .hud-right { display: none; }
-.overlay.home { background: rgba(255, 231, 184, 0.3); backdrop-filter: blur(3px); }
+/* კაფე უკან ბუნდოვნად ჩანს */
+.overlay.home { background: rgba(255, 231, 184, 0.35); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
 .home-panel {
   width: min(940px, 100%); max-height: calc(100dvh - 24px); overflow: auto;
-  background: var(--c-panel); border: var(--stroke) solid var(--c-ink); border-radius: var(--r-lg);
+  background: rgba(255, 251, 242, 0.8); border: var(--stroke) solid var(--c-ink); border-radius: var(--r-lg);
   box-shadow: 6px 8px 0 rgba(43, 24, 16, .2); padding: 22px 26px 16px; display: flex; flex-direction: column; gap: 16px;
   animation: coachIn .35s ease-out;
 }
@@ -852,7 +853,7 @@ body[data-screen="home"] .hud-left, body[data-screen="home"] .hud-right { displa
 .home-burger { left: 50%; bottom: 46% !important; width: 26%; transform: translateX(-160%) rotate(-12deg); }
 @keyframes homeBob { 50% { transform: translateX(-50%) translateY(-6px); } }
 .home-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.home-card { display: grid; grid-template-columns: 44px 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center;
+.home-card { display: grid; grid-template-columns: 44px 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center; /* ბარათები მკვრივია — ტექსტი კარგად იკითხება */
   background: #fff; border: 3px solid var(--c-ink); border-radius: var(--r-md); padding: 10px 12px; }
 .home-card img { grid-row: 1 / span 2; width: 44px; height: 44px; }
 .home-card b { font-size: 17px; font-weight: 900; }

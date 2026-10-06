@@ -128,8 +128,8 @@ export class CafeScene extends Phaser.Scene {
   /** მთავარი მენიუ: ოთახი მაქსიმალურად, HUD-ს, ღილაკებს და დავალებებს შორის. */
   private fitMenuRoom() {
     if (!this.room.W) return;
-    // ეკრანზე პანელია (მაღაზია, საწყობი…) — ფონს არ ვცვლით
-    if (document.querySelector('#ui .overlay')) return;
+    // ეკრანზე პანელია (მაღაზია, საწყობი…) — ფონს არ ვცვლით; მთავარი გვერდის უკან კი კაფე ბუნდოვნად ჩანს
+    if (document.querySelector('#ui .overlay:not(.home)')) return;
     const rect = this.game.canvas.getBoundingClientRect();
     const fitted = this.fitOutline({ x0: rect.left + 4, y0: rect.top + 4, x1: rect.right - 4, y1: rect.bottom - 4 }, MENU_UI, R * 2);
     if (fitted) {
