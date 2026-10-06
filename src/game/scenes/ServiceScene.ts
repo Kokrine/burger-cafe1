@@ -20,7 +20,7 @@ import { buyEmergency, closeService, consume, dayCustomers, dayGoal, daySideChan
 import type { DayEventId } from '../../config/events';
 import { prepProblem, sideQtyMax } from '../../logic/math/generator';
 import { S, t } from '../../i18n/strings.ka';
-import { play, startMusic, stopMusic } from '../../audio/sfx';
+import { play } from '../../audio/sfx';
 import { banner, flyCoins, reducedMotion } from '../../ui/fx';
 import { isBlockedPortrait } from '../../ui/orientation';
 import { askProblem } from '../../ui/mathModal';
@@ -152,7 +152,6 @@ export class ServiceScene extends CafeScene {
       bus.off('pause', onPause);
       bus.off('rotate', onRotate);
       setSession({ active: false });
-      stopMusic();
     });
     this.cameras.main.fadeIn(450, 255, 231, 184);
     this.uiCam.fadeIn(450, 255, 231, 184);
@@ -188,7 +187,6 @@ export class ServiceScene extends CafeScene {
       document.body.classList.remove('in-service');
     });
     void this.prep(p);
-    if (p.owned.jukebox) startMusic();
   }
 
   /** დილის მომზადება (2+ კლასი): 12 კოტლეტი 4 თეფშზე თანაბრად. */

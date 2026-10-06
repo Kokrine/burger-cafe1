@@ -39,6 +39,11 @@ export function openPause() {
         done();
         openPause();
       }, 'white', p.settings.sound ? 'icon_sound_on' : 'icon_sound_off'),
+      button(p.settings.music !== false ? S.music.on : S.music.off, () => {
+        store.update((q) => { q.settings.music = q.settings.music === false; });
+        done();
+        openPause();
+      }, 'white', 'jukebox'),
       h('h3', { style: 'margin:6px 0 0;text-align:center' }, P.grade),
       isGuest() ? gradeRow : h('p', { class: 'hint', style: 'text-align:center' }, t(P.gradeFromTeacher, { n: p.grade })),
       button(autoRead() ? S.speech.on : S.speech.off, () => {

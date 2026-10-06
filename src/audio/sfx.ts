@@ -1,5 +1,5 @@
 // მოკლე ხმოვანი ეფექტები Web Audio-თი (ფაილების გარეშე, ლიცენზიის პრობლემის გარეშე).
-// + რბილი ფონური მელოდია, როცა კაფეს მუსიკალური ავტომატი აქვს.
+// ფონური მუსიკა — audio/music.ts.
 import { store } from '../core/store';
 
 let ctx: AudioContext | null = null;
@@ -108,31 +108,4 @@ export function play(name: Sfx) {
   } catch {
     /* ბრაუზერი ხმას მომხმარებლის მოქმედებამდე ბლოკავს — უბრალოდ ვჩუმდებით */
   }
-}
-
-// ---------------- ფონური მელოდია (მუსიკალური ავტომატი) ----------------
-
-const MELODY = [523, 659, 784, 659, 587, 698, 880, 698, 523, 659, 784, 1047, 988, 784, 659, 587];
-const BASS = [131, 131, 175, 175, 147, 147, 196, 196];
-let musicTimer: ReturnType<typeof setInterval> | null = null;
-let step = 0;
-
-/** რბილი 8-ბიტიანი მელოდია (ძალიან ჩუმად) — მხოლოდ სამუშაო დღეს და თუ ხმა ჩართულია. */
-export function startMusic() {
-  stopMusic();
-  step = 0;
-  musicTimer = setInterval(() => {
-    if (!store.get().settings.sound) return;
-    try {
-      const note = MELODY[step % MELODY.length];
-      tone(note, 0, 0.22, 'triangle', 0.025);
-      if (step % 2 === 0) tone(BASS[(step / 2) % BASS.length], 0, 0.4, 'sine', 0.035);
-    } catch { /* */ }
-    step += 1;
-  }, 280);
-}
-
-export function stopMusic() {
-  if (musicTimer) clearInterval(musicTimer);
-  musicTimer = null;
 }

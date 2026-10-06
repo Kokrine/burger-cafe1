@@ -100,7 +100,7 @@ export interface Progress {
   badges: string[];
   history: DayRecord[];
   /** read — ტექსტის ავტომატური ხმით კითხვა (ნაგულისხმევად 1 კლასში ჩართულია). */
-  settings: { sound: boolean; read?: boolean };
+  settings: { sound: boolean; read?: boolean; music?: boolean }; // music: ფონური მელოდია (ნაგულისხმევად ჩართულია)
   /** პირველი სამუშაო დღის სწავლება ნანახია (ან გამოტოვებულია). */
   tutorialDone?: boolean;
   lastBought?: string;

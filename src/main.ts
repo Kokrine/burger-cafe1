@@ -1,12 +1,13 @@
 import './styles/app.css';
 import { loadManifest } from './core/assets';
 import { store } from './core/store';
-import { enterSession, isPlaying } from './core/auth';
+import { currentSession, enterSession, isPlaying } from './core/auth';
 import { backend, prepareBackend } from './data';
 import { S, t } from './i18n/strings.ka';
 import { checkBadges } from './logic/badges';
 import { bus } from './core/bus';
 import { play, unlockAudio } from './audio/sfx';
+import { initMusic, setMusicWanted } from './audio/music';
 import { createGame } from './game/game';
 import { currentScreen, go, mountLayers, registerScreen, toast } from './ui/layers';
 import { mountHud } from './ui/hud';
@@ -59,6 +60,11 @@ async function boot() {
   mountHud();
   unlockAudio();
   mountOrientationGuard();
+  // ფონური მუსიკა ყველგან, გარდა მასწავლებლის პანელისა
+  initMusic();
+  const musicForSession = () => setMusicWanted(currentSession()?.kind !== 'teacher');
+  musicForSession();
+  bus.on('session-changed', musicForSession);
 
   // ეკრანები ჩანს მხოლოდ ჩატვირთვის შემდეგ (პროგრესის ზოლს არაფერი ფარავს)
   await assetsReady;
