@@ -36,10 +36,16 @@ export const SERVICE = {
   spawnEvery: 14,
   /** სასმელის/გვერდითი კერძის ალბათობა შეკვეთაში. */
   sideChance: 0.55,
-  /** ჩაის ფული (₾) კმაყოფილი / ნეიტრალური კლიენტისგან, საბაზისო (მრავლდება კლასზე). */
-  tip: { happy: 3, neutral: 2, angry: 0 },
-  /** ჩაის ფულის კოეფიციენტი კლასზე (1 კლასში ფასები 2–5 ₾-ია — ჩაის ფული 1 ₾). */
-  tipScale: { 1: 0.34, 2: 0.5, 3: 1, 4: 2 } as Record<Grade, number>,
+  /**
+   * ჩაის ფული (₾) კლასის მიხედვით: შეკვეთის ~10–13% (3–4 კლასში ადრე 20–25%-ს აღწევდა).
+   * გაბრაზებული კლიენტი ჩაის ფულს არ ტოვებს.
+   */
+  tip: {
+    1: { happy: 1, neutral: 0, angry: 0 },
+    2: { happy: 1, neutral: 1, angry: 0 },
+    3: { happy: 2, neutral: 1, angry: 0 },
+    4: { happy: 3, neutral: 2, angry: 0 },
+  } as Record<Grade, Record<'happy' | 'neutral' | 'angry', number>>,
   /** სამუშაო საათები HUD-ის საათისთვის. */
   openHour: 9,
   closeHour: 17,

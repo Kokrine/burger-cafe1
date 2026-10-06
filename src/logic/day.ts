@@ -229,6 +229,20 @@ export interface Report {
   profit: number;     // შეიძლება უარყოფითიც იყოს — ზარალი
 }
 
+/** ერთ შეკრებაში მაქსიმუმ ამდენი რიცხვი (დიდ კაფეში ხარჯი 11 რიცხვისგან შედგებოდა — ბავშვისთვის გრძელია). */
+export const MAX_SUM_TERMS = 5;
+
+/**
+ * შესაკრებები ბავშვისთვის: თუ ცოტაა — ყველა სტრიქონი; თუ ბევრია — სტრიქონების ჯამს (გაყიდვები /
+ * ინგრედიენტები) კალკულატორი ითვლის და ბავშვი მას დანარჩენს (ჩაის ფული, ფილიალი, ქირა) უმატებს.
+ */
+export function compactTerms(rows: number[], extras: number[], max = MAX_SUM_TERMS): { terms: number[]; subtotal?: number } {
+  const r = rows.filter((x) => x > 0), e = extras.filter((x) => x > 0);
+  if (r.length + e.length <= max || r.length < 2) return { terms: [...r, ...e] };
+  const subtotal = r.reduce((a, b) => a + b, 0);
+  return { terms: [subtotal, ...e], subtotal };
+}
+
 /** საღამოს ანგარიშის ციფრები ჩანაწერებიდან. */
 export function makeReport(t: Today, grade: Grade): Report {
   const revenueRows = (Object.entries(t.sales) as [ProductId, number][])

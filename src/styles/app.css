@@ -822,3 +822,6 @@ button { -webkit-tap-highlight-color: transparent; }
   .math-bars .math-row b { font-size: 15px; white-space: nowrap; }
   .math-bars .math-row > span { grid-column: 1 / -1; order: 1; font-size: 13px; margin-top: -2px; }
 }
+
+/* ანგარიში: ბევრი სტრიქონის ჯამი (კალკულატორი) */
+.ledger tr.subtotal td { border-top: 3px solid var(--c-ink); font-weight: 900; background: #FFF7E3; }

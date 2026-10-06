@@ -3,7 +3,7 @@
 import { S, t } from '../../i18n/strings.ka';
 import { store } from '../../core/store';
 import { PRODUCTS, STOCK, type ProductId, type StockId } from '../../config/economy';
-import { finishDay, makeReport, type Report, type ReportRow } from '../../logic/day';
+import { compactTerms, finishDay, makeReport, type Report, type ReportRow } from '../../logic/day';
 import { listSumProblem, partSumProblems, profitProblem } from '../../logic/math/generator';
 import { play } from '../../audio/sfx';
 import { askProblem } from '../mathModal';
@@ -60,8 +60,11 @@ export function reportScreen(): HTMLElement {
     const countBtn = (step: Step, enabled: boolean, run: () => Promise<void>) =>
       done[step] ? '' : h('button', { class: 'btn green', disabled: !enabled, onClick: () => void run() }, img('icon_menu_book'), S.report.count);
 
-    const revenueTerms = [...R.revenueRows.map((r) => r.sum), R.tips, R.branch];
-    const expenseTerms = [...R.expenseRows.map((r) => r.sum), R.rent];
+    const rev = compactTerms(R.revenueRows.map((r) => r.sum), [R.tips, R.branch]);
+    const exp = compactTerms(R.expenseRows.map((r) => r.sum), [R.rent]);
+    const revenueTerms = rev.terms, expenseTerms = exp.terms;
+    /** „ერთად (კალკულატორი)" სტრიქონი, როცა სტრიქონები ბევრია და ბავშვი მხოლოდ ჯამს უმატებს. */
+    const subtotalRow = (label: string, v?: number): Node[] => (v ? [h('tr', { class: 'subtotal' }, h('td', null, img('icon_menu_book')), h('td', null, label), h('td'), h('td', { class: 'num' }, `= ${v} ₾`))] : []);
 
     /** ჯამი: ბავშვი კრებს მთლიანად; კლასის ფარგლებს თუ სცდება — ნაწილ-ნაწილ (1 კლასი: 20-მდე); თორემ კალკულატორი. */
     const countSum = async (terms: number[], kind: 'revenue' | 'expenses', title: string) => {
@@ -96,6 +99,7 @@ export function reportScreen(): HTMLElement {
       h('h3', null, img('coin'), S.report.revenue, iR.b), iR.pop,
       h('p', { class: 'hint' }, S.report.formulaRevenue),
       R.revenueRows.length || R.branch ? table(R.revenueRows, (id) => PRODUCTS[id as ProductId].icon, (r) => S.products[r.id], [
+        ...subtotalRow(S.report.subtotalSales, rev.subtotal),
         R.branch ? h('tr', null, h('td', null, img('icon_store')), h('td', null, S.report.branch), h('td'), h('td', { class: 'num' }, `+ ${R.branch} ₾`)) : '',
         R.tips ? h('tr', null, h('td', null, img('icon_sparkle')), h('td', null, S.report.tips), h('td'), h('td', { class: 'num' }, `+ ${R.tips} ₾`)) : '',
         R.discount ? h('tr', null, h('td', null, img('icon_check')), h('td', null, S.report.discount), h('td'), h('td', { class: 'num' }, `− ${R.discount} ₾`)) : '',
@@ -108,6 +112,7 @@ export function reportScreen(): HTMLElement {
       h('h3', null, img('icon_box'), S.report.expenses, iE.b), iE.pop,
       h('p', { class: 'hint' }, S.report.formulaExpenses),
       table(R.expenseRows, (id) => STOCK[id as StockId].icon, (r) => (r.emergency ? `${S.stock[r.id]} (${S.report.emergency})` : S.stock[r.id]), [
+        ...subtotalRow(S.report.subtotalIngredients, exp.subtotal),
         h('tr', null, h('td', null, img('icon_store')), h('td', null, S.report.rent), h('td'), h('td', { class: 'num' }, `= ${R.rent} ₾`)),
       ]),
       R.expenseRows.length ? '' : h('p', { class: 'hint' }, S.report.noPurchases),

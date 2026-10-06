@@ -874,9 +874,8 @@ export class ServiceScene extends CafeScene {
     }
     const totalPrice = plan.total;
 
-    const tipBase = SERVICE.tip[c.mood];
     const vipTip = c.vip ? eventOf({ event: this.event })?.vipTip ?? 1 : 1;
-    const tip = Math.round(tipBase * SERVICE.tipScale[this.grade]) * vipTip;
+    const tip = SERVICE.tip[this.grade][c.mood] * vipTip;
     if (c.vip && tip > 0) toast(t(S.events.vipTip, { n: vipTip }), 'star');
     const earned = totalPrice + tip;
     store.update((q) => {

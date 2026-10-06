@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { newProgress } from '../core/store';
 import { PRODUCTS, STOCK } from '../config/economy';
+import { SERVICE } from '../config/service';
 import { DIFFICULTY } from '../config/difficulty';
 import type { Grade } from '../core/types';
-import { buyPacks, cartCost, consume, dayCustomers, dayGoal, daySideChance, ensureToday, finishDay, forecast, makeReport, neededStock, pickEvent, recordSale, rentFor, supplierAid } from './day';
+import { buyPacks, cartCost, compactTerms, consume, dayCustomers, dayGoal, daySideChance, ensureToday, finishDay, forecast, makeReport, neededStock, pickEvent, recordSale, rentFor, supplierAid } from './day';
 import { hoursProblem, listSumProblem, partSumProblems, prepProblem, profitProblem } from './math/generator';
 import { makeFeasibleOrder } from './orders';
 
@@ -245,6 +246,24 @@ describe('დღის მოვლენები', () => {
       const t = ensureToday(p);
       expect(t.event).toBe(pickEvent(p));
       expect(ensureToday(p).event).toBe(t.event);
+    }
+  });
+});
+
+describe('გრძელი ჯამი ანგარიშში', () => {
+  it('5-მდე რიცხვი — ყველა სტრიქონი; მეტი — სტრიქონების ჯამი + დანარჩენი', () => {
+    expect(compactTerms([4, 6, 2], [3])).toEqual({ terms: [4, 6, 2, 3] });
+    const big = compactTerms([24, 60, 30, 6, 5, 4, 8, 9, 30, 15], [36]);
+    expect(big.subtotal).toBe(191);
+    expect(big.terms).toEqual([191, 36]);
+    expect(compactTerms([90, 50, 40, 100, 162, 24], [114, 80]).terms).toEqual([466, 114, 80]);
+    expect(compactTerms([5], [0, 0])).toEqual({ terms: [5] });
+  });
+  it('ჩაის ფული კლასის მიხედვით: შეკვეთის ~15%-მდე', () => {
+    for (const g of [2, 3, 4] as Grade[]) {
+      const burger = PRODUCTS.burger.prices[g][0];
+      expect(SERVICE.tip[g].happy / burger).toBeLessThanOrEqual(0.2);
+      expect(SERVICE.tip[g].angry).toBe(0);
     }
   });
 });
